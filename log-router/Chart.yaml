@@ -1,0 +1,7 @@
+# Copyright © 2018 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+
+apiVersion: v1
+description: Distribution of Fluentd as K8S daemonset
+name: log-router
+version: 0.0.7

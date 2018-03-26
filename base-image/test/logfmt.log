@@ -1,0 +1,4 @@
+time="2018-02-26T14:20:53Z" level=debug msg="No endpoints could be generated from service monitoring/prom-prometheus-alertmanager"
+time="2018-02-26T14:20:53Z" level=debug msg="No endpoints could be generated from service monitoring/prom-prometheus-kube-state-metrics"
+time="2018-02-26T14:20:53Z" level=debug msg="No endpoints could be generated from service monitoring/prom-prometheus-node-exporter"
+time="2018-02-26T14:20:53Z" level=debug msg="This is \n newline and this is a \t tab"

@@ -1,0 +1,21 @@
+I0226 10:30:52.679124       8 aws.go:2594] Ignoring private subnet for public ELB "subnet-234"
+I0226 10:30:52.679152       8 aws.go:2594] Ignoring private subnet for public ELB "subnet-dfsg"
+I0226 10:30:52.679159       8 aws.go:2594] Ignoring private subnet for public ELB "subnet-asdf"
+I0226 10:30:52.954526       8 aws.go:2256] Existing security group ingress: sg-asdfd []
+I0226 10:30:52.954570       8 aws.go:2287] Adding security group ingress: sg-asdf [{
+  FromPort: 443,
+  IpProtocol: "tcp",
+  IpRanges: [{
+      CidrIp: "0.0.0.0/0"
+    }],
+  ToPort: 443
+} {
+  FromPort: 3,
+  IpProtocol: "icmp",
+  IpRanges: [{
+      CidrIp: "0.0.0.0/0"
+    }],
+  ToPort: 4
+}]
+
+I0226 10:30:52.679159       8 aws.go:2594] No such message

@@ -1,0 +1,38 @@
+# Copyright © 2018 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+
+# Default values for fluentd-router.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+rbac:
+  create: false
+
+serviceAccountName: "default"
+
+image:
+  repository: vmware-docker-csp-dev-docker.bintray.io/monitoring/fluentd-config-reloader
+  pullPolicy: Always
+  tag: latest
+  pullSecret: ""
+
+
+logLevel: debug
+interval: 45
+
+meta:
+  key: csp
+  values: k1=v1,k2=v2
+
+fluentdResources: {}
+reloaderResources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi

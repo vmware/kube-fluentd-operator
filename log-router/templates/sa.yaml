@@ -1,0 +1,19 @@
+{{/*
+Copyright © 2018 VMware, Inc. All Rights Reserved.
+SPDX-License-Identifier: BSD-2-Clause
+*/}}
+{{- if .Values.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: {{ template "fluentd-router.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fluentd-router.fullname" . }}
+{{ if .Values.imagePullSecret }}
+imagePullSecrets:
+  - name: {{ .Values.imagePullSecret}}
+{{end}}
+{{- end }}

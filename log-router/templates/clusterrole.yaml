@@ -1,0 +1,30 @@
+{{/*
+Copyright © 2018 VMware, Inc. All Rights Reserved.
+SPDX-License-Identifier: BSD-2-Clause
+*/}}
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    app: {{ template "fluentd-router.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fluentd-router.fullname" . }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - namespaces
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs:
+      - patch
+{{- end }}
