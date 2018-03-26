@@ -31,20 +31,20 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-kubernetes \
     && fluent-gem install fluent-plugin-kubernetes_metadata_filter \
     && fluent-gem install fluent-plugin-logentries \
-    && fluent-gem install logfmt \
     && fluent-gem install fluent-plugin-loggly \
     && fluent-gem install fluent-plugin-logzio \
-    && fluent-gem install fluent-plugin-redis \
     && fluent-gem install fluent-plugin-papertrail \
     && fluent-gem install fluent-plugin-parser \
     && fluent-gem install fluent-plugin-record-modifier \
     && fluent-gem install fluent-plugin-record-reformer \
+    && fluent-gem install fluent-plugin-redis \
     && fluent-gem install fluent-plugin-remote_syslog \
     && fluent-gem install fluent-plugin-rewrite-tag-filter \
     && fluent-gem install fluent-plugin-route \
     && fluent-gem install fluent-plugin-s3 \
     && fluent-gem install fluent-plugin-secure-forward \
     && fluent-gem install fluent-plugin-systemd \
+    && fluent-gem install logfmt \
     && SUDO_FORCE_REMOVE=yes \
     apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \

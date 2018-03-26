@@ -11,7 +11,7 @@ rbac:
 serviceAccountName: "default"
 
 image:
-  repository: vmware-docker-csp-dev-docker.bintray.io/monitoring/fluentd-config-reloader
+  repository: vmware/fluentd-operator
   pullPolicy: Always
   tag: latest
   pullSecret: ""

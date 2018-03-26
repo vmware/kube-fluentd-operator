@@ -1,7 +1,7 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-IMAGE ?= vmware-docker-csp-dev-docker.bintray.io/monitoring/base-reloader-fluentd
+IMAGE ?= vmware/base-fluentd-operator
 TAG ?= latest
 
 build-image:
