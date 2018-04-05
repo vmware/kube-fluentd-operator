@@ -170,6 +170,6 @@ func TestNastyRegex(t *testing.T) {
 		Namepsace: "demo",
 	}
 
-	fragment, err = Apply(fragment, ctx, DefaultProcessors...)
+	_, err = Apply(fragment, ctx, DefaultProcessors...)
 	assert.Nil(t, err)
 }
