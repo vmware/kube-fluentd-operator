@@ -11,8 +11,8 @@ rbac:
 serviceAccountName: "default"
 
 image:
-  repository: vmware/fluentd-operator
-  pullPolicy: Always
+  repository: vmware/kube-fluentd-operator
+  pullPolicy: IfNotPresent
   tag: latest
   pullSecret: ""
 
@@ -21,8 +21,8 @@ logLevel: debug
 interval: 45
 
 meta:
-  key: csp
-  values: k1=v1,k2=v2
+  key: ""
+  values: {}
 
 fluentdResources: {}
 reloaderResources: {}
