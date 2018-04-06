@@ -1,4 +1,4 @@
-# kube-fluentd-operator
+# kube-fluentd-operator  [![Build Status](https://travis-ci.org/vmware/kube-fluentd-operator.svg?branch=master)](https://travis-ci.org/vmware/kube-fluentd-operator)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/vmware/kube-fluentd-operator)](https://goreportcard.com/report/github.com/vmware/kube-fluentd-operator)
 
@@ -101,7 +101,7 @@ To give the illusion that every namespace runs a dedicated Fluentd the user-prov
 
 The `kube-system` is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use advanced features described bellow, it is possible to route all logs from all namespaces using this configuration at the `kube-system` level:
 
-```ini
+```xml
 <match **>
  @type ...
  # destination configuration omitted
@@ -120,7 +120,7 @@ Fluentd assumes it is running in a distro with systemd and generates logs with t
 As the `kube-system` is processed first, a match-all directive would consume all logs and any other namespace configuration will become irrelevant (unless `<copy>` is used).
 A recommended configuration for the `kube-system` namespace is this one - it captures all but the user namespaces' logs:
 
-```ini
+```xml
 <match systemd.** kube.kube-system.** k8s.** docker>
   # all k8s-internal and OS-level logs
 
@@ -130,7 +130,7 @@ A recommended configuration for the `kube-system` namespace is this one - it cap
 
 A very useful feature is the `<filter>` and the `$labels` macro to define parsing at the namespace level. For example, the config-reloader container uses the logfmt format. This makes it easy to use structured logging and ingest json data into a remote log ingestion service.
 
-```ini
+```xml
 <filter $labels(app=log-router, _container=reloader)>
   @type parse
   format logfmt
@@ -397,7 +397,7 @@ The above configuration assumes you're using the Helm charts for Nginx ingress. 
 
 ### I want to build a custom image with my secret fluentd plugin
 
-Use the `jvassev/kube-fluentd-operator:TAG` as a base and do any modification as usual.
+Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
 
 ### How can I be sure to use a valid path for the .pos and .buf files
 
