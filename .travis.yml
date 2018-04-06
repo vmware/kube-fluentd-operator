@@ -1,15 +1,22 @@
 language: go
+install: false
 
 go:
 - "1.10"
+
+before_script:
+- go get -u github.com/golang/dep/cmd/dep
+- wget https://storage.googleapis.com/kubernetes-helm/helm-v2.8.2-linux-amd64.tar.gz -O /tmp/helm-v2.8.2-linux-amd64.tar.gz
+- mkdir /tmp/bin -p; tar xzf /tmp/helm-v2.8.2-linux-amd64.tar.gz -C /tmp/bin --strip-components=1
+- PATH=$PATH:/tmp/bin helm init --client-only 
+
+
 
 services:
 - docker
 
 script:
   - cd base-image && make
-  - go get -u github.com/golang/dep/cmd/dep
-  - cd config-reloader && make dep && make test build-image
-  - wget https://storage.googleapis.com/kubernetes-helm/helm-v2.8.2-linux-amd64.tar.gz -O /tmp/helm-v2.8.2-linux-amd64.tar.gz
-  - mkdir /tmp/bin -p; tar xzf helm-v2.8.2-linux-amd64.tar.gz -C /tmp/bin --strip-components=1
-  - export PATH=$PATH:/tmp/bin cd log-router && make helm-package
+  - cd ../config-reloader && make dep && make build-image
+  - cd ../log-router
+  - PATH=$PATH:/tmp/bin make helm-package
