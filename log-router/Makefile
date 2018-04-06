@@ -13,7 +13,10 @@ helm-dry-run:
 	helm install . --dry-run --debug \
 	  --set image.pullSecret=test-pull-secret \
 	  --set meta.key=key \
-	  --set meta-values=env=test
+	  --set meta-values=env=test \
+	  --set tolerations[0].key=key \
+	  --set tolerations[0].operator=op \
+	  --set tolerations[0].value=value
 
 clean:
 	rm -fr $(HELM_PACKAGE)-*.tgz || true
