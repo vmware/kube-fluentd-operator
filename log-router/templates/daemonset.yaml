@@ -42,7 +42,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-          -  /bin/fluentd-config-reloader
+          -  /bin/config-reloader
           - --interval={{ .Values.interval }}
           - --log-level={{ .Values.logLevel }}
           - --output-dir=/fluentd/etc
