@@ -289,6 +289,14 @@ other-namespace.conf
 
 On the bright side, the configuration of `other-namespace` contains nothing specific to other-namespace and the same content can be used for all namespaces whose logs we need collected.
 
+### I am getting errors "namespaces is forbidden: ... cannot list namespaces at the cluster scope"
+
+Your cluster is running under RBAC. You need to enable a serviceaccount for the log-router pods. It's easy when using the Helm chart:
+
+```bash
+helm install ./log-router --set rbac.create=true
+```
+
 ### I want to push logs from namespace demo to logz.io
 
 ```bash
@@ -316,6 +324,18 @@ test.conf:
     papertrail_host YOUR_HOST.papertrailapp.com
     papertrail_port YOUR_PORT
     flush_interval 30
+</match>
+```
+
+### I want to push logs to an ELK cluster
+
+```xml
+<match ***>
+  @type elasticsearch
+  host ...
+  port ...
+  index_name ...
+  # many options available
 </match>
 ```
 
