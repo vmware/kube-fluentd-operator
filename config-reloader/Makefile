@@ -69,7 +69,7 @@ run-once: install
 	config-reloader \
 	  --interval 0 \
 	  --log-level=debug \
-	  --output-dir=tmp 
+	  --output-dir=tmp \
 	  --templates-dir=templates \
 	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
 	  --fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
