@@ -416,7 +416,17 @@ The ingress controller uses a format different than the plain Nginx. You can use
 
 The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly.
 
-### I want to build a custom image with my secret fluentd plugin
+### I have my kubectl configured and my configmaps ready. I want to see the generated files before deploying the Helm chart
+
+You need to run `make` like this:
+
+```bash
+make run-once
+```
+
+This will build the code, then `config-reloader` will connect to the K8S cluster, fetch the data and generate *.conf files in the ./tmp directory. If there are errors the namespaces will be annotated.
+
+### I want to build a custom image with my own fluentd plugin
 
 Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
 
