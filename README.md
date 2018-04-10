@@ -19,12 +19,12 @@ git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/log-router --set rbac.create=true
 ```
 
-Then create a namespace "demo" and a configmap describing where all logs from `demo` should go to. Finally, point the kube-fluentd-operator to the correct configmap using annotations.
+Then create a namespace `demo` and a configmap describing where all logs from `demo` should go to. The configmap must contain an entry called "fluent.conf". Finally, point the kube-fluentd-operator to this configmap using annotations.
 
 ```bash
 kubectl create ns demo
 
-# the annotation logging.csp.vmware.com/fluentd-configmap stores the name of the configmap
+# the annotation value is the configmap name
 kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=logging-config
 
 cat > fluent.conf << EOF
@@ -33,7 +33,7 @@ cat > fluent.conf << EOF
 </match>
 EOF
 
-# "logging-config" is the name stored in the annotation
+# Create the configmap with a single entry "fluent.conf"
 kubectl create configmap logging-config --namespace demo --from-file=fluent.conf=fluent.conf
 ```
 
@@ -274,7 +274,8 @@ kube-system.conf:
 ### I want to use one destination but also want to use $labels to exclude a verbose pod/container from a single namespace
 
 This is not possible. Instead, provide this config for the noisy namespace and configure other namespaces at the cost of some code duplication:
-```bash
+
+```xml
 noisy-namespace.conf:
 <match $labels(app=verbose-logger)>
   @type null
@@ -317,7 +318,7 @@ For details you should consult the plugin documentation.
 
 ### I want to push logs from namespace test to papertrail
 
-```bash
+```xml
 test.conf:
 <match **>
     @type papertrail
@@ -369,7 +370,7 @@ All `path/to/folder/*.conf` files will be validated. Check stderr and the exit c
 
 Use `<label>` as usual, the daemon ensures that label names are unique cluster-wide. For example to route several pods' logs to destination X, and ignore a few others you can use this:
 
-```
+```xml
 <match $labels(app=foo)>
   @type label
   @label blackhole
@@ -398,7 +399,7 @@ Use `<label>` as usual, the daemon ensures that label names are unique cluster-w
 
 The ingress controller uses a format different than the plain Nginx. You can use this fragment to configure the namespace hosting the ingress-nginx controller:
 
-```
+```xml
 <filter $labels(app=nginx-ingress, _container=nginx-ingress-controller)>
   @type parser
 
