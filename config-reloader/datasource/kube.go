@@ -62,10 +62,15 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 	for _, item := range resp.Items {
 		configMapName := item.Annotations[d.cfg.AnnotConfigmapName]
 		if configMapName == "" {
-			logrus.Debugf("Will not process namespace '%s': not annotated with '%s'", item.Name, d.cfg.AnnotConfigmapName)
-			// namespace not annotated
-			result = append(result, d.unconfiguredNamespace(item.Name))
-			continue
+			if d.cfg.DefaultConfigmapName != "" {
+				configMapName = d.cfg.DefaultConfigmapName
+				logrus.Debugf("Using default configmap for namespace '%s'", item.Name)
+			} else {
+				logrus.Debugf("Will not process namespace '%s': not annotated with '%s'", item.Name, d.cfg.AnnotConfigmapName)
+				// namespace not annotated
+				result = append(result, d.unconfiguredNamespace(item.Name))
+				continue
+			}
 		}
 
 		contents, err := d.readConfig(item.Name, configMapName)

@@ -31,6 +31,7 @@ type Config struct {
 	LogLevel               string
 	AnnotConfigmapName     string
 	AnnotStatus            string
+	DefaultConfigmapName   string
 	IntervalSeconds        int
 	Datasource             string
 	FsDatasourceDir        string
@@ -45,17 +46,18 @@ type Config struct {
 }
 
 var defaultConfig = &Config{
-	Master:             "",
-	KubeConfig:         "",
-	FluentdRPCPort:     24444,
-	TemplatesDir:       "/templates",
-	OutputDir:          "/fluentd/etc",
-	Datasource:         "default",
-	LogLevel:           logrus.InfoLevel.String(),
-	AnnotConfigmapName: "logging.csp.vmware.com/fluentd-configmap",
-	AnnotStatus:        "logging.csp.vmware.com/fluentd-status",
-	IntervalSeconds:    60,
-	ID:                 "default",
+	Master:               "",
+	KubeConfig:           "",
+	FluentdRPCPort:       24444,
+	TemplatesDir:         "/templates",
+	OutputDir:            "/fluentd/etc",
+	Datasource:           "default",
+	LogLevel:             logrus.InfoLevel.String(),
+	AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
+	AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
+	DefaultConfigmapName: "fluentd-config",
+	IntervalSeconds:      60,
+	ID:                   "default",
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -156,6 +158,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("fluentd-rpc-port", "RPC port of Fluentd").Default(strconv.Itoa(defaultConfig.FluentdRPCPort)).IntVar(&cfg.FluentdRPCPort)
 	app.Flag("log-level", "Control verbosity of log").Default(defaultConfig.LogLevel).StringVar(&cfg.LogLevel)
 	app.Flag("annotation", "Which annotation on the namespace stores the configmap name?").Default(defaultConfig.AnnotConfigmapName).StringVar(&cfg.AnnotConfigmapName)
+	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
 
 	app.Flag("templates-dir", "Where to find templates").Default(defaultConfig.TemplatesDir).StringVar(&cfg.TemplatesDir)
