@@ -26,6 +26,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
      $buildDeps \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
+    && fluent-gem install fluent-plugin-concat \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
     && fluent-gem install fluent-plugin-kubernetes \
