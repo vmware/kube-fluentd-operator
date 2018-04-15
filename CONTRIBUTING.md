@@ -1,5 +1,3 @@
-
-
 # Contributing to kube-fluentd-operator
 
 The kube-fluentd-operator project team welcomes contributions from the community. If you wish to contribute code and you have not

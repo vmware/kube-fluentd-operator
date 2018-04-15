@@ -202,19 +202,19 @@ Flags:
   --help                        Show context-sensitive help (also try --help-long and --help-man).
   --version                     Show application version.
   --master=""                   The Kubernetes API server to connect to (default: auto-detect)
-  --kubeconfig=""               Retrieve target cluster configuration from a Kubernetes configuration file (default:
-                                auto-detect)
+  --kubeconfig=""               Retrieve target cluster configuration from a Kubernetes configuration file (default: auto-detect)
   --datasource=default          Datasource to use
   --fs-dir=FS-DIR               If datasource=fs is used, configure the dir hosting the files
   --interval=60                 Run every x seconds
   --allow-file                  Allow @type file for namespace configuration
-  --id="default"                The id of this deployment. It is used internally so that two deployments don't overwrite each
-                                other's data
+  --id="default"                The id of this deployment. It is used internally so that two deployments don't overwrite each other's data
   --fluentd-rpc-port=24444      RPC port of Fluentd
   --log-level="info"            Control verbosity of log
-  --annotation="logging.csp.vmware.com/fluentd-configmap"
+  --annotation="logging.csp.vmware.com/fluentd-configmap"  
                                 Which annotation on the namespace stores the configmap name?
-  --status-annotation="logging.csp.vmware.com/fluentd-status"
+  --default-configmap="fluentd-config"  
+                                Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.
+  --status-annotation="logging.csp.vmware.com/fluentd-status"  
                                 Store configuration errors in this annotation, leave empty to turn off
   --templates-dir="/templates"  Where to find templates
   --output-dir="/fluentd/etc"   Where to output config files
@@ -430,6 +430,11 @@ This will build the code, then `config-reloader` will connect to the K8S cluster
 
 Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
 
+### I don't want to annotate all my namespaces with the same way
+
+It is possible to reduce configuration burden by using a default configmap name. The default value is `fluentd-config` - kube-fluentd-operator will read the configmap by that name if the namespace is not annotated.
+If you don't like this default name or happen to use this configmap for other purposes then override the default with `--defualt-configmap=my-default`.
+
 ### How can I be sure to use a valid path for the .pos and .buf files
 
 .pos files store the progress of the upload process and .buf are used for local buffering. Colliding .pos/.buf paths can lead to races in Fluentd. As such, `kube-fluentd-operator` tries hard to rewrite such path-based parameters in predictable way. You only need to make sure they are unique for your namespace and `config-reloader` will take care to make them unique cluster-wide.
@@ -459,7 +464,7 @@ helm install ... --set image.repository=acme.com/my-custom-image
 
 ## Releases
 
-* 1.0.0: Initial version
+* [CHANGELOG.md](CHANGELOG.md).
 
 ## Resoures
 
