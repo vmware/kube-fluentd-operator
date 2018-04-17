@@ -40,6 +40,7 @@ type Config struct {
 	FluentdValidateCommand string
 	MetaKey                string
 	MetaValues             string
+	KubeletRoot            string
 	// parsed or processed/cached fields
 	level            logrus.Level
 	ParsedMetaValues map[string]string
@@ -56,6 +57,7 @@ var defaultConfig = &Config{
 	AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
 	AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
 	DefaultConfigmapName: "fluentd-config",
+	KubeletRoot:          "/var/lib/kubelet/",
 	IntervalSeconds:      60,
 	ID:                   "default",
 }
@@ -160,6 +162,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("annotation", "Which annotation on the namespace stores the configmap name?").Default(defaultConfig.AnnotConfigmapName).StringVar(&cfg.AnnotConfigmapName)
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
+
+	app.Flag("kubelet-root", "Kubelet root dir, configured using --root-dir on the kubelet service").Default(defaultConfig.KubeletRoot).StringVar(&cfg.KubeletRoot)
 
 	app.Flag("templates-dir", "Where to find templates").Default(defaultConfig.TemplatesDir).StringVar(&cfg.TemplatesDir)
 	app.Flag("output-dir", "Where to output config files").Default(defaultConfig.OutputDir).StringVar(&cfg.OutputDir)

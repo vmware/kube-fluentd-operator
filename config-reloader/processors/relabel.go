@@ -15,10 +15,6 @@ type rewriteLabelsState struct {
 	BaseProcessorState
 }
 
-func (p *rewriteLabelsState) SetContext(ctx *ProcessorContext) {
-	p.Context = ctx
-}
-
 func normalizeLabelName(ctx *ProcessorContext, label string) string {
 	return fmt.Sprintf("@%s-%s",
 		util.MakeFluentdSafeName(label),

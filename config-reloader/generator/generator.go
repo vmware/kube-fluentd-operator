@@ -57,7 +57,7 @@ func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (
 		DeploymentID: g.cfg.ID,
 	}
 
-	fragment, err = processors.Apply(fragment, ctx, processors.DefaultProcessors...)
+	fragment, err = processors.Apply(fragment, ctx, processors.DefaultProcessors()...)
 	if err != nil {
 		return "", err
 	}

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 
@@ -89,10 +90,66 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 			IsKnownFromBefore:  true,
 		}
 
+		resp, err := d.client.CoreV1().Pods(item.Name).List(meta_v1.ListOptions{})
+		if err == nil {
+			obj.MiniContainers = convertPodToMinis(resp)
+		} else {
+			logrus.Infof("Cannot read pods in namespace '%s'", item.Name)
+		}
+
 		result = append(result, obj)
 	}
 
 	return result, nil
+}
+
+type byLength []string
+
+func (s byLength) Len() int {
+	return len(s)
+}
+
+func (s byLength) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byLength) Less(i, j int) bool {
+	return len(s[i]) > len(s[j])
+}
+
+func convertPodToMinis(resp *core.PodList) []*MiniContainer {
+	res := []*MiniContainer{}
+
+	for _, pod := range resp.Items {
+		for _, cont := range pod.Spec.Containers {
+			mini := &MiniContainer{
+				PodID:  string(pod.UID),
+				Labels: pod.Labels,
+				Name:   cont.Name,
+			}
+
+			for _, vm := range cont.VolumeMounts {
+				if volumeExists(pod.Spec.Volumes, vm.Name) {
+					mini.HostMounts = append(mini.HostMounts, vm.MountPath)
+				}
+			}
+
+			if len(mini.HostMounts) > 0 {
+				sort.Sort(byLength(mini.HostMounts))
+				res = append(res, mini)
+			}
+		}
+	}
+	return res
+}
+
+func volumeExists(volumes []core.Volume, name string) bool {
+	for _, v := range volumes {
+		if v.Name == name && v.EmptyDir != nil {
+			return true
+		}
+	}
+	return false
 }
 
 func (d *kubeConnection) WriteCurrentConfigHash(namespace string, hash string) {

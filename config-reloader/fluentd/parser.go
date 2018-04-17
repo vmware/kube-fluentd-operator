@@ -209,10 +209,7 @@ func ParseString(s string) (Fragment, error) {
 				param.Value = p[3]
 				// special handling for @type as it is processed
 				if param.Name == "type" || param.Name == "@type" {
-					i := strings.IndexByte(param.Value, '#')
-					if i > 0 {
-						param.Value = util.Trim(param.Value[0:i])
-					}
+					param.Value = util.TrimTrailingComment(param.Value)
 				}
 			}
 

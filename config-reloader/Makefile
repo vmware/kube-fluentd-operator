@@ -71,6 +71,7 @@ run-once: install
 	  --log-level=debug \
 	  --output-dir=tmp \
 	  --templates-dir=templates \
+	  --meta-key=run-once \
 	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
 	  --fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 

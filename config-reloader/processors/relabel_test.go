@@ -138,7 +138,7 @@ func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 		Namepsace: "demo",
 	}
 
-	fragment, err = Apply(fragment, ctx, DefaultProcessors...)
+	fragment, err = Apply(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)
@@ -170,6 +170,6 @@ func TestNastyRegex(t *testing.T) {
 		Namepsace: "demo",
 	}
 
-	_, err = Apply(fragment, ctx, DefaultProcessors...)
+	_, err = Apply(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 }

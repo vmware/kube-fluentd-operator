@@ -65,9 +65,12 @@ func Apply(input fluentd.Fragment, ctx *ProcessorContext, processors ...Fragment
 	return res, nil
 }
 
-var DefaultProcessors = []FragmentProcessor{
-	&expandThisnsMacroState{},
-	&fixDestinations{},
-	&expandLabelsMacroState{},
-	&rewriteLabelsState{},
+func DefaultProcessors() []FragmentProcessor {
+	return []FragmentProcessor{
+		&expandThisnsMacroState{},
+		&fixDestinations{},
+		&expandLabelsMacroState{},
+		&rewriteLabelsState{},
+		&MountedFileState{},
+	}
 }

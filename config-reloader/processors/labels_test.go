@@ -187,7 +187,7 @@ func TestLabelWithLabelsAndElse(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	fragment, err = Apply(fragment, ctx, DefaultProcessors...)
+	fragment, err = Apply(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)

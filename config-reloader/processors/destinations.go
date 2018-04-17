@@ -25,7 +25,9 @@ func makeSafeBufferPath(ctx *ProcessorContext, origBufPath string) string {
 
 func prohibitSources(d *fluentd.Directive, ctx *ProcessorContext) error {
 	if d.Name == "source" {
-		return errors.New("cannot use <source> directive")
+		if d.Type() != mountedFileSourceType {
+			return errors.New("cannot use <source> directive")
+		}
 	}
 
 	return nil

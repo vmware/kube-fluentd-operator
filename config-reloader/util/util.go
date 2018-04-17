@@ -62,3 +62,14 @@ func ExecAndGetOutput(cmd string, args ...string) (string, error) {
 func WriteStringToFile(filename string, data string) error {
 	return ioutil.WriteFile(filename, []byte(data), maskFile)
 }
+
+func TrimTrailingComment(line string) string {
+	i := strings.IndexByte(line, '#')
+	if i > 0 {
+		line = Trim(line[0:i])
+	} else {
+		line = Trim(line)
+	}
+
+	return line
+}
