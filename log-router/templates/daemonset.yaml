@@ -32,6 +32,9 @@ spec:
             mountPath: /fluentd/etc
           - name: varlog
             mountPath: /var/log
+          - name: kubeletroot
+            mountPath: "{{ .Values.kubeletRoot }}"
+            readOnly: true
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
@@ -50,6 +53,8 @@ spec:
           - --id={{ template "fluentd-router.fullname" . }}
           - --fluentd-binary
           - /usr/local/bin/fluentd -p /fluentd/plugins
+          - --kubelet-root
+          - "{{ .Values.kubeletRoot }}"
           {{- if .Values.meta.key }}
           - --meta-key={{ .Values.meta.key }}
           - --meta-values={{ .Values.meta.values }}
@@ -70,6 +75,9 @@ spec:
       volumes:
       - name: fluentconf
         emptyDir: {}
+      - name: kubeletroot
+        hostPath:
+          path: "{{ .Values.kubeletRoot }}"
       - name: varlog
         hostPath:
           path: /var/log

@@ -55,7 +55,7 @@ func TestThisnsExpandOk(t *testing.T) {
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
 	}
-	fragment, err = Apply(fragment, ctx, &expandThisnsMacroState{})
+	fragment, err = Process(fragment, ctx, &expandThisnsMacroState{})
 	assert.Nil(t, err)
 
 	lit := fragment[0]
@@ -93,7 +93,7 @@ func TestThisnsExpandBadConfig(t *testing.T) {
 		fragment, err := fluentd.ParseString(s)
 		assert.Nil(t, err)
 
-		_, err = Apply(fragment, ctx, &expandThisnsMacroState{})
+		_, err = Process(fragment, ctx, &expandThisnsMacroState{})
 		assert.NotNil(t, err)
 	}
 }

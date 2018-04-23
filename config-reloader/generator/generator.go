@@ -40,29 +40,36 @@ func ensureDirExists(dir string) {
 	}
 }
 
-func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (string, error) {
+func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (string, string, error) {
 	// unconfigured namespace
 	if ns.FluentdConfig == "" {
-		return "", nil
+		return "", "", nil
 	}
 
 	fragment, err := fluentd.ParseString(ns.FluentdConfig)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	ctx := &processors.ProcessorContext{
-		Namepsace:    ns.Name,
-		AllowFile:    g.cfg.AllowFile,
-		DeploymentID: g.cfg.ID,
+		Namepsace:      ns.Name,
+		AllowFile:      g.cfg.AllowFile,
+		DeploymentID:   g.cfg.ID,
+		MiniContainers: ns.MiniContainers,
+		KubeletRoot:    g.cfg.KubeletRoot,
 	}
 
-	fragment, err = processors.Apply(fragment, ctx, processors.DefaultProcessors()...)
+	prep, err := processors.Prepare(fragment, ctx, processors.DefaultProcessors()...)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return fragment.String(), nil
+	fragment, err = processors.Process(fragment, ctx, processors.DefaultProcessors()...)
+	if err != nil {
+		return "", "", err
+	}
+
+	return fragment.String(), prep.String(), nil
 }
 
 func (g *Generator) renderMainFile(mainFile string, outputDir string, dest string) (map[string]string, error) {
@@ -75,10 +82,11 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	newFiles := []string{}
 	model := struct {
-		KubeSystem bool
-		Namespaces []string
-		MetaKey    string
-		MetaValue  string
+		KubeSystem              bool
+		Namespaces              []string
+		MetaKey                 string
+		MetaValue               string
+		PreprocessingDirectives []string
 	}{}
 
 	if g.cfg.MetaKey != "" {
@@ -109,8 +117,8 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		}
 
 		// render config
-		renderedConfig, err := g.makeNamespaceConfiguration(nsConf)
-		configHash := util.Hash("", renderedConfig)
+		renderedConfig, preprocessConfig, err := g.makeNamespaceConfiguration(nsConf)
+		configHash := util.Hash("", renderedConfig+preprocessConfig)
 		if err != nil {
 			configHash = util.Hash("ERROR", err.Error())
 		}
@@ -149,6 +157,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		filename := fmt.Sprintf("ns-%s.conf", nsConf.Name)
 		newFiles = append(newFiles, filename)
+		model.PreprocessingDirectives = append(model.PreprocessingDirectives, preprocessConfig)
 		fileHashesByNs[nsConf.Name] = configHash
 		err = util.WriteStringToFile(filepath.Join(outputDir, filename), renderedConfig)
 		if err != nil {

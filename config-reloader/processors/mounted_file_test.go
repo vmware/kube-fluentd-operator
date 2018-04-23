@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 )
@@ -30,16 +32,16 @@ func TestMountedFileRemovedAfterProcessing(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	processor := &MountedFileState{}
-	fragment, err = Apply(fragment, ctx, processor)
+	processor := &mountedFileState{}
+	fragment, err = Process(fragment, ctx, processor)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(fragment))
 
-	assert.Equal(t, 1, len(processor.ContainerFiles))
+	// assert.Equal(t, 1, len(processor.ContainerFiles))
 
-	cf := processor.ContainerFiles[0]
-	assert.Equal(t, "/hello/world", cf.Path)
-	assert.Equal(t, map[string]string{"app": "spring-mvc"}, cf.Labels)
+	// cf := processor.ContainerFiles[0]
+	// assert.Equal(t, "/hello/world", cf.Path)
+	// assert.Equal(t, map[string]string{"app": "spring-mvc"}, cf.Labels)
 }
 
 func TestMountedFileCatchesMissingFile(t *testing.T) {
@@ -88,4 +90,108 @@ func TestMountedFileCatchesMissingLabels(t *testing.T) {
 	fragment, err := fluentd.ParseString(missingPath)
 	assert.Nil(t, fragment)
 	assert.NotNil(t, err, "Must have failed, instead parsed to %+v", fragment)
+}
+
+func TestMatches(t *testing.T) {
+	spec := &ContainerFile{
+		Path: "/var/log/https.log",
+	}
+	mini := &datasource.MiniContainer{
+		PodID:  "123",
+		Name:   "container-name",
+		Labels: map[string]string{"key": "value"},
+	}
+
+	assert.True(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"_container": "hello"}
+	assert.False(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"_container": mini.Name}
+	assert.True(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"a": "a"}
+	assert.False(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"key": "value"}
+	assert.True(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"key": "value", "_container": "container-name"}
+	assert.True(t, matches(spec, mini))
+
+	spec.Labels = map[string]string{"a": "a", "key": "value", "_container": "container-name"}
+	assert.False(t, matches(spec, mini))
+}
+
+func TestConvertToFragment(t *testing.T) {
+	specC1 := &ContainerFile{
+		Path:   "/var/log/redis.log",
+		Labels: map[string]string{"key": "value", "_container": "container-name"},
+	}
+
+	c1 := &datasource.MiniContainer{
+		PodID:  "123",
+		Name:   "container-name",
+		Labels: map[string]string{"key": "value"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+			},
+		},
+	}
+
+	specC2 := &ContainerFile{
+		Path:   "/var/log/nginx.log",
+		Labels: map[string]string{"app": "nginx"},
+	}
+	c2 := &datasource.MiniContainer{
+		PodID:  "abc",
+		Name:   "nginx",
+		Labels: map[string]string{"app": "nginx"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+			},
+			{
+				Path:       "/var",
+				VolumeName: "var",
+			},
+		},
+	}
+
+	ctx := &ProcessorContext{
+		Namepsace:   "monitoring",
+		KubeletRoot: "/kubelet-root",
+		MiniContainers: []*datasource.MiniContainer{
+			c1,
+			c2,
+		},
+	}
+
+	state := &mountedFileState{}
+	state.Context = ctx
+
+	result := state.convertToFragement(specC1)
+	assert.Equal(t, 1, len(result))
+
+	dir := result[0]
+
+	assert.Equal(t, "source", dir.Name)
+	assert.Equal(t, "tail", dir.Type())
+	assert.Equal(t, "/kubelet-root/pods/123/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.123.container-name", dir.Param("tag"))
+	assert.Equal(t, "parse", dir.Nested[0].Name)
+	assert.Equal(t, "none", dir.Nested[0].Type())
+
+	result = state.convertToFragement(specC2)
+	assert.Equal(t, 1, len(result))
+
+	dir = result[0]
+
+	assert.Equal(t, "source", dir.Name)
+	assert.Equal(t, "tail", dir.Type())
+	assert.Equal(t, "/kubelet-root/pods/abc/volumes/kubernetes.io~empty-dir/logs/nginx.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.abc.nginx", dir.Param("tag"))
 }

@@ -38,6 +38,13 @@ build-image:
 push-image: build-image
 	docker push $(IMAGE):$(TAG)
 
+
+create-test-ns:
+	envsubst '$$LOGGLY_TOKEN' < examples/manifests/kfo-test.yaml | kubectl apply -f -
+
+delete-test-ns:
+	kubectl delete -f examples/manifests/kfo-test.yaml
+
 run-loop-fs: install
 	rm -fr tmp
 	config-reloader \

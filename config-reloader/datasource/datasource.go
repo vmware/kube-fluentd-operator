@@ -3,6 +3,11 @@
 
 package datasource
 
+type Mount struct {
+	Path       string
+	VolumeName string
+}
+
 // MiniContainer container subset with the parent pod's metadata
 type MiniContainer struct {
 	// the pod id
@@ -11,8 +16,8 @@ type MiniContainer struct {
 	Labels map[string]string
 	// container name
 	Name string
-	// only the emptyDir mounts, never empty, sorted by len() of the mounthPath, descending
-	HostMounts []string
+	// only the emptyDir mounts, never empty, sorted by len(Path), descending
+	HostMounts []*Mount
 }
 
 // NamespaceConfig holds all relevant data for a namespace

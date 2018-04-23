@@ -103,7 +103,7 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 	return result, nil
 }
 
-type byLength []string
+type byLength []*Mount
 
 func (s byLength) Len() int {
 	return len(s)
@@ -114,7 +114,7 @@ func (s byLength) Swap(i, j int) {
 }
 
 func (s byLength) Less(i, j int) bool {
-	return len(s[i]) > len(s[j])
+	return len(s[i].Path) > len(s[j].Path)
 }
 
 func convertPodToMinis(resp *core.PodList) []*MiniContainer {
@@ -129,8 +129,9 @@ func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 			}
 
 			for _, vm := range cont.VolumeMounts {
-				if volumeExists(pod.Spec.Volumes, vm.Name) {
-					mini.HostMounts = append(mini.HostMounts, vm.MountPath)
+				m := makeVolume(pod.Spec.Volumes, &vm)
+				if m != nil {
+					mini.HostMounts = append(mini.HostMounts, m)
 				}
 			}
 
@@ -143,13 +144,16 @@ func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 	return res
 }
 
-func volumeExists(volumes []core.Volume, name string) bool {
+func makeVolume(volumes []core.Volume, volumeMount *core.VolumeMount) *Mount {
 	for _, v := range volumes {
-		if v.Name == name && v.EmptyDir != nil {
-			return true
+		if v.Name == volumeMount.Name && v.EmptyDir != nil {
+			return &Mount{
+				VolumeName: v.Name,
+				Path:       volumeMount.MountPath,
+			}
 		}
 	}
-	return false
+	return nil
 }
 
 func (d *kubeConnection) WriteCurrentConfigHash(namespace string, hash string) {

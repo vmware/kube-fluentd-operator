@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kfo-test
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stdout-logger
+  namespace: kfo-test
+spec:
+  containers:
+  - image: ubuntu
+    name: main
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "Random msg number $((var++)) to stdout"; sleep 2; done
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-logger
+  namespace: kfo-test
+  labels:
+    test-case: a
+    msg: hello
+spec:
+  containers:
+  - image: ubuntu
+    name: greeter
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/hello.log ;done > /var/log/hello.log
+    volumeMounts:
+    - mountPath: /var/log
+      name: logs
+    - mountPath: /host-root
+      name: root
+  volumes:
+  - name: logs
+    emptyDir: {}
+  - name: root
+    hostPath:
+      path: /
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: welcome-logger
+  namespace: kfo-test
+  labels:
+    test-case: b
+    msg: welcome
+spec:
+  containers:
+  - image: ubuntu
+    name: test-container
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "Random welcome number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/welcome.log ;done > /var/log/welcome.log
+    volumeMounts:
+    - mountPath: /var/log
+      name: logs
+    - mountPath: /host-root
+      name: root
+  volumes:
+  - name: logs
+    emptyDir: {}
+  - name: root
+    hostPath:
+      path: /
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: kfo-test
+data:
+  fluent.conf: |
+    <source>
+      @type mounted-file
+      path /var/log/hello.log
+      labels msg=hello
+    </source>
+    <source>
+      @type mounted-file
+      path /var/log/hello.log
+      labels msg=welcome, _container=test-container
+    </source>
+    <match **>
+      @type loggly
+      loggly_url https://logs-01.loggly.com/inputs/$LOGGLY_TOKEN/tag/fluentd
+    </match>

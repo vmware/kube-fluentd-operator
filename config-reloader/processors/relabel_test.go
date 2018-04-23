@@ -40,7 +40,7 @@ func TestParseConfigWithBadLabels(t *testing.T) {
 		fragment, err := fluentd.ParseString(s)
 		assert.Nil(t, err, "must parse, failed instead with %+v", err)
 
-		fragment, err = Apply(fragment, ctx, &rewriteLabelsState{})
+		fragment, err = Process(fragment, ctx, &rewriteLabelsState{})
 		assert.Nil(t, fragment)
 		assert.NotNil(t, err, "Must have failed, instead parsed to %+v", fragment)
 	}
@@ -61,7 +61,7 @@ func TestParseConfigWithGoodLabels(t *testing.T) {
 	fragment, err := fluentd.ParseString(s)
 	assert.Nil(t, err, "must parse, failed instead with %+v", err)
 
-	fragment, err = Apply(fragment, ctx, &rewriteLabelsState{})
+	fragment, err = Process(fragment, ctx, &rewriteLabelsState{})
 	assert.Nil(t, err, "must succeed, got error instead: %+v", err)
 	assert.NotNil(t, fragment)
 }
@@ -90,7 +90,7 @@ func TestLabelsAreRewritten(t *testing.T) {
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
 	}
-	fragment, err = Apply(fragment, ctx, &rewriteLabelsState{})
+	fragment, err = Process(fragment, ctx, &rewriteLabelsState{})
 	assert.Nil(t, err)
 	fmt.Printf("Processed:\n%s\n", fragment)
 
@@ -138,7 +138,7 @@ func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 		Namepsace: "demo",
 	}
 
-	fragment, err = Apply(fragment, ctx, DefaultProcessors()...)
+	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)
@@ -170,6 +170,6 @@ func TestNastyRegex(t *testing.T) {
 		Namepsace: "demo",
 	}
 
-	_, err = Apply(fragment, ctx, DefaultProcessors()...)
+	_, err = Process(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 }

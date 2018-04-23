@@ -19,6 +19,7 @@ image:
 
 logLevel: debug
 interval: 45
+kubeletRoot: /var/lib/kubelet
 
 meta:
   key: ""

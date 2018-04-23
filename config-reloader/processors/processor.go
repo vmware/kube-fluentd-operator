@@ -6,13 +6,16 @@ package processors
 import (
 	"errors"
 
+	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 )
 
 type ProcessorContext struct {
-	Namepsace    string
-	AllowFile    bool
-	DeploymentID string
+	Namepsace      string
+	AllowFile      bool
+	DeploymentID   string
+	MiniContainers []*datasource.MiniContainer
+	KubeletRoot    string
 }
 
 type BaseProcessorState struct {
@@ -20,8 +23,18 @@ type BaseProcessorState struct {
 }
 
 type FragmentProcessor interface {
+	// SetContext is called once before processing begins
 	SetContext(*ProcessorContext)
+
+	// Prepare may define directives that are applied to the main fluentd file
+	Prepare(fluentd.Fragment) (fluentd.Fragment, error)
+
+	// Process defines directives that are put in their own ns-{namespace}.conf file
 	Process(fluentd.Fragment) (fluentd.Fragment, error)
+}
+
+func (p *BaseProcessorState) Prepare(directives fluentd.Fragment) (fluentd.Fragment, error) {
+	return directives, nil
 }
 
 func (p *BaseProcessorState) SetContext(ctx *ProcessorContext) {
@@ -46,7 +59,7 @@ func applyRecursivelyInPlace(directives fluentd.Fragment, ctx *ProcessorContext,
 	return nil
 }
 
-func Apply(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
+func Process(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
 	if ctx == nil {
 		return nil, errors.New("cannot work with nil ProcessorContext")
 	}
@@ -65,12 +78,31 @@ func Apply(input fluentd.Fragment, ctx *ProcessorContext, processors ...Fragment
 	return res, nil
 }
 
+func Prepare(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
+	if ctx == nil {
+		return nil, errors.New("cannot work with nil ProcessorContext")
+	}
+
+	res := input
+	var err error
+
+	for _, proc := range processors {
+		proc.SetContext(ctx)
+		res, err = proc.Prepare(res)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+
 func DefaultProcessors() []FragmentProcessor {
 	return []FragmentProcessor{
 		&expandThisnsMacroState{},
 		&fixDestinations{},
 		&expandLabelsMacroState{},
 		&rewriteLabelsState{},
-		&MountedFileState{},
+		&mountedFileState{},
 	}
 }

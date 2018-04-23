@@ -84,7 +84,7 @@ func TestLabelNoLabels(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	fragment, err = Apply(fragment, ctx, &expandLabelsMacroState{})
+	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(fragment))
 
@@ -114,7 +114,7 @@ func TestLabelWithLabels(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	fragment, err = Apply(fragment, ctx, &expandLabelsMacroState{})
+	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)
@@ -187,7 +187,7 @@ func TestLabelWithLabelsAndElse(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	fragment, err = Apply(fragment, ctx, DefaultProcessors()...)
+	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)
@@ -217,7 +217,7 @@ func TestLabelWithLabelsAndContainer(t *testing.T) {
 		Namepsace: "monitoring",
 	}
 
-	fragment, err = Apply(fragment, ctx, &expandLabelsMacroState{})
+	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
 	assert.Nil(t, err)
 
 	fmt.Printf("Processed:\n%s\n", fragment)

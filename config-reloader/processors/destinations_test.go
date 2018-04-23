@@ -51,7 +51,7 @@ func TestDestinationsRewriteBufferPath(t *testing.T) {
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
 	}
-	fragment, err = Apply(fragment, ctx, &fixDestinations{})
+	fragment, err = Process(fragment, ctx, &fixDestinations{})
 	assert.Nil(t, err)
 	fmt.Printf("Processed: %s", fragment)
 
@@ -92,7 +92,7 @@ func TestExpandBadConfig(t *testing.T) {
 		fragment, err := fluentd.ParseString(s)
 		assert.Nil(t, err)
 
-		_, err = Apply(fragment, ctx, &fixDestinations{})
+		_, err = Process(fragment, ctx, &fixDestinations{})
 		assert.NotNil(t, err)
 	}
 }
