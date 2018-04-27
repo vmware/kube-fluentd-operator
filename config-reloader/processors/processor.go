@@ -11,11 +11,12 @@ import (
 )
 
 type ProcessorContext struct {
-	Namepsace      string
-	AllowFile      bool
-	DeploymentID   string
-	MiniContainers []*datasource.MiniContainer
-	KubeletRoot    string
+	Namepsace       string
+	NamespaceLabels map[string]string
+	AllowFile       bool
+	DeploymentID    string
+	MiniContainers  []*datasource.MiniContainer
+	KubeletRoot     string
 }
 
 type BaseProcessorState struct {

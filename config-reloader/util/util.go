@@ -4,8 +4,10 @@
 package util
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"sort"
@@ -26,6 +28,22 @@ func MakeFluentdSafeName(s string) string {
 		return !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_'
 	}
 	return strings.TrimFunc(s, filter)
+}
+
+func ToRubyMapLiteral(labels map[string]string) string {
+	if len(labels) == 0 {
+		return "{}"
+	}
+
+	buf := &bytes.Buffer{}
+	buf.WriteString("{")
+	for _, k := range SortedKeys(labels) {
+		fmt.Fprintf(buf, "'%s'=>'%s',", k, labels[k])
+	}
+	buf.Truncate(buf.Len() - 1)
+	buf.WriteString("}")
+
+	return buf.String()
 }
 
 func Hash(owner string, value string) string {

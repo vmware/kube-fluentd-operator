@@ -4,6 +4,7 @@
 package processors
 
 import (
+	"bytes"
 	"fmt"
 	"path"
 	"strings"
@@ -102,9 +103,10 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 				dir.SetParam("@type", "tail")
 
 				hostPath := state.makeHostPath(cf, hm, mc)
+				tag := fmt.Sprintf("kube.%s.%s.%s", state.Context.Namepsace, mc.PodName, mc.Name)
 				dir.SetParam("path", hostPath)
 				dir.SetParam("read_from_head", "true")
-				dir.SetParam("tag", fmt.Sprintf("kube.%s.%s.%s", state.Context.Namepsace, mc.PodID, mc.Name))
+				dir.SetParam("tag", tag)
 				dir.SetParam("pos_file", fmt.Sprintf("/var/log/kfotail-%s.pos", util.Hash(state.Context.DeploymentID, mc.PodID+state.Context.DeploymentID+hostPath)))
 
 				if cf.Parse != nil {
@@ -116,11 +118,44 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 						makeDefaultParseDirective(),
 					}
 				}
-				res = append(res, dir)
+				res = append(res, dir, state.makeAttachK8sMetadataDirective(tag, mc, cf))
 				break
 			}
 		}
 	}
+
+	return res
+}
+
+func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *datasource.MiniContainer, cf *ContainerFile) *fluentd.Directive {
+	res := &fluentd.Directive{
+		Name:   "filter",
+		Tag:    tag,
+		Params: map[string]*fluentd.Param{},
+		Nested: []*fluentd.Directive{
+			{
+				Name:   "record",
+				Params: map[string]*fluentd.Param{},
+			},
+		},
+	}
+
+	res.SetParam("@type", "record_modifier")
+	res.SetParam("remove_keys", "dummy_")
+
+	buf := &bytes.Buffer{}
+	fmt.Fprintf(buf, "record['stream']='%s'; ", cf.Path)
+	fmt.Fprintf(buf, "record['kubernetes']=%s; ", util.ToRubyMapLiteral(map[string]string{
+		"container_name": mc.Name,
+		"namespace_name": state.Context.Namepsace,
+		"pod_name":       mc.PodName,
+		"pod_id":         mc.PodID,
+		"host":           mc.NodeName,
+	}))
+	fmt.Fprintf(buf, "record['kubernetes']['labels']=%s; ", util.ToRubyMapLiteral(mc.Labels))
+	fmt.Fprintf(buf, "record['kubernetes']['namespace_labels']=%s", util.ToRubyMapLiteral(state.Context.NamespaceLabels))
+
+	res.Nested[0].SetParam("dummy_", fmt.Sprintf("${%s}", buf.String()))
 
 	return res
 }

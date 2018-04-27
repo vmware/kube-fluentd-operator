@@ -130,9 +130,10 @@ func TestConvertToFragment(t *testing.T) {
 	}
 
 	c1 := &datasource.MiniContainer{
-		PodID:  "123",
-		Name:   "container-name",
-		Labels: map[string]string{"key": "value"},
+		PodID:   "123-id",
+		PodName: "123",
+		Name:    "container-name",
+		Labels:  map[string]string{"key": "value"},
 		HostMounts: []*datasource.Mount{
 			{
 				Path:       "/var/log",
@@ -146,9 +147,10 @@ func TestConvertToFragment(t *testing.T) {
 		Labels: map[string]string{"app": "nginx"},
 	}
 	c2 := &datasource.MiniContainer{
-		PodID:  "abc",
-		Name:   "nginx",
-		Labels: map[string]string{"app": "nginx"},
+		PodID:   "abc-id",
+		PodName: "abc",
+		Name:    "nginx",
+		Labels:  map[string]string{"app": "nginx"},
 		HostMounts: []*datasource.Mount{
 			{
 				Path:       "/var/log",
@@ -174,24 +176,32 @@ func TestConvertToFragment(t *testing.T) {
 	state.Context = ctx
 
 	result := state.convertToFragement(specC1)
-	assert.Equal(t, 1, len(result))
+	assert.Equal(t, 2, len(result))
 
 	dir := result[0]
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
-	assert.Equal(t, "/kubelet-root/pods/123/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
 	assert.Equal(t, "kube.monitoring.123.container-name", dir.Param("tag"))
 	assert.Equal(t, "parse", dir.Nested[0].Name)
 	assert.Equal(t, "none", dir.Nested[0].Type())
 
+	mod := result[1]
+	assert.Equal(t, "filter", mod.Name)
+	assert.Equal(t, "record_modifier", mod.Type())
+
 	result = state.convertToFragement(specC2)
-	assert.Equal(t, 1, len(result))
+	assert.Equal(t, 2, len(result))
 
 	dir = result[0]
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
-	assert.Equal(t, "/kubelet-root/pods/abc/volumes/kubernetes.io~empty-dir/logs/nginx.log", dir.Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", dir.Param("path"))
 	assert.Equal(t, "kube.monitoring.abc.nginx", dir.Param("tag"))
+
+	mod = result[1]
+	assert.Equal(t, "filter", mod.Name)
+	assert.Equal(t, "record_modifier", mod.Type())
 }

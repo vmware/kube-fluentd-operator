@@ -91,7 +91,7 @@ data:
     </source>
     <source>
       @type mounted-file
-      path /var/log/hello.log
+      path /var/log/welcome.log
       labels msg=welcome, _container=test-container
     </source>
     <match **>

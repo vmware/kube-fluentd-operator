@@ -52,11 +52,12 @@ func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (
 	}
 
 	ctx := &processors.ProcessorContext{
-		Namepsace:      ns.Name,
-		AllowFile:      g.cfg.AllowFile,
-		DeploymentID:   g.cfg.ID,
-		MiniContainers: ns.MiniContainers,
-		KubeletRoot:    g.cfg.KubeletRoot,
+		Namepsace:       ns.Name,
+		NamespaceLabels: ns.Labels,
+		AllowFile:       g.cfg.AllowFile,
+		DeploymentID:    g.cfg.ID,
+		MiniContainers:  ns.MiniContainers,
+		KubeletRoot:     g.cfg.KubeletRoot,
 	}
 
 	prep, err := processors.Prepare(fragment, ctx, processors.DefaultProcessors()...)
@@ -91,16 +92,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	if g.cfg.MetaKey != "" {
 		model.MetaKey = g.cfg.MetaKey
-
-		buf := &bytes.Buffer{}
-		buf.WriteString("{")
-		for k, v := range g.cfg.ParsedMetaValues {
-			buf.WriteString(fmt.Sprintf("'%s' => '%s', ", k, v))
-		}
-		buf.Truncate(buf.Len() - 2)
-		buf.WriteString("}")
-
-		model.MetaValue = buf.String()
+		model.MetaValue = util.ToRubyMapLiteral(g.cfg.ParsedMetaValues)
 	}
 
 	for _, nsConf := range g.model {

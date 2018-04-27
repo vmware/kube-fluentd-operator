@@ -88,6 +88,7 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 			FluentdConfig:      contents,
 			PreviousConfigHash: d.hashes[item.Name],
 			IsKnownFromBefore:  true,
+			Labels:             item.Labels,
 		}
 
 		resp, err := d.client.CoreV1().Pods(item.Name).List(meta_v1.ListOptions{})
@@ -123,9 +124,11 @@ func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 	for _, pod := range resp.Items {
 		for _, cont := range pod.Spec.Containers {
 			mini := &MiniContainer{
-				PodID:  string(pod.UID),
-				Labels: pod.Labels,
-				Name:   cont.Name,
+				PodID:    string(pod.UID),
+				PodName:  pod.Name,
+				Labels:   pod.Labels,
+				Name:     cont.Name,
+				NodeName: pod.Spec.NodeName,
 			}
 
 			for _, vm := range cont.VolumeMounts {

@@ -11,13 +11,18 @@ type Mount struct {
 // MiniContainer container subset with the parent pod's metadata
 type MiniContainer struct {
 	// the pod id
-	PodID string
+	PodID   string
+	PodName string
+
 	// pod labels
 	Labels map[string]string
+
 	// container name
 	Name string
 	// only the emptyDir mounts, never empty, sorted by len(Path), descending
 	HostMounts []*Mount
+
+	NodeName string
 }
 
 // NamespaceConfig holds all relevant data for a namespace
@@ -27,6 +32,7 @@ type NamespaceConfig struct {
 	PreviousConfigHash string
 	IsKnownFromBefore  bool
 	MiniContainers     []*MiniContainer
+	Labels             map[string]string
 }
 
 // StatusUpdater sets an error description on the namespace
