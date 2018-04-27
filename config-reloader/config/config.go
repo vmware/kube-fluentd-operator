@@ -41,6 +41,7 @@ type Config struct {
 	MetaKey                string
 	MetaValues             string
 	KubeletRoot            string
+	Namespaces             []string
 	// parsed or processed/cached fields
 	level            logrus.Level
 	ParsedMetaValues map[string]string
@@ -164,6 +165,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
 
 	app.Flag("kubelet-root", "Kubelet root dir, configured using --root-dir on the kubelet service").Default(defaultConfig.KubeletRoot).StringVar(&cfg.KubeletRoot)
+	app.Flag("namespaces", "List of namespaces to process. If empty, processes all namespaces").StringsVar(&cfg.Namespaces)
 
 	app.Flag("templates-dir", "Where to find templates").Default(defaultConfig.TemplatesDir).StringVar(&cfg.TemplatesDir)
 	app.Flag("output-dir", "Where to output config files").Default(defaultConfig.OutputDir).StringVar(&cfg.OutputDir)

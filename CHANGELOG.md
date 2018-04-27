@@ -2,9 +2,13 @@
 
 ## 1.1.0 (Unreleased)
 
-* Feature: ingest log files from a container
+* Feature: ingest log files from a container filesystem
+
+* Feature: limit impact of log-router to a set of namespaces using `--namespaces`
 
 * Helm: add new property `kubeletRoot`
+
+* Helm: add new property `namespaces[]`:
 
 ## 1.0.1
 

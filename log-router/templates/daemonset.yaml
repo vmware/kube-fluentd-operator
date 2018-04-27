@@ -59,6 +59,10 @@ spec:
           - --meta-key={{ .Values.meta.key }}
           - --meta-values={{ .Values.meta.values }}
           {{- end }}
+          {{- range  .Values.namespaces }}
+          - --namespaces
+          - "{{ . }}"
+          {{- end }}
           volumeMounts:
           - name: fluentconf
             mountPath: /fluentd/etc

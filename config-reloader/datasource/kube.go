@@ -61,6 +61,11 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 
 	result := []*NamespaceConfig{}
 	for _, item := range resp.Items {
+		if !d.needsProcessing(item.Name) {
+			logrus.Debugf("Ignoring namespace '%s' because of --namespaces flag", item.Name)
+			continue
+		}
+
 		configMapName := item.Annotations[d.cfg.AnnotConfigmapName]
 		if configMapName == "" {
 			if d.cfg.DefaultConfigmapName != "" {
@@ -102,6 +107,20 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 	}
 
 	return result, nil
+}
+
+func (d *kubeConnection) needsProcessing(ns string) bool {
+	if len(d.cfg.Namespaces) == 0 {
+		return true
+	}
+
+	for _, item := range d.cfg.Namespaces {
+		if item == ns {
+			return true
+		}
+	}
+
+	return false
 }
 
 type byLength []*Mount

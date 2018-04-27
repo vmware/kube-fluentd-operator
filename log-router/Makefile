@@ -12,6 +12,7 @@ helm-package: clean
 helm-dry-run:
 	helm install . --dry-run --debug \
 	  --set image.pullSecret=test-pull-secret \
+	  --set namespaces[0]=kfo-test \
 	  --set meta.key=key \
 	  --set meta-values=env=test \
 	  --set tolerations[0].key=key \
