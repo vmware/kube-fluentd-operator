@@ -6,9 +6,11 @@
 
 *kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how Ingress controllers compiles Nginx configuration based on Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need not coordinate with namespace admins.
 
-Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespace.
+Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
 
-*kube-fluentd-operator* also extends the Fluentd configuration language to make it possible to refer to pods based on their labels and the container. Thie enables for very fined-grained targeting of logs for the purpose of pre-processing before shipping.
+*kube-fluentd-operator* also extends the Fluentd configuration language to make it possible to refer to pods based on their labels and the container. This enables for very fined-grained targeting of log streams for the purpose of pre-processing before shipping.
+
+Finally, it is possible to ingest logs from a file on the container filesystem. While this is not recommended there are still legacy or misconfigured apps that still log to local file(s).
 
 ## Try it out
 
@@ -24,9 +26,6 @@ Then create a namespace `demo` and a configmap describing where all logs from `d
 ```bash
 kubectl create ns demo
 
-# the annotation value is the configmap name
-kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=logging-config
-
 cat > fluent.conf << EOF
 <match **>
   @type null
@@ -34,10 +33,16 @@ cat > fluent.conf << EOF
 EOF
 
 # Create the configmap with a single entry "fluent.conf"
-kubectl create configmap logging-config --namespace demo --from-file=fluent.conf=fluent.conf
+kubectl create configmap fluentd-config --namespace demo --from-file=fluent.conf=fluent.conf
+
+
+# This step is optional: the fluentd-config is the default: use only if you are forced
+# to use anothe configmap name
+kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
+
 ```
 
-In a minute, this config map would be translated to something like this:
+In a minute, this configuration would be translated to something like this:
 
 ```xml
 <match demo.**>
@@ -55,7 +60,7 @@ kubectl get ns demo -o jsonpath='{.metadata.annotations.logging\.csp\.vmware\.co
 bad tag for <match>: hello-world. Tag must start with **, $thins or demo
 ```
 
-When the configuration is valid again the fluentd-status is set to "".
+When the configuration is made valid again the `fluentd-status` is set to "".
 
 To see kube-fluentd-operator in action you need a cloud log collector like logz.io, loggly, papertrail or ELK accessible from the K8S cluster. A simple loggly configuration looks like this (replace TOKEN with your customer token):
 
@@ -115,16 +120,16 @@ Fluentd assumes it is running in a distro with systemd and generates logs with t
 * `systemd.{unit}`: the journal of a systemd unit, for example `systemd.docker.service`
 * `docker`: all docker logs, not containers. If systemd is used, the docker logs are in `systemd.docker.service`
 * `k8s.{component}`: logs from a K8S component, for example `k8s.kube-apiserver`
-* `kube.{namespace}.{podid}.{container_name}`: a log originating from (namespace, pod, container)
+* `kube.{namespace}.{pod_name}.{container_name}`: a log originating from (namespace, pod, container)
 
-As the `kube-system` is processed first, a match-all directive would consume all logs and any other namespace configuration will become irrelevant (unless `<copy>` is used).
+As `kube-system` is processed first, a match-all directive would consume all logs and any other namespace configuration will become irrelevant (unless `<copy>` is used).
 A recommended configuration for the `kube-system` namespace is this one - it captures all but the user namespaces' logs:
 
 ```xml
 <match systemd.** kube.kube-system.** k8s.** docker>
   # all k8s-internal and OS-level logs
 
-  # destionation config omitted...
+  # destination config omitted...
 </match>
 ```
 
@@ -143,36 +148,81 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 </match>
 ```
 
-The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to loggly. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allow for targeting the log stream of a specific container in a multi-container pod.
+The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to loggly. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allows for targeting the log stream of a specific container in a multi-container pod.
 
 All plugins that change the fluentd tag are disabled for security reasons. Otherwise a rogue configuration may divert other namespace's logs to itself by prepending its name to the tag.
 
 The `@type file` plugin is also disabled as it doesn't make sense to convert local docker json logs to another file on the same disk.
 
+The only allowed `<source>` directive is of type `mounted-file`. It is used to ingest a log file from a container on an `emptyDir`-mounted volume:
+
+```xml
+<source>
+  @type mounted-file
+  path /var/log/welcome.log
+  labels msg=welcome, _container=test-container
+  <parse>
+    @type apache2
+  </parse>
+</source>
+```
+
+The above configuration would translate at runtime to something similar to this:
+
+```xml
+<source>
+  @type tail
+  path /var/lib/kubelet/pods/723dd34a-4ac0-11e8-8a81-0a930dd884b0/volumes/kubernetes.io~empty-dir/logs/welcome.log
+  pos_file /var/log/kfotail-7020a0b821b0d230d89283ba47d9088d9b58f97d.pos
+  read_from_head true
+  tag kube.kfo-test.welcome-logger.test-container
+
+  <parse>
+    @type apache2
+  </parse>
+</source>
+```
+
 ### Available plugins
 
-`kube-fluentd-operator` aims to be easy to use and flexible. It also favors appending logs to multiple destinations using `<copy>` and as such comes with many destination plugins pre-installed:
+`kube-fluentd-operator` aims to be easy to use and flexible. It also favors appending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
+* fluent-mixin-config-placeholders
+* fluent-plugin-concat
 * fluent-plugin-elasticsearch
 * fluent-plugin-google-cloud
+* fluent-plugin-kubernetes
+* fluent-plugin-kubernetes_metadata_filter
 * fluent-plugin-logentries
 * fluent-plugin-loggly
 * fluent-plugin-logzio
 * fluent-plugin-papertrail
+* fluent-plugin-parser
+* fluent-plugin-record-modifier
+* fluent-plugin-record-reformer
 * fluent-plugin-redis
 * fluent-plugin-remote_syslog
+* fluent-plugin-rewrite-tag-filter
+* fluent-plugin-route
 * fluent-plugin-s3
 * fluent-plugin-secure-forward
+* fluent-plugin-systemd
+
+When customizing the image be careful not to uninstall plugins that are used internally to implement the macro language.
 
 If you need other destination plugins you are welcome to contribute a patch or just create an issue.
 
 ### Log metadata
 
-Often you run mulitple Kubernetes clusters but you need to aggregate all logs to a single destination. To be able to distinguish between different sources, `kube-fluentd-operator` can attach arbitrary metadata to every log event.
-The metadata is nested under key chosen with `--meta-key`. Using the helm chart, metadata can be enbled like this:
+Often you run mulitple Kubernetes clusters but you need to aggregate all logs to a single destination. To distinguish between different sources, `kube-fluentd-operator` can attach arbitrary metadata to every log event.
+The metadata is nested under a key chosen with `--meta-key`. Using the helm chart, metadata can be enabled like this:
 
 ```bash
-helm instal ... --set=meta.key=metadata --set=meta.values=region=us-east-1\,env=staging\,cluster=legacy
+helm instal ... \
+  --set=meta.key=metadata \
+  --set=meta.values.region=us-east-1 \
+  --set=meta.values.env=staging \
+  --set=meta.values.cluster=legacy
 ```
 
 Every log event, be it from a pod or a systemd unit, will now have carry this metadata:
@@ -193,34 +243,44 @@ Every log event, be it from a pod or a systemd unit, will now have carry this me
 
 The config-reloader binary is the one that listens to changes in K8S and generates Fluentd files. It runs as a daemonset and is not intended to interact with directly. The synopsis is useful when trying to understand the Helm chart or jsut hacking.
 
-```bash
+```
 usage: config-reloader [<flags>]
 
-Regenerates Fluentd configs based Kubernetes namespace annotations against templates, reloading Fluentd if necessary
+Regenerates Fluentd configs based Kubernetes namespace annotations against templates, reloading
+Fluentd if necessary
 
 Flags:
-  --help                        Show context-sensitive help (also try --help-long and --help-man).
+  --help                        Show context-sensitive help (also try --help-long and
+                                --help-man).
   --version                     Show application version.
   --master=""                   The Kubernetes API server to connect to (default: auto-detect)
-  --kubeconfig=""               Retrieve target cluster configuration from a Kubernetes configuration file (default: auto-detect)
+  --kubeconfig=""               Retrieve target cluster configuration from a Kubernetes
+                                configuration file (default: auto-detect)
   --datasource=default          Datasource to use
   --fs-dir=FS-DIR               If datasource=fs is used, configure the dir hosting the files
   --interval=60                 Run every x seconds
   --allow-file                  Allow @type file for namespace configuration
-  --id="default"                The id of this deployment. It is used internally so that two deployments don't overwrite each other's data
+  --id="default"                The id of this deployment. It is used internally so that two
+                                deployments don't overwrite each other's data
   --fluentd-rpc-port=24444      RPC port of Fluentd
   --log-level="info"            Control verbosity of log
   --annotation="logging.csp.vmware.com/fluentd-configmap"  
                                 Which annotation on the namespace stores the configmap name?
   --default-configmap="fluentd-config"  
-                                Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.
+                                Read the configmap by this name if namespace is not annotated.
+                                Use empty string to suppress the default.
   --status-annotation="logging.csp.vmware.com/fluentd-status"  
-                                Store configuration errors in this annotation, leave empty to turn off
+                                Store configuration errors in this annotation, leave empty to
+                                turn off
+  --kubelet-root="/var/lib/kubelet/"  
+                                Kubelet root dir, configured using --root-dir on the kubelet
+                                service
+  --namespaces=NAMESPACES ...   List of namespaces to process. If empty, processes all namespaces
   --templates-dir="/templates"  Where to find templates
   --output-dir="/fluentd/etc"   Where to output config files
   --meta-key=META-KEY           Attach metadat under this key
   --meta-values=META-VALUES     Metadata in the k=v,k2=v2 format
-  --fluentd-binary=FLUENTD-BINARY
+  --fluentd-binary=FLUENTD-BINARY  
                                 Path to fluentd binary used to validate configuration
 
 ```
@@ -298,7 +358,54 @@ On the bright side, the configuration of `other-namespace` contains nothing spec
 Your cluster is running under RBAC. You need to enable a serviceaccount for the log-router pods. It's easy when using the Helm chart:
 
 ```bash
-helm install ./log-router --set rbac.create=true
+helm install ./log-router --set rbac.create=true ...
+```
+
+### I have a legacy container that logs to /var/log/httpd/access.log
+
+First you need version 1.1.0. At the namespace level you need to add a `source` directive:
+
+```xml
+<source>
+  @type mounted-file
+  path /var/log/httpd/access.log
+  labels app=apache2
+  <parse>
+    @type apache2
+  </parse>
+</source>
+
+<match **>
+  # destination config omitted
+</match>
+```
+
+The type `mounted-file` is again a macro that is expanded to a `tail` plugin invocation. The `<parse>` directive is optional and if not set a `@type none` will be used instead.
+
+In order for this to work the pod must define a mount of type `emptyDir` at `/var/log/httpd` or any of it parent folders. For example, this pod definition is part of the test suite (it logs to /var/log/hello.log):
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-logger
+  namespace: kfo-test
+  labels:
+    msg: hello
+spec:
+  containers:
+  - image: ubuntu
+    name: greeter
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/hello.log ;done > /var/log/hello.log
+    volumeMounts:
+    - mountPath: /var/log
+      name: logs
+  volumes:
+  - name: logs
+    emptyDir: {}
 ```
 
 ### I want to push logs from namespace demo to logz.io

@@ -120,6 +120,10 @@ func (cfg *Config) Validate() error {
 		values := strings.Split(cfg.MetaValues, ",")
 
 		for _, ele := range values {
+			if len(ele) == 0 {
+				// trailing or double ,,
+				continue
+			}
 			kvp := strings.Split(ele, "=")
 			if len(kvp) != 2 {
 				return fmt.Errorf("Bad metadata: %s, use the k=v,k2=v2... format", cfg.MetaValues)

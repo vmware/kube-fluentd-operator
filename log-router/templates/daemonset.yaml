@@ -57,7 +57,8 @@ spec:
           - "{{ .Values.kubeletRoot }}"
           {{- if .Values.meta.key }}
           - --meta-key={{ .Values.meta.key }}
-          - --meta-values={{ .Values.meta.values }}
+          - --meta-values={{- range $k, $v := .Values.meta.values }}{{$k}}={{$v}},
+          {{- end }}
           {{- end }}
           {{- range  .Values.namespaces }}
           - --namespaces

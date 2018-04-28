@@ -14,7 +14,8 @@ helm-dry-run:
 	  --set image.pullSecret=test-pull-secret \
 	  --set namespaces[0]=kfo-test \
 	  --set meta.key=key \
-	  --set meta-values=env=test \
+	  --set meta.values.env=test \
+	  --set meta.values.region=eu \
 	  --set tolerations[0].key=key \
 	  --set tolerations[0].operator=op \
 	  --set tolerations[0].value=value
