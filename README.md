@@ -162,7 +162,7 @@ The only allowed `<source>` directive is of type `mounted-file`. It is used to i
   path /var/log/welcome.log
   labels msg=welcome, _container=test-container
   <parse>
-    @type apache2
+    @type none
   </parse>
 </source>
 ```
@@ -178,9 +178,35 @@ The above configuration would translate at runtime to something similar to this:
   tag kube.kfo-test.welcome-logger.test-container
 
   <parse>
-    @type apache2
+    @type none
   </parse>
 </source>
+```
+
+All logs originating from a file look exactly as all other Kubernetes logs. However, their `stream` field is not set to `stdout` but to the source file:
+
+```json
+{
+    "message": "Some message from the welcome-logger pod",
+    "stream": "/var/log/welcome.log",
+    "kubernetes": {
+        "container_name": "test-container",
+        "host": "ip-11-11-11-11.us-east-2.compute.internal",
+        "namespace_name": "kfo-test",
+        "pod_id": "723dd34a-4ac0-11e8-8a81-0a930dd884b0",
+        "pod_name": "welcome-logger",
+        "labels": {
+            "msg": "welcome",
+            "test-case": "b"
+        },
+        "namespace_labels": {}
+    },
+    "metadata": {
+        "region": "us-east-2",
+        "cluster": "legacy",
+        "env": "staging"
+    }
+}
 ```
 
 ### Available plugins
@@ -243,7 +269,7 @@ Every log event, be it from a pod or a systemd unit, will now have carry this me
 
 The config-reloader binary is the one that listens to changes in K8S and generates Fluentd files. It runs as a daemonset and is not intended to interact with directly. The synopsis is useful when trying to understand the Helm chart or jsut hacking.
 
-```
+```txt
 usage: config-reloader [<flags>]
 
 Regenerates Fluentd configs based Kubernetes namespace annotations against templates, reloading
