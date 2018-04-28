@@ -1,0 +1,4 @@
+vmware.mk
+Makefile
+.gitignore
+*.tgz
