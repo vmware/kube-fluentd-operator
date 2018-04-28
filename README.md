@@ -251,7 +251,7 @@ helm instal ... \
   --set=meta.values.cluster=legacy
 ```
 
-Every log event, be it from a pod or a systemd unit, will now have carry this metadata:
+Every log event, be it from a pod, mounted-file or a systemd unit, will now carry this metadata:
 
 ```json
 {
@@ -260,8 +260,7 @@ Every log event, be it from a pod or a systemd unit, will now have carry this me
     "env": "staging",
     "cluster": "legacy",
   },
-  "message": "hello world",
-  "@timestamp": "..."
+  ...
 }
 ```
 
