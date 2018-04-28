@@ -14,11 +14,25 @@ Finally, it is possible to ingest logs from a file on the container filesystem. 
 
 ## Try it out
 
-The easiest way to get started is using the helm chart. As it is not published you need to check out the code:
+The easiest way to get started is using the Helm chart. Official images are not published yet, so you need to pass the image.repository and image.tag manually:
 
 ```bash
 git clone git@github.com:vmware/kube-fluentd-operator.git
-helm install --name kfo ./kube-fluentd-operator/log-router --set rbac.create=true
+helm install --name kfo ./kube-fluentd-operator/log-router \
+  --set rbac.create=true \
+  --set image.tag=v1.1.0-beta-1 \
+  --set image.repository=jvassev/kube-fluentd-operator
+```
+
+Alternatively, deploy the Helm chart from a Github release:
+
+```bash
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.1.0-beta-1/log-router-0.2.0.tgz'
+
+helm install --name kfo ${CHART_URL} \
+  --set rbac.create=true \
+  --set image.tag=v1.1.0-beta-1 \
+  --set image.repository=jvassev/kube-fluentd-operator
 ```
 
 Then create a namespace `demo` and a configmap describing where all logs from `demo` should go to. The configmap must contain an entry called "fluent.conf". Finally, point the kube-fluentd-operator to this configmap using annotations.
