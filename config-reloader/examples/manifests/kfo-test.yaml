@@ -34,7 +34,7 @@ spec:
     command:
     - bash
     - -c
-    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/hello.log ;done > /var/log/hello.log
+    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && rm -fr /var/log/hello.log ;done > /var/log/hello.log
     volumeMounts:
     - mountPath: /var/log
       name: logs
@@ -63,7 +63,7 @@ spec:
     command:
     - bash
     - -c
-    - while true; do echo `date -R` [INFO] "Random welcome number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/welcome.log ;done > /var/log/welcome.log
+    - while true; do echo `date -R` [INFO] "Random welcome number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && rm -fr /var/log/welcome.log ;done > /var/log/welcome.log
     volumeMounts:
     - mountPath: /var/log
       name: logs

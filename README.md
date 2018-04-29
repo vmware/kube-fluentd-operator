@@ -339,7 +339,7 @@ Flags:
 | `namespaces`                             | List of namespaces to operate on. Empty means all namespaces                 | `[]`                               |
 | `interval`                               | How often to check for config changes (seconds)                 | `45`          |
 | `meta.key`                               | The metadata key (optional)                 | `""`                                |
-| `meta.values`                            | Comma-separated key-values string (k1=v1,k2=v2,..)                 | Metadata to use for the key   |
+| `meta.values`                            | Metadata to use for the key   | `{}`
 | `fluentdResources`                       | Resource definitions for the fluentd container                 | `{}`|
 | `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |

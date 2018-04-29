@@ -40,7 +40,7 @@ push-image: build-image
 
 
 create-test-ns:
-	envsubst '$$LOGGLY_TOKEN' < examples/manifests/kfo-test.yaml | kubectl apply -f -
+	LOGGLY_TOKEN=$(LOGGLY_TOKEN) envsubst '$$LOGGLY_TOKEN' < examples/manifests/kfo-test.yaml | kubectl apply -f -
 
 delete-test-ns:
 	kubectl delete -f examples/manifests/kfo-test.yaml
