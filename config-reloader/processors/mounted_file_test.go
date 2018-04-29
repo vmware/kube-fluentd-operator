@@ -172,8 +172,11 @@ func TestConvertToFragment(t *testing.T) {
 		},
 	}
 
-	state := &mountedFileState{}
-	state.Context = ctx
+	state := &mountedFileState{
+		BaseProcessorState: BaseProcessorState{
+			Context: ctx,
+		},
+	}
 
 	result := state.convertToFragement(specC1)
 	assert.Equal(t, 2, len(result))
@@ -204,4 +207,82 @@ func TestConvertToFragment(t *testing.T) {
 	mod = result[1]
 	assert.Equal(t, "filter", mod.Name)
 	assert.Equal(t, "record_modifier", mod.Type())
+}
+
+func TestProcessMountedFile(t *testing.T) {
+	c1 := &datasource.MiniContainer{
+		PodID:   "123-id",
+		PodName: "123",
+		Name:    "redis-main",
+		Labels:  map[string]string{"app": "redis"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+			},
+		},
+	}
+
+	c2 := &datasource.MiniContainer{
+		PodID:   "abc-id",
+		PodName: "abc",
+		Name:    "nginx-main",
+		Labels:  map[string]string{"app": "nginx"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+			},
+			{
+				Path:       "/var",
+				VolumeName: "var",
+			},
+		},
+	}
+
+	ctx := &ProcessorContext{
+		Namepsace:   "monitoring",
+		KubeletRoot: "/kubelet-root",
+		MiniContainers: []*datasource.MiniContainer{
+			c1,
+			c2,
+		},
+	}
+
+	state := &mountedFileState{
+		BaseProcessorState: BaseProcessorState{
+			Context: ctx,
+		},
+	}
+
+	s := `
+	<source>
+		@type mounted-file
+		path /var/log/redis.log
+		labels app=redis
+	</source>
+
+	<source>
+		@type mounted-file
+		path /var/log/nginx.log
+		labels app=nginx, _container=nginx-main
+	</source>
+
+	<match **>
+		@type null
+	</match>
+	`
+
+	input, err := fluentd.ParseString(s)
+	assert.Nil(t, err, "Must have parsed, instead got error %+v", err)
+
+	prep, err := Prepare(input, ctx, state)
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(prep))
+	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
+
+	main, err := Process(input, ctx, state)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(main))
 }
