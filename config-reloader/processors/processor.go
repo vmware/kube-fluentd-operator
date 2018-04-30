@@ -10,13 +10,18 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 )
 
+type GenerationContext struct {
+	ReferencedBridges map[string]bool
+}
+
 type ProcessorContext struct {
-	Namepsace       string
-	NamespaceLabels map[string]string
-	AllowFile       bool
-	DeploymentID    string
-	MiniContainers  []*datasource.MiniContainer
-	KubeletRoot     string
+	Namepsace         string
+	NamespaceLabels   map[string]string
+	AllowFile         bool
+	DeploymentID      string
+	MiniContainers    []*datasource.MiniContainer
+	KubeletRoot       string
+	GenerationContext *GenerationContext
 }
 
 type BaseProcessorState struct {
@@ -32,10 +37,17 @@ type FragmentProcessor interface {
 
 	// Process defines directives that are put in their own ns-{namespace}.conf file
 	Process(fluentd.Fragment) (fluentd.Fragment, error)
+
+	// GetValidationTrailer produces a trailer that would make a namspace config valid in isolation
+	GetValidationTrailer(fluentd.Fragment) fluentd.Fragment
 }
 
 func (p *BaseProcessorState) Prepare(directives fluentd.Fragment) (fluentd.Fragment, error) {
-	return directives, nil
+	return nil, nil
+}
+
+func (p *BaseProcessorState) GetValidationTrailer(directives fluentd.Fragment) fluentd.Fragment {
+	return nil
 }
 
 func (p *BaseProcessorState) SetContext(ctx *ProcessorContext) {
@@ -60,6 +72,7 @@ func applyRecursivelyInPlace(directives fluentd.Fragment, ctx *ProcessorContext,
 	return nil
 }
 
+// Process chains the the processors outputs
 func Process(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
 	if ctx == nil {
 		return nil, errors.New("cannot work with nil ProcessorContext")
@@ -79,17 +92,34 @@ func Process(input fluentd.Fragment, ctx *ProcessorContext, processors ...Fragme
 	return res, nil
 }
 
+// GetValidationTrailer accumulates the result from the processors
+func GetValidationTrailer(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) fluentd.Fragment {
+	if ctx == nil {
+		return nil
+	}
+
+	res := fluentd.Fragment{}
+
+	for _, proc := range processors {
+		proc.SetContext(ctx)
+		res = append(res, proc.GetValidationTrailer(input)...)
+	}
+
+	return res
+}
+
+// Prepares accumulates the result from the processors
 func Prepare(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
 	if ctx == nil {
 		return nil, errors.New("cannot work with nil ProcessorContext")
 	}
 
-	res := input
-	var err error
+	res := fluentd.Fragment{}
 
 	for _, proc := range processors {
 		proc.SetContext(ctx)
-		res, err = proc.Prepare(res)
+		x, err := proc.Prepare(input)
+		res = append(res, x...)
 		if err != nil {
 			return nil, err
 		}
@@ -105,5 +135,6 @@ func DefaultProcessors() []FragmentProcessor {
 		&expandLabelsMacroState{},
 		&rewriteLabelsState{},
 		&mountedFileState{},
+		&shareLogsState{},
 	}
 }

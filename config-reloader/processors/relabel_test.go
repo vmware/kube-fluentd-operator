@@ -35,6 +35,9 @@ func TestParseConfigWithBadLabels(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "demo",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 	for _, s := range input {
 		fragment, err := fluentd.ParseString(s)
@@ -56,6 +59,9 @@ func TestParseConfigWithGoodLabels(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "demo",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err := fluentd.ParseString(s)
@@ -89,6 +95,9 @@ func TestLabelsAreRewritten(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 	fragment, err = Process(fragment, ctx, &rewriteLabelsState{})
 	assert.Nil(t, err)
@@ -136,6 +145,9 @@ func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "demo",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
@@ -168,6 +180,9 @@ func TestNastyRegex(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "demo",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	_, err = Process(fragment, ctx, DefaultProcessors()...)

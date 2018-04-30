@@ -16,6 +16,11 @@ type rewriteLabelsState struct {
 }
 
 func normalizeLabelName(ctx *ProcessorContext, label string) string {
+	if strings.HasPrefix(label, "@$") {
+		// cross dependency to the share.go processor
+		return label
+	}
+
 	return fmt.Sprintf("@%s-%s",
 		util.MakeFluentdSafeName(label),
 		util.Hash(ctx.Namepsace, label))

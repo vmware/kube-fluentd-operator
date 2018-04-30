@@ -23,6 +23,9 @@ import (
 const (
 	mainConfigFile = "fluent.conf"
 	maskDirectory  = 0775
+
+	onlyProcess = 1
+	onlyPrepare = 2
 )
 
 // Generator produces fluentd config files
@@ -40,7 +43,7 @@ func ensureDirExists(dir string) {
 	}
 }
 
-func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (string, string, error) {
+func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext, mode int) (string, string, error) {
 	// unconfigured namespace
 	if ns.FluentdConfig == "" {
 		return "", "", nil
@@ -51,26 +54,43 @@ func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig) (
 		return "", "", err
 	}
 
-	ctx := &processors.ProcessorContext{
-		Namepsace:       ns.Name,
-		NamespaceLabels: ns.Labels,
-		AllowFile:       g.cfg.AllowFile,
-		DeploymentID:    g.cfg.ID,
-		MiniContainers:  ns.MiniContainers,
-		KubeletRoot:     g.cfg.KubeletRoot,
+	ctx := g.makeContext(ns, genCtx)
+
+	if mode == onlyPrepare {
+		prep, err := processors.Prepare(fragment, ctx, processors.DefaultProcessors()...)
+		if err != nil {
+			return "", "", err
+		}
+
+		return "", prep.String(), nil
 	}
 
-	prep, err := processors.Prepare(fragment, ctx, processors.DefaultProcessors()...)
-	if err != nil {
-		return "", "", err
+	if mode == onlyProcess {
+		fragment, err = processors.Process(fragment, ctx, processors.DefaultProcessors()...)
+		if err != nil {
+			return "", "", err
+		}
+		return fragment.String(), "", nil
 	}
 
-	fragment, err = processors.Process(fragment, ctx, processors.DefaultProcessors()...)
-	if err != nil {
-		return "", "", err
+	return "", "", fmt.Errorf("bad mode: %d", mode)
+}
+
+func extractPrepConfig(ns string, prepareConfigs map[string]interface{}) (string, error) {
+	what, ok := prepareConfigs[ns]
+
+	if !ok {
+		return "", nil
 	}
 
-	return fragment.String(), prep.String(), nil
+	switch what := what.(type) {
+	case string:
+		return what, nil
+	case error:
+		return "", what
+	}
+
+	return "", nil
 }
 
 func (g *Generator) renderMainFile(mainFile string, outputDir string, dest string) (map[string]string, error) {
@@ -95,6 +115,12 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		model.MetaValue = util.ToRubyMapLiteral(g.cfg.ParsedMetaValues)
 	}
 
+	genCtx := &processors.GenerationContext{
+		ReferencedBridges: map[string]bool{},
+	}
+
+	prepareConfigs := g.generatePrepareConfigs(genCtx)
+
 	for _, nsConf := range g.model {
 		if nsConf.Name == "kube-system" {
 			model.KubeSystem = true
@@ -108,11 +134,16 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			continue
 		}
 
-		// render config
-		renderedConfig, preprocessConfig, err := g.makeNamespaceConfiguration(nsConf)
-		configHash := util.Hash("", renderedConfig+preprocessConfig)
+		var renderedConfig, configHash string
+
+		prepConfig, err := extractPrepConfig(nsConf.Name, prepareConfigs)
+
 		if err != nil {
 			configHash = util.Hash("ERROR", err.Error())
+		} else {
+			// render config
+			renderedConfig, _, err = g.makeNamespaceConfiguration(nsConf, genCtx, onlyProcess)
+			configHash = util.Hash("", renderedConfig+prepConfig)
 		}
 
 		if err != nil {
@@ -124,7 +155,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			continue
 		}
 
-		// namespae is not configured
+		// namespace is not configured
 		if renderedConfig == "" {
 			fileHashesByNs[nsConf.Name] = configHash
 			if nsConf.PreviousConfigHash != configHash && nsConf.IsKnownFromBefore {
@@ -135,7 +166,9 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		}
 
 		if nsConf.PreviousConfigHash != configHash && g.validator != nil {
-			err = g.validator.ValidateConfig(renderedConfig, nsConf.Name)
+			validationTrailer := g.makeValidationTrailer(nsConf, genCtx)
+			err = g.validator.ValidateConfig(renderedConfig+"\n# validation  trailer:\n"+validationTrailer.String(), nsConf.Name)
+
 			if err != nil {
 				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd: %+v", nsConf.Name, err)
 				if nsConf.PreviousConfigHash != configHash {
@@ -149,7 +182,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		filename := fmt.Sprintf("ns-%s.conf", nsConf.Name)
 		newFiles = append(newFiles, filename)
-		model.PreprocessingDirectives = append(model.PreprocessingDirectives, preprocessConfig)
+		model.PreprocessingDirectives = append(model.PreprocessingDirectives, prepConfig)
 		fileHashesByNs[nsConf.Name] = configHash
 		err = util.WriteStringToFile(filepath.Join(outputDir, filename), renderedConfig)
 		if err != nil {
@@ -174,6 +207,47 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 	return fileHashesByNs, nil
 }
 
+func (g *Generator) generatePrepareConfigs(genCtx *processors.GenerationContext) map[string]interface{} {
+	prepareConfigs := map[string]interface{}{}
+	for _, nsConf := range g.model {
+		if nsConf.Name == "kube-system" {
+			continue
+		}
+
+		_, prep, err := g.makeNamespaceConfiguration(nsConf, genCtx, onlyPrepare)
+		if err != nil {
+			prepareConfigs[nsConf.Name] = err
+		} else {
+			prepareConfigs[nsConf.Name] = prep
+		}
+	}
+	return prepareConfigs
+}
+
+func (g *Generator) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) fluentd.Fragment {
+	fragment, err := fluentd.ParseString(ns.FluentdConfig)
+	if err != nil {
+		return nil
+	}
+
+	ctx := g.makeContext(ns, genCtx)
+
+	return processors.GetValidationTrailer(fragment, ctx, processors.DefaultProcessors()...)
+}
+
+func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) *processors.ProcessorContext {
+	ctx := &processors.ProcessorContext{
+		Namepsace:         ns.Name,
+		NamespaceLabels:   ns.Labels,
+		AllowFile:         g.cfg.AllowFile,
+		DeploymentID:      g.cfg.ID,
+		MiniContainers:    ns.MiniContainers,
+		KubeletRoot:       g.cfg.KubeletRoot,
+		GenerationContext: genCtx,
+	}
+	return ctx
+}
+
 func (g *Generator) updateStatus(namespace string, status string) {
 	g.su.UpdateStatus(namespace, status)
 }
@@ -186,14 +260,14 @@ func (g *Generator) renderIncludableFile(templateFile string, dest string) {
 	}
 
 	// this is the model for the includable files
-	ctx := struct {
+	model := struct {
 		ID string
 	}{
 		ID: util.MakeFluentdSafeName(g.cfg.ID),
 	}
 
 	buf := &bytes.Buffer{}
-	err = tmpl.Execute(buf, ctx)
+	err = tmpl.Execute(buf, model)
 	if err != nil {
 		logrus.Warnf("Error rendering template file %s: %+v", templateFile, err)
 		return

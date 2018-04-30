@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	labelMacro     = "$labels"
+	macroLabels    = "$labels"
 	containerLabel = "_container"
 )
 
@@ -68,16 +68,16 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
 `))
 
 func parseTagToLabels(tag string) (map[string]string, error) {
-	if !strings.HasPrefix(tag, labelMacro) {
+	if !strings.HasPrefix(tag, macroLabels) {
 		return nil, nil
 	}
 
-	if !strings.HasPrefix(tag, labelMacro+"(") &&
+	if !strings.HasPrefix(tag, macroLabels+"(") &&
 		!strings.HasSuffix(tag, ")") {
 		return nil, fmt.Errorf("bad $labels macro use: %s", tag)
 	}
 
-	labelsOnly := tag[len(labelMacro)+1 : len(tag)-1]
+	labelsOnly := tag[len(macroLabels)+1: len(tag)-1]
 
 	result := map[string]string{}
 

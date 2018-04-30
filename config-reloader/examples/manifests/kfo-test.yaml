@@ -9,6 +9,8 @@ kind: Pod
 metadata:
   name: stdout-logger
   namespace: kfo-test
+  labels:
+    msg: stdout
 spec:
   containers:
   - image: ubuntu
@@ -34,7 +36,7 @@ spec:
     command:
     - bash
     - -c
-    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && rm -fr /var/log/hello.log ;done > /var/log/hello.log
+    - while true; do echo `date -R` [INFO] "Random hello number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/hello.log ;done > /var/log/hello.log
     volumeMounts:
     - mountPath: /var/log
       name: logs
@@ -63,7 +65,7 @@ spec:
     command:
     - bash
     - -c
-    - while true; do echo `date -R` [INFO] "Random welcome number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && rm -fr /var/log/welcome.log ;done > /var/log/welcome.log
+    - while true; do echo `date -R` [INFO] "Random welcome number $((var++)) to file"; sleep 2; [[ $(($var % 100)) == 0 ]] && :> /var/log/welcome.log ;done > /var/log/welcome.log
     volumeMounts:
     - mountPath: /var/log
       name: logs
@@ -94,7 +96,61 @@ data:
       path /var/log/welcome.log
       labels msg=welcome, _container=test-container
     </source>
+    <match $labels(msg=stdout)>
+      @type copy
+      <store>
+        @type share
+        with_namespace kfo-consumer
+      </store>
+      <store>
+        @type share
+        with_namespace no-such-namespace
+      </store>
+    </match>
     <match **>
       @type loggly
       loggly_url https://logs-01.loggly.com/inputs/$LOGGLY_TOKEN/tag/fluentd
     </match>
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kfo-consumer
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: kfo-consumer
+data:
+  fluent.conf: |
+    <label @$from(kfo-test)>
+      <match **>
+        @type elasticsearch
+        include_tag_key false
+
+        host "cloud.humio.com"
+        path "/api/v1/dataspaces/sandbox/ingest/elasticsearch/"
+        scheme "https"
+        port "443"
+
+        user "$HUMIO_KEY"
+        password ""
+
+        logstash_format true
+
+        reload_connections "true"
+        logstash_prefix "fluentd:kubernetes2humio"
+        buffer_chunk_limit 1M
+        buffer_queue_limit 32
+        flush_interval 1s
+        max_retry_wait 30
+        disable_retry_limit
+        num_threads 8
+      </match>
+    </label>
+
+---

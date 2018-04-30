@@ -24,10 +24,12 @@ var reParam = regexp.MustCompile("^([^<\\s]+)(\\s+(.+))?")
 
 type Fragment []*Directive
 
+type Params map[string]*Param
+
 type Directive struct {
 	Name   string
 	Tag    string
-	Params map[string]*Param
+	Params Params
 	Nested Fragment
 }
 
@@ -82,7 +84,7 @@ func writeIndent(b *bytes.Buffer, n int) {
 	b.WriteString(strings.Repeat(" ", n))
 }
 
-func sortedKeys(m map[string]*Param) []string {
+func sortedKeys(m Params) []string {
 	keys := make([]string, len(m))
 	i := 0
 
@@ -130,14 +132,14 @@ func (p *Param) String() string {
 }
 
 func (f Fragment) String() string {
-	var buffer bytes.Buffer
+	buf := &bytes.Buffer{}
 
 	for _, element := range f {
-		buffer.WriteString(element.stringIndent(0))
-		buffer.WriteString("\n")
+		buf.WriteString(element.stringIndent(0))
+		buf.WriteString("\n")
 	}
 
-	return buffer.String()
+	return buf.String()
 }
 
 func topDir(s *Stack) *Directive {
@@ -166,7 +168,7 @@ func ParseString(s string) (Fragment, error) {
 		if len(start) > 0 {
 			d := &Directive{
 				Name:   util.Trim(start[1]),
-				Params: make(map[string]*Param),
+				Params: Params{},
 			}
 			if len(start) > 2 {
 				d.Tag = util.Trim(start[3])

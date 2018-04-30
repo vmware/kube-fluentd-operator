@@ -82,6 +82,9 @@ func TestLabelNoLabels(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
@@ -112,6 +115,9 @@ func TestLabelWithLabels(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
@@ -185,6 +191,9 @@ func TestLabelWithLabelsAndElse(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
@@ -215,6 +224,9 @@ func TestLabelWithLabelsAndContainer(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
 	}
 
 	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})

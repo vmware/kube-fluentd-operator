@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	thisnsMacro = "$thisns"
+	macroThisns = "$thisns"
 )
 
 type expandThisnsMacroState struct {
@@ -30,7 +30,7 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 
 		goodPrefix := fmt.Sprintf("kube.%s", namespace)
 
-		if d.Tag == "**" || d.Tag == thisnsMacro {
+		if d.Tag == "**" || d.Tag == macroThisns {
 			d.Tag = goodPrefix + ".**"
 			return nil
 		}
@@ -39,11 +39,11 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return errors.New("Cannot process {} in the tag yet")
 		}
 
-		if strings.HasPrefix(d.Tag, labelMacro) {
+		if strings.HasPrefix(d.Tag, macroLabels) {
 			return nil
 		}
 
-		s := strings.Replace(d.Tag, thisnsMacro, goodPrefix, -1)
+		s := strings.Replace(d.Tag, macroThisns, goodPrefix, -1)
 
 		if !strings.HasPrefix(s, goodPrefix+".") {
 			return fmt.Errorf("bad tag for <%s>: %s. Tag must start with **, $thins or %s", d.Name, d.Tag, namespace)

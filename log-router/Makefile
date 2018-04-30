@@ -13,6 +13,7 @@ helm-dry-run:
 	helm install . --dry-run --debug \
 	  --set image.pullSecret=test-pull-secret \
 	  --set namespaces[0]=kfo-test \
+	  --set namespaces[1]=kfo-consumer \
 	  --set meta.key=key \
 	  --set meta.values.env=test \
 	  --set meta.values.region=eu \
