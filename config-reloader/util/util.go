@@ -24,10 +24,16 @@ func Trim(s string) string {
 }
 
 func MakeFluentdSafeName(s string) string {
-	filter := func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_'
+	buf := &bytes.Buffer{}
+	for _, r := range s {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
+			buf.WriteRune('-')
+		} else {
+			buf.WriteRune(r)
+		}
 	}
-	return strings.TrimFunc(s, filter)
+
+	return buf.String()
 }
 
 func ToRubyMapLiteral(labels map[string]string) string {
