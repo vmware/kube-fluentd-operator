@@ -465,6 +465,36 @@ demo.conf:
 
 For details you should consult the plugin documentation.
 
+### I want to push logs to Humio
+
+Humio speaks the elasticsearh protocol so configuration is pretty similar to Elasticsearch. The example bellow is based on https://github.com/humio/kubernetes2humio/blob/master/fluentd/docker-image/fluent.conf.
+
+```xml
+<match **>
+  @type elasticsearch
+  include_tag_key false
+
+  host "YOUR_HOST"
+  path "/api/v1/dataspaces/YOUR_NAMESPACE/ingest/elasticsearch/"
+  scheme "https"
+  port "443"
+
+  user "YOUR_KEY"
+  password ""
+
+  logstash_format true
+
+  reload_connections "true"
+  logstash_prefix "fluentd:kubernetes2humio"
+  buffer_chunk_limit 1M
+  buffer_queue_limit 32
+  flush_interval 1s
+  max_retry_wait 30
+  disable_retry_limit
+  num_threads 8
+</match>
+```
+
 ### I want to push logs from namespace test to papertrail
 
 ```xml
