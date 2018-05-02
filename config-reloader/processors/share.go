@@ -93,28 +93,45 @@ func (p *shareLogsState) Prepare(input fluentd.Fragment) (fluentd.Fragment, erro
 
 func (p *shareLogsState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	rewriteShareType := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-		if d.Name != "store" {
+		if d.Name != "match" {
 			return nil
 		}
 
-		if d.Type() != typeShare {
+		if d.Type() != "copy" {
 			return nil
 		}
 
-		destNs := d.Param("with_namespace")
-		bridge := makeBridgeName(p.Context.Namepsace, destNs)
+		newContent := fluentd.Fragment{}
+		for _, nested := range d.Nested {
+			if nested.Name != "store" {
+				newContent = append(newContent, nested)
+				continue
+			}
 
-		d.Params = fluentd.Params{}
+			if nested.Type() != "share" {
+				newContent = append(newContent, nested)
+				continue
+			}
 
-		if _, ok := p.Context.GenerationContext.ReferencedBridges[bridge]; ok {
-			d.SetParam("@type", "relabel")
-			d.SetParam("@label", bridge)
-		} else {
-			// the bridge is never used: don't create new label
-			// otherwise it would fail validation
-			d.SetParam("@type", "null")
+			destNs := nested.Param("with_namespace")
+			if destNs == "" {
+				return fmt.Errorf("@type share required a with_namespace parameter")
+			}
+			bridge := makeBridgeName(p.Context.Namepsace, destNs)
+
+			// only retain @relabel stores when the bridges are being referenced
+			if _, ok := p.Context.GenerationContext.ReferencedBridges[bridge]; ok {
+				obj := &fluentd.Directive{
+					Name:   "store",
+					Params: fluentd.Params{},
+				}
+				obj.SetParam("@type", "relabel")
+				obj.SetParam("@label", bridge)
+				newContent = append(newContent, obj)
+			}
 		}
 
+		d.Nested = newContent
 		return nil
 	}
 
