@@ -92,7 +92,7 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 		if matches(cf, mc) {
 			dir := &fluentd.Directive{
 				Name:   "source",
-				Params: map[string]*fluentd.Param{},
+				Params: fluentd.Params{},
 			}
 
 			for _, hm := range mc.HostMounts {
@@ -131,11 +131,11 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 	res := &fluentd.Directive{
 		Name:   "filter",
 		Tag:    tag,
-		Params: map[string]*fluentd.Param{},
+		Params: fluentd.Params{},
 		Nested: []*fluentd.Directive{
 			{
 				Name:   "record",
-				Params: map[string]*fluentd.Param{},
+				Params: fluentd.Params{},
 			},
 		},
 	}
@@ -163,9 +163,8 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 func makeDefaultParseDirective() *fluentd.Directive {
 	res := &fluentd.Directive{
 		Name:   "parse",
-		Params: map[string]*fluentd.Param{},
+		Params: fluentd.ParamsFromKV("@type", "none"),
 	}
-	res.SetParam("@type", "none")
 
 	return res
 }

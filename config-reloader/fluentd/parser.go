@@ -52,7 +52,22 @@ func (d *Directive) Type() string {
 	return p.Value
 }
 
-func (d *Directive) Param(name string) string {
+// ParamsFromKV make a Params from a string-string map
+func ParamsFromKV(keyValues ...string) Params {
+	res := make(map[string]*Param, len(keyValues)/2)
+
+	for i := 0; i < len(keyValues)-1; i += 2 {
+		k := keyValues[i]
+		v := keyValues[i+1]
+		res[k] = &Param{
+			Value: v,
+		}
+	}
+
+	return res
+}
+
+func (d *Directive) ParamVerbatim(name string) string {
 	p := d.Params[name]
 
 	if p == nil {
@@ -60,6 +75,10 @@ func (d *Directive) Param(name string) string {
 	}
 
 	return p.Value
+}
+
+func (d *Directive) Param(name string) string {
+	return util.TrimTrailingComment(d.ParamVerbatim(name))
 }
 
 func (d *Directive) SetParam(name string, value string) {

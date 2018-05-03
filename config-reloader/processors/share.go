@@ -185,11 +185,10 @@ func (p *shareLogsState) GetValidationTrailer(directives fluentd.Fragment) fluen
 					&fluentd.Directive{
 						Name:   "match",
 						Tag:    "**",
-						Params: fluentd.Params{},
+						Params: fluentd.ParamsFromKV("@type", "null"),
 					},
 				},
 			}
-			dir.Nested[0].SetParam("@type", "null")
 
 			res = append(res, dir)
 		}

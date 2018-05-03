@@ -40,6 +40,8 @@ func TestParse1(t *testing.T) {
 		no_value
 		trailing   
 		trailing_val val  
+		trailing_comment_val val #indeed
+		trailing_comment #indeed
 		# comment
 		#inl_comment_val 123 # this is the comment
 		#inl_comment  # this is the comment
@@ -60,9 +62,11 @@ func TestParse1(t *testing.T) {
 	assert.Equal(t, "", d.Params["trailing"].Value)
 	assert.Equal(t, "val", d.Params["trailing_val"].Value)
 
-	// TODO support inline comments
-	//assert.Equal(t, "", d.Params["inl_comment"].Value)
-	//assert.Equal(t, "123", d.Params["inl_comment_val"].Value)
+	assert.Equal(t, "val #indeed", d.ParamVerbatim("trailing_comment_val"))
+	assert.Equal(t, "#indeed", d.ParamVerbatim("trailing_comment"))
+
+	assert.Equal(t, "val", d.Param("trailing_comment_val"))
+	assert.Equal(t, "#indeed", d.Param("trailing_comment"))
 }
 
 func TestParseNestedToString(t *testing.T) {
