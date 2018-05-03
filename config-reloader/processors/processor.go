@@ -108,7 +108,7 @@ func GetValidationTrailer(input fluentd.Fragment, ctx *ProcessorContext, process
 	return res
 }
 
-// Prepares accumulates the result from the processors
+// Prepare accumulates the result from the processors
 func Prepare(input fluentd.Fragment, ctx *ProcessorContext, processors ...FragmentProcessor) (fluentd.Fragment, error) {
 	if ctx == nil {
 		return nil, errors.New("cannot work with nil ProcessorContext")
@@ -118,8 +118,8 @@ func Prepare(input fluentd.Fragment, ctx *ProcessorContext, processors ...Fragme
 
 	for _, proc := range processors {
 		proc.SetContext(ctx)
-		x, err := proc.Prepare(input)
-		res = append(res, x...)
+		prepDirectives, err := proc.Prepare(input)
+		res = append(res, prepDirectives...)
 		if err != nil {
 			return nil, err
 		}

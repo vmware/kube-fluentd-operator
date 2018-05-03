@@ -16,7 +16,7 @@ import (
 
 const mountedFileSourceType = "mounted-file"
 
-// stores parsed info from a <source> @type mounted-file...
+// ContainerFile stores parsed info from a <source> @type mounted-file...
 type ContainerFile struct {
 	Labels map[string]string
 	Path   string

@@ -70,7 +70,7 @@ func (cfg *Config) GetLogLevel() logrus.Level {
 	return cfg.level
 }
 
-// ValidateConfig performs validation on the Config object
+// Validate performs validation on the Config object
 func (cfg *Config) Validate() error {
 	if cfg.IntervalSeconds < 0 {
 		// better normalize then fail
