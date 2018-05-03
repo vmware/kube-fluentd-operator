@@ -150,7 +150,7 @@ func TestParseNested(t *testing.T) {
 
 	record := filter.Nested[0]
 	assert.Equal(t, "record", record.Name)
-	assert.Equal(t, "\"#{Socket.gethostname}\"", record.Param("host_param"))
+	assert.Equal(t, "\"#{Socket.gethostname}\"", record.ParamVerbatim("host_param"))
 
 	match := fragment[2]
 	assert.Equal(t, "match", match.Name)
