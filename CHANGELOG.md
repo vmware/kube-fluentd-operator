@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## 1.1.0 (Unreleased)
+## 1.2.0 (Unreleased)
+
+* Feature: share log streams between namespaces
+
+## 1.1.0
 
 * Feature: ingest log files from a container filesystem
 
