@@ -68,7 +68,7 @@ spec:
           - name: fluentconf
             mountPath: /fluentd/etc
           resources:
-{{ toYaml .Values.fluentdResources | indent 12 }}
+{{ toYaml .Values.reloaderResources | indent 12 }}
 {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}
