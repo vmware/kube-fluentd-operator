@@ -165,9 +165,11 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			continue
 		}
 
+		var validationTrailer string
+
 		if nsConf.PreviousConfigHash != configHash && g.validator != nil {
-			validationTrailer := g.makeValidationTrailer(nsConf, genCtx)
-			err = g.validator.ValidateConfig(renderedConfig+"\n# validation  trailer:\n"+validationTrailer.String(), nsConf.Name)
+			validationTrailer = g.makeValidationTrailer(nsConf, genCtx).String()
+			err = g.validator.ValidateConfig(renderedConfig+"\n# validation  trailer:\n"+validationTrailer, nsConf.Name)
 
 			if err != nil {
 				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd: %+v", nsConf.Name, err)
@@ -184,6 +186,11 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		newFiles = append(newFiles, filename)
 		model.PreprocessingDirectives = append(model.PreprocessingDirectives, prepConfig)
 		fileHashesByNs[nsConf.Name] = configHash
+		if g.cfg.FsDatasourceDir != "" {
+			// if the source is the filesystem, preserve the validation trailer
+			// so that generated files are valid in isolation
+			renderedConfig = renderedConfig + "\n# validation  trailer:\n" + validationTrailer
+		}
 		err = util.WriteStringToFile(filepath.Join(outputDir, filename), renderedConfig)
 		if err != nil {
 			logrus.Infof("Cannot store config file for namespace %s", nsConf.Name)
