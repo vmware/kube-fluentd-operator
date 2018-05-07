@@ -4,6 +4,8 @@
 
 * Feature: share log streams between namespaces
 
+* Fix(Helm): propery set the resources field of the reloader container. Setting them had no effect until now.
+
 ## 1.1.0
 
 * Feature: ingest log files from a container filesystem
