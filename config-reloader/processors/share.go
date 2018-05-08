@@ -44,17 +44,22 @@ func makeBridgeName(sourceNs, destNs string) string {
 }
 
 func extractSourceNsFromMacro(labelExpr string) string {
-	pfx := "@" + macroFrom + "("
+	pfx := "@" + macroFrom
 	if !strings.HasPrefix(labelExpr, pfx) {
 		return ""
 	}
 
-	i := strings.LastIndexByte(labelExpr, ')')
-	if i <= 0 {
+	start := strings.LastIndexByte(labelExpr, '(')
+	if start <= 0 {
 		return ""
 	}
 
-	return util.Trim(labelExpr[len(pfx):i])
+	end := strings.LastIndexByte(labelExpr, ')')
+	if end <= 0 {
+		return ""
+	}
+
+	return util.Trim(labelExpr[start+1 : end])
 }
 
 func makeRewriteTagFragment(sourceNs string, destNs string) (fluentd.Fragment, error) {
