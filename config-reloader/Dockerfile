@@ -6,8 +6,9 @@
 FROM golang:1.9 as builder
 
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
+RUN go get -u github.com/golang/dep/cmd/dep
 COPY . .
-RUN make test
+RUN make dep && make test
 RUN make build VERSION=$VERSION
 
 # always use the unpushable image
