@@ -50,8 +50,8 @@ EOF
 kubectl create configmap fluentd-config --namespace demo --from-file=fluent.conf=fluent.conf
 
 
-# This step is optional: the fluentd-config is the default: use only if you are forced
-# to use anothe configmap name
+# This step is optional: the fluentd-config is the default.
+# It should only be used if you the configmap is called other than `fluentd-config`
 kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
 
 ```
@@ -112,11 +112,13 @@ make run-local-fs
 ls -l tmp/
 ```
 
-## Documentation
+## Configuration
 
-### Configuration language
+### Basic usage
 
 To give the illusion that every namespace runs a dedicated Fluentd the user-provided configuration is post-processed. In general, expressions starting with `$` are macros that are expanded. These two directives are equivalent: `<match **>`, `<match $thins>`. Almost always, using the `**` is the preferred way to match logs: this way you can reuse the same configuration for multiple namespaces.
+
+### A note on the `kube-system` namespace
 
 The `kube-system` is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use advanced features described bellow, it is possible to route all logs from all namespaces using this configuration at the `kube-system` level:
 
@@ -147,6 +149,8 @@ A recommended configuration for the `kube-system` namespace is this one - it cap
 </match>
 ```
 
+### Using the $labels macro
+
 A very useful feature is the `<filter>` and the `$labels` macro to define parsing at the namespace level. For example, the config-reloader container uses the logfmt format. This makes it easy to use structured logging and ingest json data into a remote log ingestion service.
 
 ```xml
@@ -166,7 +170,7 @@ The above config will pipe all logs from the pods labelled with `app=log-router`
 
 All plugins that change the fluentd tag are disabled for security reasons. Otherwise a rogue configuration may divert other namespace's logs to itself by prepending its name to the tag.
 
-The `@type file` plugin is also disabled as it doesn't make sense to convert local docker json logs to another file on the same disk.
+### Ingest logs from a log file in the container
 
 The only allowed `<source>` directive is of type `mounted-file`. It is used to ingest a log file from a container on an `emptyDir`-mounted volume:
 
@@ -174,12 +178,14 @@ The only allowed `<source>` directive is of type `mounted-file`. It is used to i
 <source>
   @type mounted-file
   path /var/log/welcome.log
-  labels msg=welcome, _container=test-container
+  labels app=grafana, _container=test-container
   <parse>
     @type none
   </parse>
 </source>
 ```
+
+The `labels` parameter is similar to the `$labels` macro and can filter out logs based on the pod labels. The `<parse>` directive is optional and if omitted a `@type none` will be used. If you know the format of the log file you can be more explicity and specify it, for example `@type apache2` or `@type json`.
 
 The above configuration would translate at runtime to something similar to this:
 
@@ -197,7 +203,69 @@ The above configuration would translate at runtime to something similar to this:
 </source>
 ```
 
-All logs originating from a file look exactly as all other Kubernetes logs. However, their `stream` field is not set to `stdout` but to the source file:
+The `@type file` (a destination plug-in) is disabled as it doesn't make sense to convert local docker json logs to another file on the same disk.
+
+### Sharing logs between namespaces
+
+By default, you can consume logs only from your namespaces. Often it is useful for multiple namespaces (tenants) to get access to the logs streams of a shared resource (pod, namespace). *kube-fluentd-operator* makes it possible using two constructs: the source namespace expresses its intent to share logs with a destination namespace and the destination namespace expresses its desire to consume logs from a source. As a result logs are streamed only when both sides agree.
+
+A source namespace can share with another namespace using the `@type share` macro:
+
+producer namespace configuration:
+
+```xml
+<match $labels(msg=nginx-ingress)>
+  @type copy
+  <store>
+    @type share
+    # share all logs matching the labels with the namespace "consumer"
+    with_namespace consumer
+  </store>
+</match>
+```
+
+consumer namespace configuration:
+
+```xml
+# use $from(producer) to get all shared logs from a namespace called "producer"
+<label @$from(producer)>
+  <match **>
+    # process all shared logs here as usual
+  </match>
+</match>
+```
+
+The consuming namespace will can use the usual syntax inside the `<label @$from...>` directive. The fluentd tag is being rewritten as if the logs originated from the same namespace.
+
+The producing namespace need to wrap `@type share` within a `<store>` directive. This is done on purpose as it is very easy to just redirect the logs to the destination namespace and lose them. The `@type copy` clones the whole stream.
+
+### Log metadata
+
+Often you run mulitple Kubernetes clusters but you need to aggregate all logs to a single destination. To distinguish between different sources, `kube-fluentd-operator` can attach arbitrary metadata to every log event.
+The metadata is nested under a key chosen with `--meta-key`. Using the helm chart, metadata can be enabled like this:
+
+```bash
+helm instal ... \
+  --set=meta.key=metadata \
+  --set=meta.values.region=us-east-1 \
+  --set=meta.values.env=staging \
+  --set=meta.values.cluster=legacy
+```
+
+Every log event, be it from a pod, mounted-file or a systemd unit, will now carry this metadata:
+
+```json
+{
+  "metadata": {
+    "region": "us-east-1",
+    "env": "staging",
+    "cluster": "legacy",
+  },
+  ...
+}
+```
+
+All logs originating from a file look exactly as all other Kubernetes logs. However, their `stream` field is not set to `stdout` but to the path to the source file:
 
 ```json
 {
@@ -223,7 +291,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 }
 ```
 
-### Available plugins
+## Available plugins
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors appending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -252,33 +320,7 @@ When customizing the image be careful not to uninstall plugins that are used int
 
 If you need other destination plugins you are welcome to contribute a patch or just create an issue.
 
-### Log metadata
-
-Often you run mulitple Kubernetes clusters but you need to aggregate all logs to a single destination. To distinguish between different sources, `kube-fluentd-operator` can attach arbitrary metadata to every log event.
-The metadata is nested under a key chosen with `--meta-key`. Using the helm chart, metadata can be enabled like this:
-
-```bash
-helm instal ... \
-  --set=meta.key=metadata \
-  --set=meta.values.region=us-east-1 \
-  --set=meta.values.env=staging \
-  --set=meta.values.cluster=legacy
-```
-
-Every log event, be it from a pod, mounted-file or a systemd unit, will now carry this metadata:
-
-```json
-{
-  "metadata": {
-    "region": "us-east-1",
-    "env": "staging",
-    "cluster": "legacy",
-  },
-  ...
-}
-```
-
-### Synopsis
+## Synopsis
 
 The config-reloader binary is the one that listens to changes in K8S and generates Fluentd files. It runs as a daemonset and is not intended to interact with directly. The synopsis is useful when trying to understand the Helm chart or jsut hacking.
 
@@ -324,7 +366,7 @@ Flags:
 
 ```
 
-### Helm chart
+## Helm chart
 
 | Parameter                                | Description                         | Default                                           |
 |------------------------------------------|-------------------------------------|---------------------------------------------------|
@@ -402,7 +444,7 @@ helm install ./log-router --set rbac.create=true ...
 
 ### I have a legacy container that logs to /var/log/httpd/access.log
 
-First you need version 1.1.0. At the namespace level you need to add a `source` directive:
+First you need version 1.1.0 or later. At the namespace level you need to add a `source` directive:
 
 ```xml
 <source>
@@ -495,7 +537,7 @@ Humio speaks the elasticsearh protocol so configuration is pretty similar to Ela
 </match>
 ```
 
-### I want to push logs from namespace test to papertrail
+### I want to push logs to papertrail
 
 ```xml
 test.conf:
@@ -609,14 +651,14 @@ This will build the code, then `config-reloader` will connect to the K8S cluster
 
 Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
 
-### I don't want to annotate all my namespaces with the same way
+### I don't want to annotate all my namespaces the same way
 
 It is possible to reduce configuration burden by using a default configmap name. The default value is `fluentd-config` - kube-fluentd-operator will read the configmap by that name if the namespace is not annotated.
 If you don't like this default name or happen to use this configmap for other purposes then override the default with `--defualt-configmap=my-default`.
 
 ### How can I be sure to use a valid path for the .pos and .buf files
 
-.pos files store the progress of the upload process and .buf are used for local buffering. Colliding .pos/.buf paths can lead to races in Fluentd. As such, `kube-fluentd-operator` tries hard to rewrite such path-based parameters in predictable way. You only need to make sure they are unique for your namespace and `config-reloader` will take care to make them unique cluster-wide.
+.pos files store the progress of the upload process and .buf are used for local buffering. Colliding .pos/.buf paths can lead to races in Fluentd. As such, `kube-fluentd-operator` tries hard to rewrite such path-based parameters in a predictable way. You only need to make sure they are unique for your namespace and `config-reloader` will take care to make them unique cluster-wide.
 
 ### I dont like the annotation name logging.csp.vmware.com/fluentd-configmap
 
@@ -659,8 +701,11 @@ questions about the CLA process, please refer to our [FAQ](https://cla.vmware.co
 refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
+
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-*	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-*	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
