@@ -235,7 +235,7 @@ consumer namespace configuration:
 </match>
 ```
 
-The consuming namespace will can use the usual syntax inside the `<label @$from...>` directive. The fluentd tag is being rewritten as if the logs originated from the same namespace.
+The consuming namespace can use the usual syntax inside the `<label @$from...>` directive. The fluentd tag is being rewritten as if the logs originated from the same namespace.
 
 The producing namespace need to wrap `@type share` within a `<store>` directive. This is done on purpose as it is very easy to just redirect the logs to the destination namespace and lose them. The `@type copy` clones the whole stream.
 
@@ -260,8 +260,7 @@ Every log event, be it from a pod, mounted-file or a systemd unit, will now carr
     "region": "us-east-1",
     "env": "staging",
     "cluster": "legacy",
-  },
-  ...
+  }
 }
 ```
 
@@ -415,9 +414,9 @@ kube-system.conf:
 </match>
 ```
 
-### I want to use one destination but also want to use $labels to exclude a verbose pod/container from a single namespace
+### I want to use one destination but also want to just exclude a few pods
 
-This is not possible. Instead, provide this config for the noisy namespace and configure other namespaces at the cost of some code duplication:
+It is not possible to handle this globally. Instead, provide this config for the noisy namespace and configure other namespaces at the cost of some code duplication:
 
 ```xml
 noisy-namespace.conf:
@@ -425,8 +424,7 @@ noisy-namespace.conf:
   @type null
 </match>
 
-
-other-namespace.conf
+# all other logs are captyre here
 <match **>
   @type ...
 </match>
