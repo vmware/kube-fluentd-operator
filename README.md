@@ -340,6 +340,8 @@ Flags:
 | `interval`                               | How often to check for config changes (seconds)                 | `45`          |
 | `meta.key`                               | The metadata key (optional)                 | `""`                                |
 | `meta.values`                            | Metadata to use for the key   | `{}`
+| `extraVolumeMounts`                      | Mount an extra volume, required to mount ssl certificates when elasticsearch has tls enabled |          |
+| `extraVolume`                            | Extra volume                               |                                                            | 
 | `fluentdResources`                       | Resource definitions for the fluentd container                 | `{}`|
 | `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |

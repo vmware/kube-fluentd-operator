@@ -38,6 +38,9 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
+{{- if .Values.extraVolumeMounts }}          
+{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+{{- end }}
           resources:
 {{ toYaml .Values.fluentdResources | indent 12 }}
 
@@ -89,3 +92,6 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
+{{- if .Values.extraVolumes }}          
+{{ toYaml .Values.extraVolumes | indent 6 }}
+{{- end }}
