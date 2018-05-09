@@ -1,7 +1,7 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-FROM fluent/fluentd:v1.1.0-debian
+FROM fluent/fluentd:v1.1.3-debian
 
 
 # start with a valid empty file

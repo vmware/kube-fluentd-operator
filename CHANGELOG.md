@@ -6,6 +6,8 @@
 
 * Fix(Helm): propery set the resources field of the reloader container. Setting them had no effect until now.
 
+* Fluentd: Update base-image to fluentd-1.1.3-debian
+
 ## [1.1.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.1.0)
 
 * Feature: ingest log files from a container filesystem
