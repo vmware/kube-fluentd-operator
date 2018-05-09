@@ -25,7 +25,7 @@ dep:
 	dep ensure
 
 guess-tag:
-	@echo "TAG=`git describe --tags --always`-`date -u +"%Y%m%d"`"
+	@echo "TAG=`git describe --tags --always"
 
 clean:
 	rm -fr config-reloader pkg > /dev/null
@@ -38,6 +38,9 @@ build-image:
 push-image: build-image
 	docker push $(IMAGE):$(TAG)
 
+push-latest:
+	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
+	docker push $(IMAGE):latest
 
 create-test-ns:
 	HUMIO_KEY=$(HUMIO_KEY) LOGGLY_TOKEN=$(LOGGLY_TOKEN) envsubst '$$LOGGLY_TOKEN:$$HUMIO_KEY' < examples/manifests/kfo-test.yaml | kubectl apply -f -
