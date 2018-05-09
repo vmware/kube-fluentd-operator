@@ -25,6 +25,16 @@ meta:
   key: ""
   values: {}
 
+# extraVolumes:
+#   - name: es-certs
+#     secret:
+#       defaultMode: 420
+#       secretName: es-certs
+# extraVolumeMounts:
+#   - name: es-certs
+#     mountPath: /certs
+#     readOnly: true
+
 tolerations: []
 fluentdResources: {}
 reloaderResources: {}
