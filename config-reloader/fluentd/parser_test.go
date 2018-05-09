@@ -69,6 +69,17 @@ func TestParse1(t *testing.T) {
 	assert.Equal(t, "#indeed", d.Param("trailing_comment"))
 }
 
+func TestParamsFromKV(t *testing.T) {
+	params := ParamsFromKV("k1", "v1")
+	assert.Equal(t, "v1", params["k1"].Value)
+
+	params = ParamsFromKV("k1", "v1", "k2", "v2")
+	assert.Equal(t, "v2", params["k2"].Value)
+
+	params = ParamsFromKV("k1")
+	assert.Nil(t, params["k1"])
+}
+
 func TestParseNestedToString(t *testing.T) {
 	var nested = `
 	<filter   myapp.access  >

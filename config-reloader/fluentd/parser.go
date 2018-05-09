@@ -26,6 +26,14 @@ type Fragment []*Directive
 
 type Params map[string]*Param
 
+// Directive represents a fluentd directive:
+// <Name Tag>
+//   Params[0]
+//   Params[n]
+//   <Nested[0].Name Nested[0].Tag>
+//    ...etc
+//   </Nested[0].Name>
+// </Name>
 type Directive struct {
 	Name   string
 	Tag    string
@@ -33,11 +41,13 @@ type Directive struct {
 	Nested Fragment
 }
 
+// Param just holds a Name/Value pair
 type Param struct {
 	Name  string
 	Value string
 }
 
+// Type return the @type parameter or type parameter. "" if not type is defined
 func (d *Directive) Type() string {
 	// basic v0/v1 compatibility
 	p := d.Params["@type"]
@@ -57,9 +67,15 @@ func ParamsFromKV(keyValues ...string) Params {
 	res := make(map[string]*Param, len(keyValues)/2)
 
 	for i := 0; i < len(keyValues)-1; i += 2 {
+		if i+1 >= len(keyValues) {
+			// the last missing value is ignored
+			continue
+		}
+
 		k := keyValues[i]
 		v := keyValues[i+1]
 		res[k] = &Param{
+			Name:  k,
 			Value: v,
 		}
 	}

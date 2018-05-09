@@ -40,7 +40,7 @@ push-image: build-image
 
 
 create-test-ns:
-	HUMIO_KEY=$(HUMIO_KEY) LOGGLY_TOKEN=$(LOGGLY_TOKEN) envsubst '$$LOGGLY_TOKEN::$$HUMIO_KEY' < examples/manifests/kfo-test.yaml | kubectl apply -f -
+	HUMIO_KEY=$(HUMIO_KEY) LOGGLY_TOKEN=$(LOGGLY_TOKEN) envsubst '$$LOGGLY_TOKEN:$$HUMIO_KEY' < examples/manifests/kfo-test.yaml | kubectl apply -f -
 
 delete-test-ns:
 	kubectl delete -f examples/manifests/kfo-test.yaml
