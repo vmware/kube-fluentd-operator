@@ -313,6 +313,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-route
 * fluent-plugin-s3
 * fluent-plugin-secure-forward
+* fluent-plugin-splunkhec
 * fluent-plugin-systemd
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macro language.
