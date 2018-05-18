@@ -2,17 +2,21 @@
 
 ## 1.2.0 (Unreleased)
 
-* Feature: share log streams between namespaces
+* Core: Share log streams between namespaces
 
-* Fix(Helm): propery set the resources field of the reloader container. Setting them had no effect until now.
+* Helm: Mount secrets/configmaps (tls mostly) ala elasticsearch (@sneko)
 
 * Fluentd: Update base-image to fluentd-1.1.3-debian
 
+* Fluentd: Include Splunk plugin into base-image (@mhulscher)
+
+* Fix(Helm): properly set the `resources` field of the reloader container. Setting them had no effect until now (@sneko)
+
 ## [1.1.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.1.0)
 
-* Feature: ingest log files from a container filesystem
+* Core: ingest log files from a container filesystem
 
-* Feature: limit impact of log-router to a set of namespaces using `--namespaces`
+* Core: limit impact of log-router to a set of namespaces using `--namespaces`
 
 * Helm: add new property `kubeletRoot`
 
@@ -20,10 +24,10 @@
 
 ## [1.0.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.0.1)
 
-* install plugin `fluent-plugin-concat` in Fluentd
+* Fluentd: install plugin `fluent-plugin-concat` in Fluentd
 
-* support for default configmap name using `--default-configmap`
+* Core: support for default configmap name using `--default-configmap`
 
 ## [1.0.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.0.0)
 
-* initial version
+* Initial version
