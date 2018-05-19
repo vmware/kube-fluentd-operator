@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## 1.2.0 (Unreleased)
+## 1.3.0 (Unreleased)
+
+## [1.2.0] (https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.2.0)
 
 * Core: Share log streams between namespaces
 
