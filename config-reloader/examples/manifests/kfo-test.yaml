@@ -106,6 +106,10 @@ data:
         @type share
         with_namespace no-such-namespace
       </store>
+      <store>
+        @type loggly
+        loggly_url https://logs-01.loggly.com/inputs/$LOGGLY_TOKEN/tag/fluentd
+      </store>
     </match>
     <match **>
       @type loggly

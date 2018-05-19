@@ -152,6 +152,8 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 		"pod_id":         mc.PodID,
 		"host":           mc.NodeName,
 	}))
+
+	fmt.Fprintf(buf, "record['container_info']='%s'; ", util.Hash(mc.PodID, cf.Path))
 	fmt.Fprintf(buf, "record['kubernetes']['labels']=%s; ", util.ToRubyMapLiteral(mc.Labels))
 	fmt.Fprintf(buf, "record['kubernetes']['namespace_labels']=%s", util.ToRubyMapLiteral(state.Context.NamespaceLabels))
 
