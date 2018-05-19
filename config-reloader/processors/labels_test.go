@@ -78,7 +78,7 @@ func TestLabelNoLabels(t *testing.T) {
 	fragment, err := fluentd.ParseString(s)
 	assert.Nil(t, err)
 
-	fmt.Printf("Original: %s", fragment)
+	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",
@@ -88,9 +88,9 @@ func TestLabelNoLabels(t *testing.T) {
 	}
 
 	fragment, err = Process(fragment, ctx, &expandLabelsMacroState{})
+	fmt.Printf("Processed:\n%s\n", fragment)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(fragment))
-
 }
 
 func TestLabelWithLabels(t *testing.T) {
@@ -111,7 +111,7 @@ func TestLabelWithLabels(t *testing.T) {
 	fragment, err := fluentd.ParseString(s)
 	assert.Nil(t, err)
 
-	fmt.Printf("Original: %s", fragment)
+	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
 		Namepsace: "monitoring",

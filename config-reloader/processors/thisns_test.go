@@ -5,6 +5,7 @@ package processors
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
@@ -53,10 +54,12 @@ func TestThisnsExpandOk(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namepsace:         "monitoring",
+		GenerationContext: &GenerationContext{},
 	}
 	fragment, err = Process(fragment, ctx, &expandThisnsMacroState{})
 	assert.Nil(t, err)
+	fmt.Printf("Processed:\n%s", fragment)
 
 	lit := fragment[0]
 	assert.Equal(t, "kube.monitoring.**", lit.Tag)
@@ -66,6 +69,8 @@ func TestThisnsExpandOk(t *testing.T) {
 
 	prefix := fragment[2]
 	assert.Equal(t, "kube.monitoring.**", prefix.Tag)
+
+	assert.True(t, strings.Index(fragment.String(), "$thisns") < 0)
 }
 
 func TestThisnsExpandBadConfig(t *testing.T) {

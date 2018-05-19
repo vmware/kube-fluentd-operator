@@ -112,6 +112,81 @@ make run-local-fs
 ls -l tmp/
 ```
 
+### How does it work
+
+It works be rewriting the user-provided configuration. This is possible because *kube-fluentd-operator* knows about the kubernetes cluster, the current namespace and
+also has some sensible defaults built in. To get a quick idea what happens behind the scenes consider this configuration deployed in a namespace called `monitoring`:
+
+```xml
+<filter $labels(server=apache)>
+  @type parse
+  format apache2
+</filter>
+
+<filter $labels(app=django)>
+  @type detect_exceptions
+  language python
+</filter>
+
+<match **>
+  @type es
+</match>
+```
+
+It gets processed into the following configuration which is then fed to Fluentd:
+
+```xml
+<filter kube.monitoring.*.*>
+  @type record_transformer
+  enable_ruby true
+
+  <record>
+    kubernetes_pod_label_values ${record["kubernetes"]["labels"]["app"]&.gsub(/[.-]/, '_') || '_'}.${record["kubernetes"]["labels"]["server"]&.gsub(/[.-]/, '_') || '_'}
+  </record>
+</filter>
+
+<match kube.monitoring.*.*>
+  @type rewrite_tag_filter
+
+  <rule>
+    key kubernetes_pod_label_values
+    pattern ^(.+)$
+    tag ${tag}._labels.$1
+  </rule>
+</match>
+
+<filter kube.monitoring.*.*.**>
+  @type record_transformer
+  remove_keys kubernetes_pod_label_values
+</filter>
+
+<filter kube.monitoring.*.*._labels.*.apache _proc.kube.monitoring.*.*._labels.*.apache>
+  @type parse
+  format apache2
+</filter>
+
+<match kube.monitoring.*.*._labels.django.*>
+  @type rewrite_tag_filter
+
+  <rule>
+    invert true
+    key _dummy
+    pattern /ZZ/
+    tag 3bfd045d94ce15036a8e3ff77fcb470e0e02ebee._proc.${tag}
+  </rule>
+</match>
+
+<match 3bfd045d94ce15036a8e3ff77fcb470e0e02ebee._proc.kube.monitoring.*.*._labels.django.*>
+  @type detect_exceptions
+  remove_tag_prefix 3bfd045d94ce15036a8e3ff77fcb470e0e02ebee
+  stream container_info
+</match>
+
+<match kube.monitoring.*.*._labels.*.* _proc.kube.monitoring.*.*._labels.*.*>
+  @type es
+</match>
+```
+
 ## Configuration
 
 ### Basic usage
@@ -151,7 +226,7 @@ A recommended configuration for the `kube-system` namespace is this one - it cap
 
 ### Using the $labels macro
 
-A very useful feature is the `<filter>` and the `$labels` macro to define parsing at the namespace level. For example, the config-reloader container uses the logfmt format. This makes it easy to use structured logging and ingest json data into a remote log ingestion service.
+A very useful feature is the `<filter>` and the `$labels` macro to define parsing at the namespace level. For example, the config-reloader container uses the `logfmt` format. This makes it easy to use structured logging and ingest json data into a remote log ingestion service.
 
 ```xml
 <filter $labels(app=log-router, _container=reloader)>
@@ -162,7 +237,7 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 
 <match **>
   @type loggly
-  # destionation config omitted
+  # destination config omitted
 </match>
 ```
 
@@ -204,6 +279,28 @@ The above configuration would translate at runtime to something similar to this:
 ```
 
 The `@type file` (a destination plug-in) is disabled as it doesn't make sense to convert local docker json logs to another file on the same disk.
+
+### Dealing with multi-line exception stacktraces (since v1.3.0)
+
+Most log streams are line-oriented. However, stacktraces always span mulitple lines. *kube-fluentd-operator* integrates stacktrace processing using the [fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). If a Java-based pod produces stacktraces in the logs, then the stacktraces can be collapsed in a single log event like this:
+
+```xml
+<filter $labels(app=jpetstore)>
+  @type detect_exceptions
+  # you can skip language in which case all possible languages will be tried: go, java, python, ruby, etc...
+  language java
+</filter>
+
+# The rest of the configuration stays the same even though quite a lot of tag rewriting takes place
+
+<match **>
+ @type es
+</match>
+```
+
+Notice how `filter` is used instead of `match` as descibed in[fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
+
+Also, users don't need to bother with setting the correct `stream` parameter. *kube-fluentd-operator* generates one internally based on the container id and the stream.
 
 ### Sharing logs between namespaces
 

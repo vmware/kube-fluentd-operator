@@ -5,15 +5,36 @@ package processors
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 )
 
+const (
+	prefixProcessed = "_proc"
+)
+
+// GenerationContext holds state for one loop of the controller.
+// It is shared accross all processors and all encountered namespaces.
+// Different processorts can share state using this class.
+// Use this class sparingly.
 type GenerationContext struct {
 	ReferencedBridges map[string]bool
+	NeedsProcessing   bool
 }
 
+func (g *GenerationContext) augmentTag(d *fluentd.Directive) {
+	if g == nil || !g.NeedsProcessing {
+		return
+	}
+
+	orig := d.Tag
+	d.Tag = augmentTag(orig)
+}
+
+// ProcessorContext is how a processor gets an environemnt to operate in.
+// It is both the model and the workspace of a processor.
 type ProcessorContext struct {
 	Namepsace         string
 	NamespaceLabels   map[string]string
@@ -28,14 +49,18 @@ type BaseProcessorState struct {
 	Context *ProcessorContext
 }
 
+// FragmentProcessor converts an instance of a Fluentd configuration
+// into a different one. This is how rewriting of user-provided configuration happens.
 type FragmentProcessor interface {
 	// SetContext is called once before processing begins
 	SetContext(*ProcessorContext)
 
 	// Prepare may define directives that are applied to the main fluentd file
+	// The results of all registered processors are concatenated ans included in fluentd.conf
 	Prepare(fluentd.Fragment) (fluentd.Fragment, error)
 
 	// Process defines directives that are put in their own ns-{namespace}.conf file
+	// The results of the registered processors are chained. Order of registration is important.
 	Process(fluentd.Fragment) (fluentd.Fragment, error)
 
 	// GetValidationTrailer produces a trailer that would make a namspace config valid in isolation
@@ -52,6 +77,30 @@ func (p *BaseProcessorState) GetValidationTrailer(directives fluentd.Fragment) f
 
 func (p *BaseProcessorState) SetContext(ctx *ProcessorContext) {
 	p.Context = ctx
+}
+
+func transform(input fluentd.Fragment, f func(dir *fluentd.Directive, parent *fluentd.Fragment) *fluentd.Directive) fluentd.Fragment {
+	res := &fluentd.Fragment{}
+	doTransform(input, f, res)
+	return *res
+}
+
+func doTransform(input fluentd.Fragment, f func(dir *fluentd.Directive, parent *fluentd.Fragment) *fluentd.Directive, res *fluentd.Fragment) {
+	for _, child := range input {
+		newChild := f(child, res)
+
+		if len(child.Nested) > 0 && newChild != nil {
+			chres := &fluentd.Fragment{}
+			doTransform(child.Nested, f, chres)
+			newChild.Nested = *chres
+		}
+	}
+}
+
+func copy(dir *fluentd.Directive, parent *fluentd.Fragment) *fluentd.Directive {
+	copy := dir.Clone()
+	*parent = append(*parent, copy)
+	return copy
 }
 
 func applyRecursivelyInPlace(directives fluentd.Fragment, ctx *ProcessorContext, callback func(*fluentd.Directive, *ProcessorContext) error) error {
@@ -128,6 +177,17 @@ func Prepare(input fluentd.Fragment, ctx *ProcessorContext, processors ...Fragme
 	return res, nil
 }
 
+func augmentTag(orig string) string {
+	if orig == "" {
+		// that's an error usually
+		return ""
+	}
+
+	return fmt.Sprintf("%s %s.%s", orig, prefixProcessed, orig)
+}
+
+// DefaultProcessors return all currently known processors. You can compise a list
+// of processors but be aware of dependencies between processors (order matters).
 func DefaultProcessors() []FragmentProcessor {
 	return []FragmentProcessor{
 		&expandThisnsMacroState{},
@@ -136,5 +196,6 @@ func DefaultProcessors() []FragmentProcessor {
 		&rewriteLabelsState{},
 		&mountedFileState{},
 		&shareLogsState{},
+		&detectExceptionsState{},
 	}
 }

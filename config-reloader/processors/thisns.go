@@ -32,6 +32,14 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 
 		if d.Tag == "**" || d.Tag == macroThisns {
 			d.Tag = goodPrefix + ".**"
+			ctx.GenerationContext.augmentTag(d)
+			return nil
+		}
+
+		if strings.HasPrefix(d.Tag, macroThisns) {
+			// handle the unusual case of $thisns.**
+			d.Tag = goodPrefix + d.Tag[len(macroThisns):]
+			ctx.GenerationContext.augmentTag(d)
 			return nil
 		}
 
@@ -40,6 +48,7 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 		}
 
 		if strings.HasPrefix(d.Tag, macroLabels) {
+			// Let the labels processor handle this
 			return nil
 		}
 

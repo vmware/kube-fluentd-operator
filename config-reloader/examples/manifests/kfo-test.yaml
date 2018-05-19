@@ -7,6 +7,27 @@ metadata:
 apiVersion: v1
 kind: Pod
 metadata:
+  name: jpetstore
+  namespace: kfo-test
+  labels:
+    msg: exceptions
+    app: jpetstore
+spec:
+  containers:
+  - image: tutum/curl
+    name: jpetstore
+    env:
+    - name: EXCEPTION_URL
+      value: https://gist.githubusercontent.com/jvassev/59d7616d601d9c19e23b328e591546d8/raw/22e32c7545b5f02f2df1cfaf621d91895c4d28b1/java.log
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "jpetstore is logging $((var++))"; sleep 2; [[ $(($RANDOM % 4)) == 0 ]] && echo -n `date -R` [ERROR] "Internal error $((var++)) " && curl -Lsk $EXCEPTION_URL; done
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
   name: stdout-logger
   namespace: kfo-test
   labels:
@@ -96,6 +117,10 @@ data:
       path /var/log/welcome.log
       labels msg=welcome, _container=test-container
     </source>
+    <filter $labels(app=jpetstore)>
+      @type detect_exceptions
+      languages java
+    </filter>
     <match $labels(msg=stdout)>
       @type copy
       <store>
@@ -122,6 +147,22 @@ kind: Namespace
 metadata:
   name: kfo-consumer
 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stdout-logger
+  namespace: kfo-consumer
+  labels:
+    msg: stdout
+spec:
+  containers:
+  - image: ubuntu
+    name: main
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "In consumer -> random msg number $((var++)) to stdout"; sleep 2; done
 
 ---
 apiVersion: v1

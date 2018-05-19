@@ -29,6 +29,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-concat \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
+    && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-kubernetes \
     && fluent-gem install fluent-plugin-kubernetes_metadata_filter \
     && fluent-gem install fluent-plugin-logentries \

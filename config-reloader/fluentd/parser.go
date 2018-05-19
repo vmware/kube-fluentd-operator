@@ -62,6 +62,27 @@ func (d *Directive) Type() string {
 	return p.Value
 }
 
+func (d *Directive) Clone() *Directive {
+	return &Directive{
+		Name:   d.Name,
+		Tag:    d.Tag,
+		Params: d.Params.Clone(),
+		Nested: Fragment{},
+	}
+}
+
+func (p Params) Clone() Params {
+	res := Params{}
+	for k, v := range p {
+		res[k] = &Param{
+			Name:  v.Name,
+			Value: v.Value,
+		}
+	}
+
+	return res
+}
+
 // ParamsFromKV make a Params from a string-string map
 func ParamsFromKV(keyValues ...string) Params {
 	res := make(map[string]*Param, len(keyValues)/2)
@@ -97,8 +118,15 @@ func (d *Directive) Param(name string) string {
 	return util.TrimTrailingComment(d.ParamVerbatim(name))
 }
 
+// SetParam associates a value with the given name. If value is empty it
+// clears the parameter
 func (d *Directive) SetParam(name string, value string) {
 	p := d.Params[name]
+
+	if value == "" {
+		delete(d.Params, name)
+		return
+	}
 
 	if p == nil {
 		p = &Param{

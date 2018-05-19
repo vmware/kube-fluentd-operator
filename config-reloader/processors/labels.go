@@ -77,7 +77,7 @@ func parseTagToLabels(tag string) (map[string]string, error) {
 		return nil, fmt.Errorf("bad $labels macro use: %s", tag)
 	}
 
-	labelsOnly := tag[len(macroLabels)+1: len(tag)-1]
+	labelsOnly := tag[len(macroLabels)+1 : len(tag)-1]
 
 	result := map[string]string{}
 
@@ -200,6 +200,7 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 		}
 
 		d.Tag = makeTagFromFilter(ctx.Namepsace, sortedLabelNames, labelNames)
+		ctx.GenerationContext.augmentTag(d)
 		return nil
 	}
 	applyRecursivelyInPlace(input, p.Context, replaceLabels)

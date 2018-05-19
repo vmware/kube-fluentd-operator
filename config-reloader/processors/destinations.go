@@ -44,6 +44,10 @@ func prohibitTypes(d *fluentd.Directive, ctx *ProcessorContext) error {
 	case "exec", "exec_filter",
 		"stdout", "rewrite_tag_filter":
 		return fmt.Errorf("cannot use '@type %s' in <%s>", d.Type(), d.Name)
+	case "detect_exceptions":
+		if d.Name == "match" {
+			return fmt.Errorf("cannot use '@type %s' in <%s>", d.Type(), d.Name)
+		}
 	case "file":
 		if !ctx.AllowFile {
 			return fmt.Errorf("cannot use '@type %s' in <%s>", d.Type(), d.Name)

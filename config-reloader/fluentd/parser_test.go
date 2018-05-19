@@ -123,6 +123,56 @@ func TestGetType(t *testing.T) {
 	src := fragment[0]
 	assert.Equal(t, "", src.Type())
 }
+
+func TestCleanParam(t *testing.T) {
+	dir := Directive{
+		Name:   "ok",
+		Tag:    "tag",
+		Params: ParamsFromKV("a", "1", "b", "2"),
+	}
+
+	assert.Equal(t, 2, len(dir.Params))
+
+	dir.SetParam("z", "")
+	assert.Equal(t, 2, len(dir.Params))
+
+	dir.SetParam("a", "")
+	assert.Equal(t, 1, len(dir.Params))
+
+	dir.SetParam("b", "")
+	assert.Equal(t, 0, len(dir.Params))
+}
+func TestClone(t *testing.T) {
+	s := `
+	# http://this.host:9880/myapp.access?json={"event":"data"}
+	<source>
+		@type http
+		port 9880
+	</source>
+
+	<filter myapp.access>
+		type record_transformer
+		<record>
+			host_param "#{Socket.gethostname}"
+		</record>
+	</filter>
+
+	<match myapp.access>
+		@type file
+		path /var/log/fluent/access
+	</match>
+	`
+
+	frag, err := ParseString(s)
+	assert.Nil(t, err)
+
+	filter := frag[1]
+	clone := filter.Clone()
+
+	assert.Equal(t, filter.Name, clone.Name)
+	assert.Equal(t, filter.Type(), clone.Type())
+	assert.Equal(t, filter.Tag, clone.Tag)
+}
 func TestParseNested(t *testing.T) {
 	var nested = `
 	# http://this.host:9880/myapp.access?json={"event":"data"}
