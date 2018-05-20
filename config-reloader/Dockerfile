@@ -8,7 +8,11 @@ FROM golang:1.9 as builder
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
 RUN go get -u github.com/golang/dep/cmd/dep
 COPY . .
-RUN make dep && make test
+
+# Speed up local builds where vendor is populated
+RUN [ -d vendor/github.com ] || make dep; true
+
+RUN make test
 RUN make build VERSION=$VERSION
 
 # always use the unpushable image
