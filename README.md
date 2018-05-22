@@ -393,6 +393,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 
 * fluent-mixin-config-placeholders
 * fluent-plugin-concat
+* fluent-plugin-detect-exceptions
 * fluent-plugin-elasticsearch
 * fluent-plugin-google-cloud
 * fluent-plugin-kubernetes
