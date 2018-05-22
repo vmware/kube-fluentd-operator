@@ -2,7 +2,11 @@
 
 ## 1.3.0 (Unreleased)
 
-## [1.2.0] (https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.2.0)
+* Fluentd: `fluent-plugin-detect-exceptions` to base image
+
+* Core: support transparent multi-line stacktrace collpasing
+
+## [1.2.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.2.0)
 
 * Core: Share log streams between namespaces
 
