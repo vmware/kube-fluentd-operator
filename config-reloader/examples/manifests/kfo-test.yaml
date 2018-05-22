@@ -28,6 +28,33 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
+  name: jpetfile
+  namespace: kfo-test
+  labels:
+    msg: exceptions-file
+    app: jpetfile
+spec:
+  containers:
+  - image: tutum/curl
+    name: jpetstore
+    env:
+    - name: EXCEPTION_URL
+      value: https://gist.githubusercontent.com/jvassev/59d7616d601d9c19e23b328e591546d8/raw/22e32c7545b5f02f2df1cfaf621d91895c4d28b1/java.log
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "jpetstore is logging to file $((var++))"; sleep 4; [[ $(($RANDOM % 4)) == 0 ]] && echo -n `date -R` [ERROR] "Internal error file $((var++)) " && curl -Lsk $EXCEPTION_URL; done > /var/log/jpetfile.log
+    volumeMounts:
+    - mountPath: /var/log
+      name: logs
+  volumes:
+  - name: logs
+    emptyDir: {}
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
   name: stdout-logger
   namespace: kfo-test
   labels:
@@ -117,7 +144,16 @@ data:
       path /var/log/welcome.log
       labels msg=welcome, _container=test-container
     </source>
+    <source>
+      @type mounted-file
+      path /var/log/jpetfile.log
+      labels app=jpetfile
+    </source>
     <filter $labels(app=jpetstore)>
+      @type detect_exceptions
+      languages java
+    </filter>
+    <filter $labels(app=jpetfile)>
       @type detect_exceptions
       languages java
     </filter>
