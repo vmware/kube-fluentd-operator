@@ -4,7 +4,9 @@
 
 * Fluentd: `fluent-plugin-detect-exceptions` to base image
 
-* Core: support transparent multi-line stacktrace collpasing
+* Core: add plugin `truncating_remote_syslog` which truncates the tag to 32 bytes as per RFC 5424
+
+* Core: support transparent multi-line stacktrace collapsing
 
 ## [1.2.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.2.0)
 

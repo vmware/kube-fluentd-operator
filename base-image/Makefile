@@ -27,4 +27,6 @@ test: build-image
 	  -v `pwd`:/workspace \
 	  -v `pwd`/test/local.conf:/fluentd/etc/fluent.conf \
 	  -e FLUENTD_OPT="--no-supervisor" \
+		-e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
+		-e PAPERTRAIL_HOST=$$PAPERTRAIL_HOST \
 	  $(IMAGE):$(TAG)

@@ -590,7 +590,7 @@ spec:
 
 ### I want to push logs from namespace demo to logz.io
 
-```bash
+```xml
 demo.conf:
 <match **>
   @type logzio_buffered
@@ -605,6 +605,27 @@ demo.conf:
 ```
 
 For details you should consult the plugin documentation.
+
+### I want to push logs to a remote syslog server
+
+The built-in `remote_syslog` plugin cannot be used as the fluentd tag may be longer than 32 bytes. For this reason there is a `truncating_remote_syslog` plugin that shortens the tag to the allowed limit. If you are using the `remote_syslog` output plugin you only need to change a single line:
+
+```xml
+<match **>
+  # instead of "remote_syslog"
+  @type truncating_remote_syslog
+
+  # the usual config for remote_syslog
+</match>
+```
+
+To get the general idea how truncation works, consider this table:
+
+| Original Tag | Truncated tag |
+|-------------|----------------|
+| `kube.demo.test.test`                         | `demo.test.test`                    |
+| `kube.demo.nginx-65899c769f-5zj6d.nginx`      | `demo.nginx-65899c769f-5zj*.nginx`  |
+| `kube.demo.test.nginx11111111._lablels.hello` | `demo.test.nginx11111111`           |
 
 ### I want to push logs to Humio
 

@@ -25,7 +25,7 @@ dep:
 	dep ensure
 
 guess-tag:
-	@echo "TAG=`git describe --tags --always"
+	@echo "TAG=`git describe --tags --always`"
 
 clean:
 	rm -fr config-reloader pkg > /dev/null
