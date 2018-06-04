@@ -50,9 +50,8 @@ EOF
 kubectl create configmap fluentd-config --namespace demo --from-file=fluent.conf=fluent.conf
 
 
-# This step is optional: the fluentd-config is the default.
-# It should only be used if you the configmap is called other than `fluentd-config`
-kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
+# The following step is optional: the fluentd-config is the default configmap name.
+# kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
 
 ```
 
@@ -608,7 +607,7 @@ For details you should consult the plugin documentation.
 
 ### I want to push logs to a remote syslog server
 
-The built-in `remote_syslog` plugin cannot be used as the fluentd tag may be longer than 32 bytes. For this reason there is a `truncating_remote_syslog` plugin that shortens the tag to the allowed limit. If you are using the `remote_syslog` output plugin you only need to change a single line:
+The built-in `remote_syslog` plugin cannot be used as the fluentd tag may be longer than 32 bytes. For this reason there is a `truncating_remote_syslog` plugin that shortens the tag to the allowed limit. If you are currently using the `remote_syslog` output plugin you only need to change a single line:
 
 ```xml
 <match **>
@@ -765,13 +764,35 @@ You need to run `make` like this:
 make run-once
 ```
 
-This will build the code, then `config-reloader` will connect to the K8S cluster, fetch the data and generate *.conf files in the ./tmp directory. If there are errors the namespaces will be annotated.
+This will build the code, then `config-reloader` will connect to the K8S cluster, fetch the data and generate *.conf files in the `./tmp` directory. If there are errors the namespaces will be annotated.
 
 ### I want to build a custom image with my own fluentd plugin
 
 Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
 
-### I don't want to annotate all my namespaces the same way
+### I run two clusters - in us-east-2 and eu-west-2. How to differentiate between them when pushing logs to a single location?
+
+When deploying the daemonset using Helm, make sure to pass metadata:
+
+For the cluster in USA:
+
+```bash
+helm instal ... \
+  --set=meta.key=cluster_info \
+  --set=meta.values.region=us-east-2
+```
+
+For the cluster in Europe:
+
+```bash
+helm instal ... \
+  --set=meta.key=cluster_info \
+  --set=meta.values.region=eu-west-2
+```
+
+If you are using ELK you can easily get only the logs from Europe using `cluster_info.region: +eu-west-2`. In this example the metadata key is `cluster_info` but you can use any key you like.
+
+### I don't want to annotate all my namespaces at all
 
 It is possible to reduce configuration burden by using a default configmap name. The default value is `fluentd-config` - kube-fluentd-operator will read the configmap by that name if the namespace is not annotated.
 If you don't like this default name or happen to use this configmap for other purposes then override the default with `--defualt-configmap=my-default`.
