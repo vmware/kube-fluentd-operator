@@ -400,6 +400,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-logentries
 * fluent-plugin-loggly
 * fluent-plugin-logzio
+* fluent-plugin-out-http-ext
 * fluent-plugin-papertrail
 * fluent-plugin-parser
 * fluent-plugin-record-modifier

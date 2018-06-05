@@ -4,6 +4,8 @@
 
 * Fluentd: `fluent-plugin-detect-exceptions` to base image
 
+* Fluentd: add `fluent-plugin-out-http-ext` to base image
+
 * Core: add plugin `truncating_remote_syslog` which truncates the tag to 32 bytes as per RFC 5424
 
 * Core: support transparent multi-line stacktrace collapsing

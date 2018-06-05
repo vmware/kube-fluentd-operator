@@ -15,7 +15,6 @@ ENTRYPOINT ["/fluentd/entrypoint.sh"]
 USER root
 WORKDIR /home/fluent
 
-COPY plugins /fluentd/plugins
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v0.12/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
 
 RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
@@ -27,14 +26,15 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
     && fluent-gem install fluent-plugin-concat \
+    && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
-    && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-kubernetes \
     && fluent-gem install fluent-plugin-kubernetes_metadata_filter \
     && fluent-gem install fluent-plugin-logentries \
     && fluent-gem install fluent-plugin-loggly \
     && fluent-gem install fluent-plugin-logzio \
+    && fluent-gem install fluent-plugin-out-http-ext \
     && fluent-gem install fluent-plugin-papertrail \
     && fluent-gem install fluent-plugin-parser \
     && fluent-gem install fluent-plugin-record-modifier \
@@ -55,3 +55,5 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
  && rm -rf /var/lib/apt/lists/* \
     && gem sources --clear-all \
     && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+
+COPY plugins /fluentd/plugins
