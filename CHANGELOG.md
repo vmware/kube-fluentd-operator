@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.3.0 (Unreleased)
+## [1.3.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.3.0)
 
 * Fluentd: `fluent-plugin-detect-exceptions` to base image
 
