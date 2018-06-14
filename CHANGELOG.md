@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## 1.4.0
+
+* Fluentd: add `fluent-plugin-kinesis` to base image (@anton-107)
+
 ## [1.3.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.3.0)
 
-* Fluentd: `fluent-plugin-detect-exceptions` to base image
+* Fluentd: add `fluent-plugin-detect-exceptions` to base image
 
 * Fluentd: add `fluent-plugin-out-http-ext` to base image
 
