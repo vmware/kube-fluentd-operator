@@ -410,6 +410,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-rewrite-tag-filter
 * fluent-plugin-route
 * fluent-plugin-s3
+* fluent-plugin-kinesis
 * fluent-plugin-secure-forward
 * fluent-plugin-splunkhec
 * fluent-plugin-systemd

@@ -44,6 +44,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-rewrite-tag-filter \
     && fluent-gem install fluent-plugin-route \
     && fluent-gem install fluent-plugin-s3 \
+    && fluent-gem install fluent-plugin-kinesis \
     && fluent-gem install fluent-plugin-secure-forward \
     && fluent-gem install fluent-plugin-splunkhec \
     && fluent-gem install fluent-plugin-systemd \
