@@ -5,7 +5,7 @@ IMAGE ?= vmware/base-fluentd-operator
 TAG ?= latest
 
 build-image:
-	docker build . -t $(IMAGE):$(TAG)
+	docker build -t $(IMAGE):$(TAG) .
 
 shell:
 	docker run --entrypoint=/bin/bash \

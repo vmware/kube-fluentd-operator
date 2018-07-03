@@ -31,9 +31,7 @@ clean:
 	rm -fr config-reloader pkg > /dev/null
 
 build-image:
-	cat Dockerfile | \
-	  VERSION=$(VERSION) envsubst '$$VERSION' | \
-	  docker build . -f - -t $(IMAGE):$(TAG)
+	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
 push-image: build-image
 	docker push $(IMAGE):$(TAG)

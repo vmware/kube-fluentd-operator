@@ -11,7 +11,7 @@ COPY . .
 
 # Speed up local builds where vendor is populated
 RUN [ -d vendor/github.com ] || make dep; true
-
+ARG VERSION
 RUN make test
 RUN make build VERSION=$VERSION
 
