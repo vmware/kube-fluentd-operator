@@ -5,6 +5,12 @@ metadata:
 
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: kfo-badconfig
+
+---
+apiVersion: v1
 kind: Pod
 metadata:
   name: jpetstore
@@ -202,6 +208,23 @@ spec:
 
 ---
 apiVersion: v1
+kind: Pod
+metadata:
+  name: just-a-pod
+  namespace: kfo-badconfig
+  labels:
+    msg: stdout
+spec:
+  containers:
+  - image: ubuntu
+    name: main
+    command:
+    - bash
+    - -c
+    - while true; do echo `date -R` [INFO] "Random msg number $((var++)) to stdout"; sleep 2; done
+
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluentd-config
@@ -233,5 +256,27 @@ data:
         num_threads 8
       </match>
     </label>
+
+---
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: kfo-badconfig
+data:
+  fluent.conf: |
+    # bad config: 
+    <match **>
+      @type logzio_buffered
+      # the missing endpoint_url is what makes the config invalid
+      #endpoint_url https://listener.logz.io:8071?token=<token>&type=<logtype>
+      output_include_time true
+      output_include_tags true
+      buffer_type file
+      flush_interval 10s
+      buffer_chunk_limit 1m # Logz.io has bulk limit of 10M. We recommend set this to 1M, to avoid oversized bulks
+    </match>
 
 ---

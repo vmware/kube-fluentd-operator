@@ -167,12 +167,12 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		var validationTrailer string
 
-		if nsConf.PreviousConfigHash != configHash && g.validator != nil {
+		if g.validator != nil {
 			validationTrailer = g.makeValidationTrailer(nsConf, genCtx).String()
-			err = g.validator.ValidateConfig(renderedConfig+"\n# validation  trailer:\n"+validationTrailer, nsConf.Name)
+			err = g.validator.ValidateConfigExtremely(renderedConfig+"\n# validation  trailer:\n"+validationTrailer, nsConf.Name)
 
 			if err != nil {
-				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd: %+v", nsConf.Name, err)
+				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd", nsConf.Name)
 				if nsConf.PreviousConfigHash != configHash {
 					// only update status if error caused by different input
 					g.updateStatus(nsConf.Name, err.Error())

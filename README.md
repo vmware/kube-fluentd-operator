@@ -812,7 +812,9 @@ Use `--annotation=acme.com/fancy-config` to use acme.com/fancy-config as annotat
 Currently space-delimited tags are not supported. For example, instead of `<filter a b>`, you need to use `<filter a>` and `<filter b>`.
 This limitation will be addressed in a later version.
 
-Some Fluentd plug-ins terminate the process if missconfigured. While we try hard to validate configuraion before applying it the S3 plugin will exit(1) on the first error it encounters in case the AWS credentials are invalid. As a workaround, don't use S3 if you cannot ensure it will be configured properly. To enforce it, build a custom image by un-installing the S3 plugin:
+Some Fluentd plug-ins cause fluentd to exit if missconfigured. Starting with version 1.5.0 the namespace config is first run in a sandbox as `--dry-run` doesn't catch errors in the start() method of a plug-in.
+
+If you are using an older version, misconfiguring the S3 plugin for a single namespace will in make the service unavailable for all. As a workaround, don't use S3 if you cannot ensure it will be configured properly. To enforce it, build a custom image by un-installing the S3 plugin:
 
 ```Dockerfile
 FROM ...

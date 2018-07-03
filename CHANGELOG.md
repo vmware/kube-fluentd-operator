@@ -2,6 +2,8 @@
 
 ## 1.5.0
 
+* Core: extreme validation (#15): namespace configs are run in sandbox to catch more errors
+
 ## [1.4.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.4.0)
 
 * Fluentd: add `fluent-plugin-kinesis` to base image (@anton-107)
