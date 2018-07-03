@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## 1.4.0
+## 1.5.0
+
+## [1.4.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.4.0)
 
 * Fluentd: add `fluent-plugin-kinesis` to base image (@anton-107)
 
