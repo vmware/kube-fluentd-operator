@@ -173,6 +173,7 @@ func TestClone(t *testing.T) {
 	assert.Equal(t, filter.Type(), clone.Type())
 	assert.Equal(t, filter.Tag, clone.Tag)
 }
+
 func TestParseNested(t *testing.T) {
 	var nested = `
 	# http://this.host:9880/myapp.access?json={"event":"data"}
@@ -211,7 +212,7 @@ func TestParseNested(t *testing.T) {
 
 	record := filter.Nested[0]
 	assert.Equal(t, "record", record.Name)
-	assert.Equal(t, "\"#{Socket.gethostname}\"", record.ParamVerbatim("host_param"))
+	assert.Equal(t, `"#{Socket.gethostname}"`, record.ParamVerbatim("host_param"))
 
 	match := fragment[2]
 	assert.Equal(t, "match", match.Name)

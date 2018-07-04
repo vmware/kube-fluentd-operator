@@ -22,7 +22,7 @@ func NewReloader(port int) *Reloader {
 	}
 }
 
-// ReloadConfiguration if nil does nothing
+// ReloadConfiguration talks to fluentd's RPC endpoont. If r is nil does nothing
 func (r *Reloader) ReloadConfiguration() {
 	if r == nil {
 		logrus.Infof("Not reloading fluentd (fake or filesystem datasource used)")

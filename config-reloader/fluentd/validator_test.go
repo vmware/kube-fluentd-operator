@@ -23,7 +23,7 @@ func TestValidConfigString(t *testing.T) {
 	err := validator.EnsureUsable()
 	assert.Nil(t, err, "Must succeed but failed with: %+v", err)
 
-	err = validator.ValidateConfig(s, "namespace-1")
+	err = validator.ValidateConfigExtremely(s, "namespace-1")
 	assert.Nil(t, err, "Must succeed but failed with %+v", err)
 }
 
@@ -47,6 +47,6 @@ func TestBadConfigString(t *testing.T) {
 	err := validator.EnsureUsable()
 	assert.Nil(t, err, "Must succeed but failed with: %+v", err)
 
-	err = validator.ValidateConfig(s, "namespace-1")
+	err = validator.ValidateConfigExtremely(s, "namespace-1")
 	assert.NotNil(t, err)
 }
