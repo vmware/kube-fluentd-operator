@@ -8,18 +8,17 @@ if [[ $1 == "--version" ]]; then
   exit 0
 fi
 
+file="${@: -1}"
 echo
 echo Invoked with "$@"
 echo __________________
-if [[ "$5" != "" ]]; then
-  cat $5
-else 
-  echo "<<<nothing provided as file to validate>>>"
-fi
+
+cat "$file"
+
 echo __________________
 
 # for unit tests: if the input contains #ERROR, exit with 1
-if grep 'ERROR' < "$5" ; then
+if grep 'ERROR' < "$file" ; then
   exit 1
 fi
 
