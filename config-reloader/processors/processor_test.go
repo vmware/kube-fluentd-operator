@@ -83,3 +83,21 @@ func TestAugmentTag(t *testing.T) {
 	s := augmentTag("hello")
 	assert.Equal(t, "hello _proc.hello", s)
 }
+
+func TestCloneFragment(t *testing.T) {
+	s := `
+<match **>
+  @type logzio
+  <buffer>
+		@type file
+		path /etc/passwd
+  </buffer>
+</match>
+`
+	fragment, err := fluentd.ParseString(s)
+	assert.Nil(t, err)
+
+	clone := fragment.Clone()
+	assert.Equal(t, fragment.String(), clone.String())
+	assert.NotEqual(t, fragment[0].Nested[0].Params, &clone[0].Nested[0].Params)
+}

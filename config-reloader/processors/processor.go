@@ -22,6 +22,7 @@ const (
 type GenerationContext struct {
 	ReferencedBridges map[string]bool
 	NeedsProcessing   bool
+	Plugins           map[string]*fluentd.Directive
 }
 
 func (g *GenerationContext) augmentTag(d *fluentd.Directive) {
@@ -98,9 +99,9 @@ func doTransform(input fluentd.Fragment, f func(dir *fluentd.Directive, parent *
 }
 
 func copy(dir *fluentd.Directive, parent *fluentd.Fragment) *fluentd.Directive {
-	copy := dir.Clone()
-	*parent = append(*parent, copy)
-	return copy
+	clone := dir.Clone()
+	*parent = append(*parent, clone)
+	return clone
 }
 
 func applyRecursivelyInPlace(directives fluentd.Fragment, ctx *ProcessorContext, callback func(*fluentd.Directive, *ProcessorContext) error) error {
@@ -190,6 +191,7 @@ func augmentTag(orig string) string {
 // of processors but be aware of dependencies between processors (order matters).
 func DefaultProcessors() []FragmentProcessor {
 	return []FragmentProcessor{
+		&expandPluginsState{},
 		&expandThisnsMacroState{},
 		&fixDestinations{},
 		&expandLabelsMacroState{},

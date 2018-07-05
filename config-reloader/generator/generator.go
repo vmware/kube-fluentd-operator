@@ -121,16 +121,35 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	prepareConfigs := g.generatePrepareConfigs(genCtx)
 
+	// process kube-system first to collect the virtual plugins
+	for _, nsConf := range g.model {
+		if nsConf.Name != "kube-system" {
+			continue
+		}
+
+		model.KubeSystem = true
+
+		fragment, err := fluentd.ParseString(nsConf.FluentdConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		fragment = processors.ExtractPlugins(genCtx, fragment)
+
+		// normalize system config
+		renderedConfig := fragment.String()
+		fileHashesByNs["kube-system"] = util.Hash("", renderedConfig)
+		// don't validate the kube-system, just render it
+		err = util.WriteStringToFile(filepath.Join(outputDir, "kube-system.conf"), renderedConfig)
+		if err != nil {
+			logrus.Infof("Cannot store config file for namespace %s", nsConf.Name)
+		}
+
+		break
+	}
+
 	for _, nsConf := range g.model {
 		if nsConf.Name == "kube-system" {
-			model.KubeSystem = true
-			fileHashesByNs["kube-system"] = util.Hash("", nsConf.FluentdConfig)
-
-			// don't validate the kube-system, just render it
-			err = util.WriteStringToFile(filepath.Join(outputDir, "kube-system.conf"), nsConf.FluentdConfig)
-			if err != nil {
-				logrus.Infof("Cannot store config file for namespace %s", nsConf.Name)
-			}
 			continue
 		}
 

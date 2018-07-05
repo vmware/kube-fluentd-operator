@@ -62,22 +62,42 @@ func (d *Directive) Type() string {
 	return p.Value
 }
 
+func (f Fragment) Clone() Fragment {
+	if f == nil {
+		return nil
+	}
+
+	res := Fragment{}
+	for _, ele := range f {
+		res = append(res, ele.Clone())
+	}
+	return res
+}
+
 func (d *Directive) Clone() *Directive {
+	if d == nil {
+		return nil
+	}
+
 	return &Directive{
 		Name:   d.Name,
 		Tag:    d.Tag,
 		Params: d.Params.Clone(),
-		Nested: Fragment{},
+		Nested: d.Nested.Clone(),
+	}
+}
+
+func (p *Param) Clone() *Param {
+	return &Param{
+		Name:  p.Name,
+		Value: p.Value,
 	}
 }
 
 func (p Params) Clone() Params {
 	res := Params{}
 	for k, v := range p {
-		res[k] = &Param{
-			Name:  v.Name,
-			Value: v.Value,
-		}
+		res[k] = v.Clone()
 	}
 
 	return res
