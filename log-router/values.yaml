@@ -25,6 +25,8 @@ meta:
   key: ""
   values: {}
 
+extraEnv: {}
+
 # extraVolumes:
 #   - name: es-certs
 #     secret:

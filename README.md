@@ -486,6 +486,7 @@ Flags:
 | `fluentdResources`                       | Resource definitions for the fluentd container                 | `{}`|
 | `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |
+| `extraEnv`                               | Extra env vars to pass to fluentd           | `{}`                     |
 
 ## Cookbook
 

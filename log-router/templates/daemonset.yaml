@@ -2,6 +2,7 @@
 Copyright © 2018 VMware, Inc. All Rights Reserved.
 SPDX-License-Identifier: BSD-2-Clause
 */}}
+{{- $root := . -}}
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -31,6 +32,13 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+        {{- range $key, $value := .Values.extraEnv }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fluentd-router.fullname" $root }}
+                key: {{ $key }}
+        {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
           - name: fluentconf
