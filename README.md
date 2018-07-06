@@ -4,6 +4,8 @@
 
 ## Overview
 
+TL;DR: a sane, no-brainer K8S+Helm distribution of Fluentd with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in.
+
 *kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how Ingress controllers compiles Nginx configuration based on Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need not coordinate with namespace admins.
 
 Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
@@ -244,7 +246,7 @@ The above config will pipe all logs from the pods labelled with `app=log-router`
 
 All plugins that change the fluentd tag are disabled for security reasons. Otherwise a rogue configuration may divert other namespace's logs to itself by prepending its name to the tag.
 
-### Ingest logs from a log file in the container
+### Ingest logs from a file in the container
 
 The only allowed `<source>` directive is of type `mounted-file`. It is used to ingest a log file from a container on an `emptyDir`-mounted volume:
 
@@ -300,6 +302,43 @@ Most log streams are line-oriented. However, stacktraces always span mulitple li
 Notice how `filter` is used instead of `match` as descibed in[fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
 
 Also, users don't need to bother with setting the correct `stream` parameter. *kube-fluentd-operator* generates one internally based on the container id and the stream.
+
+### Reusing output plugin definitions (since v1.6.0)
+
+Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environement and you use loggly for a "staging" environment. The first thing you do is define these two output at the `kube-system` level:
+
+```xml
+kube-system.conf:
+<plugin test>
+  @type s3
+  aws_key_id  YOUR_AWS_KEY_ID
+  aws_sec_key YOUR_AWS_SECRET_KEY
+  s3_bucket   YOUR_S3_BUCKET_NAME
+  s3_region   AWS_REGION
+</plugin>
+
+<plugin staging>
+  @type loggly
+  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+</plugin>
+```
+
+A namespace can refer to the `staging` and `test` plugins oblivious to the fact where exactly the logs end up:
+
+```xml
+acme-test.conf
+<match **>
+  @type test
+</match>
+
+
+acme-staging.conf
+<match **>
+  @type staging
+</match>
+```
+
+kube-fluentd-operator will insert the content of the `plugin` directive in the `match` directive. From then on, regular validation and postprocessing takes place.
 
 ### Sharing logs between namespaces
 
