@@ -20,18 +20,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.3.0 \
+  --set image.tag=v1.5.0 \
   --set image.repository=jvassev/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.3.0/log-router-0.2.1.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.5.0/log-router-0.2.3.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.3.0 \
+  --set image.tag=v1.5.0 \
   --set image.repository=jvassev/kube-fluentd-operator
 ```
 
@@ -63,7 +63,7 @@ In a minute, this configuration would be translated to something like this:
 </match>
 ```
 
-Even though the tag `**` was used in the `<match>` directive, the kube-flunetd-operator correctly expands this to `demo.**`. Indeed, if another tag which does not start with `demo.` was used, it would have failed validation. Namespace admins can safely assume that they has a dedicated Fluentd for themselves.
+Even though the tag `**` was used in the `<match>` directive, the kube-fluentd-operator correctly expands this to `demo.**`. Indeed, if another tag which does not start with `demo.` was used, it would have failed validation. Namespace admins can safely assume that they has a dedicated Fluentd for themselves.
 
 All configuration errors are stored in the annotation `logging.csp.vmware.com/fluentd-status`. Try replacing `**` with an invalid tag like 'hello-world'. After a minute, verify that the error message looks like this:
 

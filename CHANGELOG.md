@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.5.0
+## [1.5.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.5.0)
 
 * Core: extreme validation (#15): namespace configs are run in sandbox to catch more errors
 
