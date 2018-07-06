@@ -4,7 +4,9 @@
 
 * Core: extreme validation (#15): namespace configs are run in sandbox to catch more errors
 
-* Helm: export a K8S\_NODE\_NAME var to the fluentd container (@databus23). Chart version bumped to 0.2.2
+* Helm: export a K8S\_NODE\_NAME var to the fluentd container (@databus23)
+
+* Helm: `extraEnv` lets you inject env vars into fluentd
 
 ## [1.4.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.4.0)
 
