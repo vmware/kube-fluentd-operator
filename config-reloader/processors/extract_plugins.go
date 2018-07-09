@@ -40,7 +40,7 @@ func (p *expandPluginsState) Process(input fluentd.Fragment) (fluentd.Fragment, 
 
 	f := func(d *fluentd.Directive, ctx *ProcessorContext) error {
 		if d.Name != "match" {
-			// only output plugin supported
+			// only output plugins supported
 			return nil
 		}
 

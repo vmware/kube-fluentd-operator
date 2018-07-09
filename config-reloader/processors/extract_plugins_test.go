@@ -106,3 +106,51 @@ func TestExpandPlugins(t *testing.T) {
 	matchDir = processed[2]
 	assert.Equal(t, "some_type", matchDir.Type())
 }
+
+func TestNothingToExpand(t *testing.T) {
+	// no plugins in this context
+	g := &GenerationContext{}
+
+	nsConf := `
+<filter **>
+  @type grep
+</filter>
+
+<match **>
+  # this is reference to the p1 plugin
+  @type p1
+
+  # param is copied
+  param1 value1
+
+  # param is overriden
+  buffer_size 5m
+</match>
+
+<match **>
+  @type some_type
+</match>
+	`
+
+	fragment, err := fluentd.ParseString(nsConf)
+	assert.Nil(t, err)
+
+	ctx := &ProcessorContext{
+		GenerationContext: g,
+		Namepsace:         "unit-test",
+		DeploymentID:      "whatever",
+	}
+
+	state := &expandPluginsState{}
+	state.SetContext(ctx)
+
+	processed, err := state.Process(fragment)
+	assert.Nil(t, err)
+
+	matchDir := processed[1]
+	assert.Equal(t, "p1", matchDir.Type())
+
+	// types not found in the generation context are not touched
+	matchDir = processed[2]
+	assert.Equal(t, "some_type", matchDir.Type())
+}
