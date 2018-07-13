@@ -434,6 +434,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-detect-exceptions
 * fluent-plugin-elasticsearch
 * fluent-plugin-google-cloud
+* fluent-plugin-kinesis
 * fluent-plugin-kubernetes
 * fluent-plugin-kubernetes_metadata_filter
 * fluent-plugin-logentries
@@ -449,9 +450,9 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-rewrite-tag-filter
 * fluent-plugin-route
 * fluent-plugin-s3
-* fluent-plugin-kinesis
 * fluent-plugin-secure-forward
 * fluent-plugin-splunkhec
+* fluent-plugin-sumologic_output
 * fluent-plugin-systemd
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macro language.
@@ -629,7 +630,7 @@ spec:
     emptyDir: {}
 ```
 
-### I want to push logs from namespace demo to logz.io
+### I want to push logs from namespace `demo` to logz.io
 
 ```xml
 demo.conf:

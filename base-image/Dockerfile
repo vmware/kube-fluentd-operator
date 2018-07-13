@@ -29,6 +29,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
+    && fluent-gem install fluent-plugin-kinesis \
     && fluent-gem install fluent-plugin-kubernetes \
     && fluent-gem install fluent-plugin-kubernetes_metadata_filter \
     && fluent-gem install fluent-plugin-logentries \
@@ -44,9 +45,9 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-rewrite-tag-filter \
     && fluent-gem install fluent-plugin-route \
     && fluent-gem install fluent-plugin-s3 \
-    && fluent-gem install fluent-plugin-kinesis \
     && fluent-gem install fluent-plugin-secure-forward \
     && fluent-gem install fluent-plugin-splunkhec \
+    && fluent-gem install fluent-plugin-sumologic_output \
     && fluent-gem install fluent-plugin-systemd \
     && fluent-gem install logfmt \
     && SUDO_FORCE_REMOVE=yes \

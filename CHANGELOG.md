@@ -4,6 +4,8 @@
 
 * Core: plugin macros (#19). This feature lets you reuse output plugin definitions.
 
+* Fluentd: add `fluent-plugin-sumologic_output` to base image
+
 ## [1.5.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.5.0)
 
 * Core: extreme validation (#15): namespace configs are run in sandbox to catch more errors
