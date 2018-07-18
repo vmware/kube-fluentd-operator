@@ -434,12 +434,15 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-detect-exceptions
 * fluent-plugin-elasticsearch
 * fluent-plugin-google-cloud
+* fluent-plugin-kafka
 * fluent-plugin-kinesis
 * fluent-plugin-kubernetes
 * fluent-plugin-kubernetes_metadata_filter
 * fluent-plugin-logentries
 * fluent-plugin-loggly
 * fluent-plugin-logzio
+* fluent-plugin-mail
+* fluent-plugin-mongo
 * fluent-plugin-out-http-ext
 * fluent-plugin-papertrail
 * fluent-plugin-parser
@@ -450,6 +453,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-rewrite-tag-filter
 * fluent-plugin-route
 * fluent-plugin-s3
+* fluent-plugin-scribe
 * fluent-plugin-secure-forward
 * fluent-plugin-splunkhec
 * fluent-plugin-sumologic_output
