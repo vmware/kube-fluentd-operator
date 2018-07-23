@@ -4,9 +4,9 @@
 
 ## Overview
 
-TL;DR: a sane, no-brainer K8S+Helm distribution of Fluentd with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in.
+TL;DR: a sane, no-brainer K8S+Helm distribution of Fluentd with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in. Use Kubernetes labels to filter/route logs!
 
-*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how Ingress controllers compiles Nginx configuration based on Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need not coordinate with namespace admins.
+*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how an Ingress controller would compile nginx configuration based from an Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need NOT coordinate with namespace admins.
 
 Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
 
@@ -192,11 +192,11 @@ It gets processed into the following configuration which is then fed to Fluentd:
 
 ### Basic usage
 
-To give the illusion that every namespace runs a dedicated Fluentd the user-provided configuration is post-processed. In general, expressions starting with `$` are macros that are expanded. These two directives are equivalent: `<match **>`, `<match $thins>`. Almost always, using the `**` is the preferred way to match logs: this way you can reuse the same configuration for multiple namespaces.
+To give the illusion that every namespace runs a dedicated Fluentd the user-provided configuration is post-processed. In general, expressions starting with `$` are macros that are expanded. These two directives are equivalent: `<match **>`, `<match $thisns>`. Almost always, using the `**` is the preferred way to match logs: this way you can reuse the same configuration for multiple namespaces.
 
 ### A note on the `kube-system` namespace
 
-The `kube-system` is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use advanced features described bellow, it is possible to route all logs from all namespaces using this configuration at the `kube-system` level:
+The `kube-system` is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use any of the advanced features described bellow, you can just route all logs from all namespaces using this snippet at the `kube-system` level:
 
 ```xml
 <match **>
@@ -261,7 +261,7 @@ The only allowed `<source>` directive is of type `mounted-file`. It is used to i
 </source>
 ```
 
-The `labels` parameter is similar to the `$labels` macro and can filter out logs based on the pod labels. The `<parse>` directive is optional and if omitted a `@type none` will be used. If you know the format of the log file you can be more explicity and specify it, for example `@type apache2` or `@type json`.
+The `labels` parameter is similar to the `$labels` macro and helps the daemon locate all pods that might log to the given file path. The `<parse>` directive is optional and if omitted the default `@type none` will be used. If you know the format of the log file you can explicity specify it, for example `@type apache2` or `@type json`.
 
 The above configuration would translate at runtime to something similar to this:
 
@@ -278,8 +278,6 @@ The above configuration would translate at runtime to something similar to this:
   </parse>
 </source>
 ```
-
-The `@type file` (a destination plug-in) is disabled as it doesn't make sense to convert local docker json logs to another file on the same disk.
 
 ### Dealing with multi-line exception stacktraces (since v1.3.0)
 
@@ -305,7 +303,7 @@ Also, users don't need to bother with setting the correct `stream` parameter. *k
 
 ### Reusing output plugin definitions (since v1.6.0)
 
-Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environement and you use loggly for a "staging" environment. The first thing you do is define these two output at the `kube-system` level:
+Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage, etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environement and you use loggly for a "staging" environment. The first thing you do is define these two output at the `kube-system` level:
 
 ```xml
 kube-system.conf:
