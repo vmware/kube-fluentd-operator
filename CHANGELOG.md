@@ -4,6 +4,14 @@
 
 * Core: plugin macros (#19). This feature lets you reuse output plugin definitions.
 
+* Fluentd: add `fluent-plugin-kafka` to base image (@dimitrovvlado)
+
+* Fluentd: add `fluent-plugin-mail` to base image
+
+* Fluentd: add `fluent-plugin-mongo` to base image
+
+* Fluentd: add `fluent-plugin-scribe` to base image
+
 * Fluentd: add `fluent-plugin-sumologic_output` to base image
 
 ## [1.5.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.5.0)
