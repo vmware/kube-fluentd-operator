@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## 1.6.0
+## 1.7.0
+
+## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
 
 * Core: plugin macros (#19). This feature lets you reuse output plugin definitions.
 
