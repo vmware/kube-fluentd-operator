@@ -2,6 +2,8 @@
 
 ## 1.7.0
 
+* Fluentd: add `fluent-plugin-mysqlslowquery` to base image
+
 ## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
 
 * Core: plugin macros (#19). This feature lets you reuse output plugin definitions.
