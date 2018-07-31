@@ -105,6 +105,8 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
-{{- if .Values.extraVolumes }}          
+{{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}
 {{- end }}
+  updateStrategy:
+    type: {{ default "OnDelete" .Values.updateStrategy | quote }}
