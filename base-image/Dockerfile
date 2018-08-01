@@ -38,6 +38,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-logzio \
     && fluent-gem install fluent-plugin-mail \
     && fluent-gem install fluent-plugin-mongo \
+    && fluent-gem install fluent-plugin-mysqlslowquery \
     && fluent-gem install fluent-plugin-out-http-ext \
     && fluent-gem install fluent-plugin-papertrail \
     && fluent-gem install fluent-plugin-parser \
