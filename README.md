@@ -486,15 +486,15 @@ Flags:
                                 deployments don't overwrite each other's data
   --fluentd-rpc-port=24444      RPC port of Fluentd
   --log-level="info"            Control verbosity of log
-  --annotation="logging.csp.vmware.com/fluentd-configmap"  
+  --annotation="logging.csp.vmware.com/fluentd-configmap"
                                 Which annotation on the namespace stores the configmap name?
-  --default-configmap="fluentd-config"  
+  --default-configmap="fluentd-config"
                                 Read the configmap by this name if namespace is not annotated.
                                 Use empty string to suppress the default.
-  --status-annotation="logging.csp.vmware.com/fluentd-status"  
+  --status-annotation="logging.csp.vmware.com/fluentd-status"
                                 Store configuration errors in this annotation, leave empty to
                                 turn off
-  --kubelet-root="/var/lib/kubelet/"  
+  --kubelet-root="/var/lib/kubelet/"
                                 Kubelet root dir, configured using --root-dir on the kubelet
                                 service
   --namespaces=NAMESPACES ...   List of namespaces to process. If empty, processes all namespaces
@@ -502,7 +502,7 @@ Flags:
   --output-dir="/fluentd/etc"   Where to output config files
   --meta-key=META-KEY           Attach metadat under this key
   --meta-values=META-VALUES     Metadata in the k=v,k2=v2 format
-  --fluentd-binary=FLUENTD-BINARY  
+  --fluentd-binary=FLUENTD-BINARY
                                 Path to fluentd binary used to validate configuration
 
 ```
@@ -524,11 +524,12 @@ Flags:
 | `meta.key`                               | The metadata key (optional)                 | `""`                                |
 | `meta.values`                            | Metadata to use for the key   | `{}`
 | `extraVolumeMounts`                      | Mount extra volumes, required to mount ssl certificates when elasticsearch has tls enabled |          |
-| `extraVolumes`                           | Extra volumes                               |                                                            | 
+| `extraVolumes`                           | Extra volumes                               |                                                            |
 | `fluentdResources`                       | Resource definitions for the fluentd container                 | `{}`|
 | `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |
 | `extraEnv`                               | Extra env vars to pass to fluentd           | `{}`                     |
+| `updateStrategy`                         | UpdateStrategy for daemonset pod            | `OnDelete`                     |
 
 ## Cookbook
 

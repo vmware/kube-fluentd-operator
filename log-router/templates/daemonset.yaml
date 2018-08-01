@@ -109,4 +109,4 @@ spec:
 {{ toYaml .Values.extraVolumes | indent 6 }}
 {{- end }}
   updateStrategy:
-    type: {{ default "OnDelete" .Values.updateStrategy | quote }}
+    type: {{ .Values.updateStrategy }}
