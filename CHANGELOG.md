@@ -2,7 +2,7 @@
 
 ## 1.7.0
 
-* Fluentd: add `fluent-plugin-mysqlslowquery` to base image
+* Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
 
 ## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
 

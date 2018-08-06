@@ -1,0 +1,6 @@
+2018-02-26T14:20:53Z vmware-test.test.io/hello-db:ping
+2018-02-27T14:20:53Z vmware-test.test.io/hello-mq:ping
+2018-02-28T14:20:53Z vmware-test.test.io/hello-zk:ping
+2018-02-28T14:20:53Z vmware-test.test.io/goodbye-zk:ping
+2018-02-28T14:20:53Z vmware-test.test.io/goodbye-mq:ping
+2018-02-28T14:20:53Z vmware-test.test.io/goodbye-db:ping

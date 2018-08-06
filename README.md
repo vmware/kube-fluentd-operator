@@ -440,7 +440,6 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-logzio
 * fluent-plugin-mail
 * fluent-plugin-mongo
-* fluent-plugin-mysqlslowquery
 * fluent-plugin-out-http-ext
 * fluent-plugin-papertrail
 * fluent-plugin-parser
