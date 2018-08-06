@@ -528,7 +528,7 @@ Flags:
 | `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |
 | `extraEnv`                               | Extra env vars to pass to fluentd           | `{}`                     |
-| `updateStrategy`                         | UpdateStrategy for daemonset pod            | `OnDelete`                     |
+| `updateStrategy`                         | UpdateStrategy for the daemonset. Leave empty to get the K8S' default (probably the safest choice)            | `{}`                     |
 
 ## Cookbook
 

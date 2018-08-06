@@ -21,7 +21,8 @@ helm-dry-run:
 	  --set tolerations[0].key=key \
 	  --set tolerations[0].operator=op \
 	  --set tolerations[0].value=value \
-	  --set extraEnv.HELLO=world
+	  --set extraEnv.HELLO=world \
+	  --set updateStrategy.type=OnDelete
 
 clean:
 	rm -fr $(HELM_PACKAGE)-*.tgz || true

@@ -108,5 +108,7 @@ spec:
 {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 6 }}
 {{- end }}
+  {{- if .Values.updateStrategy}}
   updateStrategy:
-    type: {{ .Values.updateStrategy }}
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  {{- end }}
