@@ -242,7 +242,7 @@ func TestLabelWithLabelsAndContainer(t *testing.T) {
 		assert.Equal(t, "record_transformer", dir.Type())
 		record := dir.Nested[0]
 		assert.Equal(t, "record", record.Name)
-		assert.Equal(t, `${record["kubernetes"]["labels"]["app"]&.gsub(/[.-]/, '_') || '_'}.${record["kubernetes"]["labels"]["heritage"]&.gsub(/[.-]/, '_') || '_'}.${record["kubernetes"]["labels"]["release"]&.gsub(/[.-]/, '_') || '_'}`, record.Param("kubernetes_pod_label_values"))
+		assert.Equal(t, `${record.dig('kubernetes','labels','app')&.gsub(/[.-]/, '_') || '_'}.${record.dig('kubernetes','labels','heritage')&.gsub(/[.-]/, '_') || '_'}.${record.dig('kubernetes','labels','release')&.gsub(/[.-]/, '_') || '_'}`, record.Param("kubernetes_pod_label_values"))
 	}
 
 	if dir := fragment[1]; true {

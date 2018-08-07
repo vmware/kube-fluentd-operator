@@ -48,7 +48,7 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
   @type record_transformer
   enable_ruby true
   <record>
-    kubernetes_pod_label_values {{range $i, $e := .Labels -}}${record["kubernetes"]["labels"]["{{$e}}"]&.gsub(/[.-]/, '_') || '_'}{{if last $i $.Labels }}{{else}}.{{end}}{{- end}}
+    kubernetes_pod_label_values {{range $i, $e := .Labels -}}${record.dig('kubernetes','labels','{{$e}}')&.gsub(/[.-]/, '_') || '_'}{{if last $i $.Labels }}{{else}}.{{end}}{{- end}}
   </record>
 </filter>
   
