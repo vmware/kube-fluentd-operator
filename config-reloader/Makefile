@@ -99,6 +99,14 @@ run-fluentd:
 	  $(IMAGE):$(TAG) \
 	  -p /fluentd/plugins -v -c /workspace/local-fluent.conf
 
+dep-graph:
+	godepgraph -s \
+	  -l 4 \
+	  -p github.com/alecthomas/units,github.com/alecthomas/template,github.com/spf13,github.com/jackc,k8s.io/kubernetes,k8s.io/apimachinery,github.com/palantir,github.com/sirupsen,github.com/prometheus,golang.org,gopkg.in \
+	  github.com/vmware/kube-fluentd-operator/config-reloader \
+	  | sed 's|github.com/vmware/kube-fluentd-operator/config-reloader/||g'\
+	  | dot -Tpng -o godepgraph.png
+
 validate-config:
 	docker run --entrypoint=fluentd \
 	  -ti --rm -v `pwd`:/workspace --net=host \
