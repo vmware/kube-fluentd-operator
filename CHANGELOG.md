@@ -4,6 +4,8 @@
 
 * Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
 
+* Core: handle gracefully for missing kubernetes.labels field (#23)
+
 ## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
 
 * Core: plugin macros (#19). This feature lets you reuse output plugin definitions.

@@ -113,6 +113,25 @@ make run-local-fs
 ls -l tmp/
 ```
 
+### Project structure
+
+* `log-router`: Builds the Helm chart
+* `base-image`: Builds a Fluentd 1.x image with a curated list of plugins
+* `config-reloader`: Builds the daemon that generates fluentd configuration files
+
+### Config-reloader
+
+This is where interesting work happens. The dependency graph shows the high-level package interaction and general dataflow.
+
+![package dep](config-reloader/godepgraph.png)
+
+* `config`: handles startup configuration, reading and validation
+* `datasource`: fetches Pods, Namespaces, ConfigMaps from Kubernetes
+* `fluentd`: parses Fluentd config files into an object graph
+* `processors`: walks this object graph doing validations and modifications. All features are implemented as chained `Processor` subtypes
+* `generator`: serializes the processed object graph to the filesystem for Fluentd to read
+* `controller`: orchestrates the high-level `datasource` -> `processor` -> `generator` pipeline.
+
 ### How does it work
 
 It works be rewriting the user-provided configuration. This is possible because *kube-fluentd-operator* knows about the kubernetes cluster, the current namespace and
