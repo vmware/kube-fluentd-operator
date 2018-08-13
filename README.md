@@ -548,6 +548,7 @@ Flags:
 | `tolerations`                            | Pod tolerations             | `[]`                     |
 | `extraEnv`                               | Extra env vars to pass to fluentd           | `{}`                     |
 | `updateStrategy`                         | UpdateStrategy for the daemonset. Leave empty to get the K8S' default (probably the safest choice)            | `{}`                     |
+| `podAnnotations`                         | Pod annotations for the daemonset  |                    |
 
 ## Cookbook
 
