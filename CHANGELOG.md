@@ -4,7 +4,9 @@
 
 * Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
 
-* Core: handle gracefully for missing kubernetes.labels field (#23)
+* Core: handle gracefully a missing kubernetes.labels field (#23)
+
+* Helm: `podAnnotations` lets you annotate the daemonset pods (@cw-sakamoto) (#25)
 
 ## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
 
