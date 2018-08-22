@@ -4,6 +4,8 @@
 
 * Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
 
+* Fluentd: add plugin `fluent-plugin-amqp2` to base image
+
 * Core: handle gracefully a missing kubernetes.labels field (#23)
 
 * Core: Add `strict true|false` option to the logfmt parser plugin (#27)
