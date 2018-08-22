@@ -25,6 +25,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
      $buildDeps \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
+    && fluent-gem install fluent-plugin-amqp2 \
     && fluent-gem install fluent-plugin-concat \
     && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
