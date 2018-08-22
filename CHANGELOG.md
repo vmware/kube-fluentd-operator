@@ -6,6 +6,8 @@
 
 * Core: handle gracefully a missing kubernetes.labels field (#23)
 
+* Core: Add `strict true|false` option to the logfmt parser plugin (#27)
+
 * Helm: `podAnnotations` lets you annotate the daemonset pods (@cw-sakamoto) (#25)
 
 ## [1.6.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.6.0)
