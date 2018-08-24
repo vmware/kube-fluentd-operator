@@ -4,6 +4,8 @@
 IMAGE ?= vmware/base-fluentd-operator
 TAG ?= latest
 
+.PHONY: test
+
 build-image:
 	docker build -t $(IMAGE):$(TAG) .
 

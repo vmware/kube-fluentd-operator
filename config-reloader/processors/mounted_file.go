@@ -18,9 +18,10 @@ const mountedFileSourceType = "mounted-file"
 
 // ContainerFile stores parsed info from a <source> @type mounted-file...
 type ContainerFile struct {
-	Labels map[string]string
-	Path   string
-	Parse  *fluentd.Directive
+	Labels      map[string]string
+	AddedLabels map[string]string
+	Path        string
+	Parse       *fluentd.Directive
 }
 
 type mountedFileState struct {
@@ -46,8 +47,21 @@ func (state *mountedFileState) Prepare(input fluentd.Fragment) (fluentd.Fragment
 			if err != nil {
 				return nil, err
 			}
+
+			paramAddedLabels := frag.Param("add_labels")
+			paramAddedLabels = util.TrimTrailingComment(paramAddedLabels)
+			var addedLabels map[string]string
+			if paramAddedLabels != "" {
+				// no added labels is just fine
+				addedLabels, err = parseTagToLabels(fmt.Sprintf("$labels(%s)", paramAddedLabels))
+				if err != nil {
+					return nil, err
+				}
+			}
+
 			cf := &ContainerFile{}
 			cf.Labels = labels
+			cf.AddedLabels = addedLabels
 
 			paramPath := frag.Param("path")
 			if paramPath == "" {
@@ -107,7 +121,8 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 				dir.SetParam("path", hostPath)
 				dir.SetParam("read_from_head", "true")
 				dir.SetParam("tag", tag)
-				dir.SetParam("pos_file", fmt.Sprintf("/var/log/kfotail-%s.pos", util.Hash(state.Context.DeploymentID, mc.PodID+state.Context.DeploymentID+hostPath)))
+				pos := util.Hash(state.Context.DeploymentID, fmt.Sprintf("%s-%s-%s", mc.PodID, mc.Name, hostPath))
+				dir.SetParam("pos_file", fmt.Sprintf("/var/log/kfotail-%s.pos", pos))
 
 				if cf.Parse != nil {
 					dir.Nested = []*fluentd.Directive{
@@ -154,10 +169,27 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 	}))
 
 	fmt.Fprintf(buf, "record['container_info']='%s'; ", util.Hash(mc.PodID, cf.Path))
-	fmt.Fprintf(buf, "record['kubernetes']['labels']=%s; ", util.ToRubyMapLiteral(mc.Labels))
+	fmt.Fprintf(buf, "record['kubernetes']['labels']=%s; ", util.ToRubyMapLiteral(mergeMaps(mc.Labels, cf.AddedLabels)))
 	fmt.Fprintf(buf, "record['kubernetes']['namespace_labels']=%s", util.ToRubyMapLiteral(state.Context.NamespaceLabels))
 
 	res.Nested[0].SetParam("dummy_", fmt.Sprintf("${%s}", buf.String()))
+
+	return res
+}
+
+func mergeMaps(base, more map[string]string) map[string]string {
+	res := map[string]string{}
+
+	for k, v := range base {
+		res[k] = v
+	}
+
+	for k, v := range more {
+		if _, ok := res[k]; !ok {
+			// cannot override labels assigned from kubernetes
+			res[k] = v
+		}
+	}
 
 	return res
 }

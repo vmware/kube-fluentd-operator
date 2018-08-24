@@ -5,6 +5,7 @@ package processors
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
@@ -18,7 +19,7 @@ func TestMountedFileRemovedAfterProcessing(t *testing.T) {
 <source>
   @type mounted-file
   path /hello/world
-  labels app=spring-mvc  
+  labels app=spring-mvc
 </source>
 
 <match **>
@@ -39,19 +40,31 @@ func TestMountedFileRemovedAfterProcessing(t *testing.T) {
 	fragment, err = Process(fragment, ctx, processor)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(fragment))
-
-	// assert.Equal(t, 1, len(processor.ContainerFiles))
-
-	// cf := processor.ContainerFiles[0]
-	// assert.Equal(t, "/hello/world", cf.Path)
-	// assert.Equal(t, map[string]string{"app": "spring-mvc"}, cf.Labels)
 }
 
+func TestMergeMaps(t *testing.T) {
+	base := map[string]string{
+		"a": "1",
+		"b": "2",
+	}
+
+	more := map[string]string{
+		"a": "-1",
+		"z": "26",
+	}
+
+	result := mergeMaps(base, more)
+
+	assert.Equal(t, 3, len(result))
+	assert.Equal(t, "1", result["a"])
+	assert.Equal(t, "2", result["b"])
+	assert.Equal(t, "26", result["z"])
+}
 func TestMountedFileCatchesMissingFile(t *testing.T) {
 	missingPath := `
 	<source>
 	  @type mounted-file
-	  labels app=spring-mvc  
+	  labels app=spring-mvc
 	</source>
 	
 	<match **>
@@ -130,6 +143,10 @@ func TestConvertToFragment(t *testing.T) {
 	specC1 := &ContainerFile{
 		Path:   "/var/log/redis.log",
 		Labels: map[string]string{"key": "value", "_container": "container-name"},
+		AddedLabels: map[string]string{
+			"good": "morning",
+			"key":  "new_value", // this will not make it into the final records
+		},
 	}
 
 	c1 := &datasource.MiniContainer{
@@ -191,11 +208,15 @@ func TestConvertToFragment(t *testing.T) {
 	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
 	assert.Equal(t, "kube.monitoring.123.container-name", dir.Param("tag"))
 	assert.Equal(t, "parse", dir.Nested[0].Name)
+	assert.Equal(t, "/var/log/kfotail-b3f8f41cab18c93a7c8057277947de0d1d76d1d6.pos", dir.Param("pos_file"))
 	assert.Equal(t, "none", dir.Nested[0].Type())
 
 	mod := result[1]
 	assert.Equal(t, "filter", mod.Name)
 	assert.Equal(t, "record_modifier", mod.Type())
+	assert.True(t, strings.Index(mod.String(), "'good'=>'morning'") > 0)
+	assert.True(t, strings.Index(mod.String(), "'key'=>'value'") > 0)
+	assert.True(t, strings.Index(mod.String(), "'key'=>'new_value'") < 0)
 
 	result = state.convertToFragement(specC2)
 	assert.Equal(t, 2, len(result))
