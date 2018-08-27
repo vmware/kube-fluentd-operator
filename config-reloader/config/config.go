@@ -155,7 +155,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("master", "The Kubernetes API server to connect to (default: auto-detect)").Default(defaultConfig.Master).StringVar(&cfg.Master)
 	app.Flag("kubeconfig", "Retrieve target cluster configuration from a Kubernetes configuration file (default: auto-detect)").Default(defaultConfig.KubeConfig).StringVar(&cfg.KubeConfig)
 
-	app.Flag("datasource", "Datasource to use").Default("default").EnumVar(&cfg.Datasource, "default", "fake", "fs")
+	app.Flag("datasource", "Datasource to use").Default("default").EnumVar(&cfg.Datasource, "default", "fake", "fs", "multimap")
 	app.Flag("fs-dir", "If datasource=fs is used, configure the dir hosting the files").StringVar(&cfg.FsDatasourceDir)
 
 	app.Flag("interval", "Run every x seconds").Default(strconv.Itoa(defaultConfig.IntervalSeconds)).IntVar(&cfg.IntervalSeconds)

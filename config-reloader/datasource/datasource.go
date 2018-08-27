@@ -3,6 +3,15 @@
 
 package datasource
 
+import (
+	"sort"
+	core "k8s.io/api/core/v1"
+)
+
+const (
+	entryName = "fluent.conf"
+)
+
 type Mount struct {
 	Path       string
 	VolumeName string
@@ -46,4 +55,59 @@ type Datasource interface {
 	StatusUpdater
 	GetNamespaces() ([]*NamespaceConfig, error)
 	WriteCurrentConfigHash(namespace string, hash string)
+}
+
+type byLength []*Mount
+
+func (s byLength) Len() int {
+	return len(s)
+}
+
+func (s byLength) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byLength) Less(i, j int) bool {
+	return len(s[i].Path) > len(s[j].Path)
+}
+
+func convertPodToMinis(resp *core.PodList) []*MiniContainer {
+	var res []*MiniContainer
+
+	for _, pod := range resp.Items {
+		for _, cont := range pod.Spec.Containers {
+			mini := &MiniContainer{
+				PodID:    string(pod.UID),
+				PodName:  pod.Name,
+				Labels:   pod.Labels,
+				Name:     cont.Name,
+				NodeName: pod.Spec.NodeName,
+			}
+
+			for _, vm := range cont.VolumeMounts {
+				m := makeVolume(pod.Spec.Volumes, &vm)
+				if m != nil {
+					mini.HostMounts = append(mini.HostMounts, m)
+				}
+			}
+
+			if len(mini.HostMounts) > 0 {
+				sort.Sort(byLength(mini.HostMounts))
+				res = append(res, mini)
+			}
+		}
+	}
+	return res
+}
+
+func makeVolume(volumes []core.Volume, volumeMount *core.VolumeMount) *Mount {
+	for _, v := range volumes {
+		if v.Name == volumeMount.Name && v.EmptyDir != nil {
+			return &Mount{
+				VolumeName: v.Name,
+				Path:       volumeMount.MountPath,
+			}
+		}
+	}
+	return nil
 }

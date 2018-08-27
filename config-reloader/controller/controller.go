@@ -49,7 +49,11 @@ func New(cfg *config.Config) (*Controller, error) {
 	} else if cfg.Datasource == "fs" {
 		ds = datasource.NewFileSystemDatasource(cfg.FsDatasourceDir, cfg.OutputDir)
 	} else {
-		ds, err = datasource.NewKubernetesDatasource(cfg)
+		if cfg.Datasource == "multimap" {
+			ds, err = datasource.NewKubernetesMultimapDatasource(cfg)
+		} else {
+			ds, err = datasource.NewKubernetesDatasource(cfg)
+		}
 		if err != nil {
 			return nil, err
 		}

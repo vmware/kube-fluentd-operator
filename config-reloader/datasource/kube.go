@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sort"
-
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 
 	"github.com/sirupsen/logrus"
@@ -19,10 +17,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-const (
-	entryName = "fluent.conf"
-)
-
 type kubeConnection struct {
 	client kubernetes.Interface
 	hashes map[string]string
@@ -31,7 +25,7 @@ type kubeConnection struct {
 
 func (d *kubeConnection) readConfig(namespace string, configMapName string) (string, error) {
 	opts := meta_v1.GetOptions{}
-	configMap, err := d.client.Core().ConfigMaps(namespace).Get(configMapName, opts)
+	configMap, err := d.client.CoreV1().ConfigMaps(namespace).Get(configMapName, opts)
 
 	if err != nil {
 		return "", err
@@ -123,61 +117,6 @@ func (d *kubeConnection) needsProcessing(ns string) bool {
 	return false
 }
 
-type byLength []*Mount
-
-func (s byLength) Len() int {
-	return len(s)
-}
-
-func (s byLength) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
-func (s byLength) Less(i, j int) bool {
-	return len(s[i].Path) > len(s[j].Path)
-}
-
-func convertPodToMinis(resp *core.PodList) []*MiniContainer {
-	res := []*MiniContainer{}
-
-	for _, pod := range resp.Items {
-		for _, cont := range pod.Spec.Containers {
-			mini := &MiniContainer{
-				PodID:    string(pod.UID),
-				PodName:  pod.Name,
-				Labels:   pod.Labels,
-				Name:     cont.Name,
-				NodeName: pod.Spec.NodeName,
-			}
-
-			for _, vm := range cont.VolumeMounts {
-				m := makeVolume(pod.Spec.Volumes, &vm)
-				if m != nil {
-					mini.HostMounts = append(mini.HostMounts, m)
-				}
-			}
-
-			if len(mini.HostMounts) > 0 {
-				sort.Sort(byLength(mini.HostMounts))
-				res = append(res, mini)
-			}
-		}
-	}
-	return res
-}
-
-func makeVolume(volumes []core.Volume, volumeMount *core.VolumeMount) *Mount {
-	for _, v := range volumes {
-		if v.Name == volumeMount.Name && v.EmptyDir != nil {
-			return &Mount{
-				VolumeName: v.Name,
-				Path:       volumeMount.MountPath,
-			}
-		}
-	}
-	return nil
-}
-
 func (d *kubeConnection) WriteCurrentConfigHash(namespace string, hash string) {
 	d.hashes[namespace] = hash
 }
@@ -209,17 +148,17 @@ func NewKubernetesDatasource(cfg *config.Config) (Datasource, error) {
 		}
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags(cfg.Master, kubeConfig)
+	kubeCfg, err := clientcmd.BuildConfigFromFlags(cfg.Master, kubeConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := kubernetes.NewForConfig(config)
+	client, err := kubernetes.NewForConfig(kubeCfg)
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Connected to cluster at %s", config.Host)
+	logrus.Infof("Connected to cluster at %s", kubeCfg.Host)
 
 	return &kubeConnection{
 		client: client,
