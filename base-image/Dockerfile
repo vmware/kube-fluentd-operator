@@ -30,6 +30,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
+    && fluent-gem install fluent-plugin-grok-parser \
     && fluent-gem install fluent-plugin-kafka \
     && fluent-gem install fluent-plugin-kinesis \
     && fluent-gem install fluent-plugin-kubernetes \
