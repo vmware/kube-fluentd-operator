@@ -44,6 +44,11 @@ spec:
                 key: {{ $key }}
         {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.prometheusEnabled }}
+          ports:
+          - name: prometheus
+            containerPort: 24231
+          {{- end }}
           volumeMounts:
           - name: fluentconf
             mountPath: /fluentd/etc
@@ -79,6 +84,9 @@ spec:
           - --meta-key={{ .Values.meta.key }}
           - --meta-values={{- range $k, $v := .Values.meta.values }}{{$k}}={{$v}},
           {{- end }}
+          {{- end }}
+          {{- if .Values.prometheusEnabled }}
+          - --prometheus-enabled
           {{- end }}
           {{- range  .Values.namespaces }}
           - --namespaces
