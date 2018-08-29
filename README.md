@@ -464,6 +464,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-out-http-ext
 * fluent-plugin-papertrail
 * fluent-plugin-parser
+* fluent-plugin-prometheus
 * fluent-plugin-record-modifier
 * fluent-plugin-record-reformer
 * fluent-plugin-redis
@@ -524,6 +525,7 @@ Flags:
   --meta-values=META-VALUES     Metadata in the k=v,k2=v2 format
   --fluentd-binary=FLUENTD-BINARY
                                 Path to fluentd binary used to validate configuration
+  --prometheus-enabled          Prometheus metrics enabled (default: false)
 
 ```
 

@@ -42,6 +42,7 @@ type Config struct {
 	MetaValues             string
 	KubeletRoot            string
 	Namespaces             []string
+	PrometheusEnabled      bool
 	// parsed or processed/cached fields
 	level            logrus.Level
 	ParsedMetaValues map[string]string
@@ -61,6 +62,7 @@ var defaultConfig = &Config{
 	KubeletRoot:          "/var/lib/kubelet/",
 	IntervalSeconds:      60,
 	ID:                   "default",
+	PrometheusEnabled:    false,
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -168,13 +170,15 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
 
+	app.Flag("prometheus-enabled", "Prometheus metrics enabled (default: false)").BoolVar(&cfg.PrometheusEnabled)
+
 	app.Flag("kubelet-root", "Kubelet root dir, configured using --root-dir on the kubelet service").Default(defaultConfig.KubeletRoot).StringVar(&cfg.KubeletRoot)
 	app.Flag("namespaces", "List of namespaces to process. If empty, processes all namespaces").StringsVar(&cfg.Namespaces)
 
 	app.Flag("templates-dir", "Where to find templates").Default(defaultConfig.TemplatesDir).StringVar(&cfg.TemplatesDir)
 	app.Flag("output-dir", "Where to output config files").Default(defaultConfig.OutputDir).StringVar(&cfg.OutputDir)
 
-	app.Flag("meta-key", "Attach metadat under this key").StringVar(&cfg.MetaKey)
+	app.Flag("meta-key", "Attach metadata under this key").StringVar(&cfg.MetaKey)
 	app.Flag("meta-values", "Metadata in the k=v,k2=v2 format").StringVar(&cfg.MetaValues)
 
 	app.Flag("fluentd-binary", "Path to fluentd binary used to validate configuration").StringVar(&cfg.FluentdValidateCommand)
