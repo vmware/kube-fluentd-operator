@@ -4,11 +4,17 @@
 
 * Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
 
-* Fluentd: add plugin `fluent-plugin-amqp2` to base image
+* Fluentd: add plugin `fluent-plugin-amqp2` to base image (@CoufalJa)
 
-* Core: handle gracefully a missing kubernetes.labels field (#23)
+* Fluentd: add plugin `fluent-plugin-grok-parser` to base image (@CoufalJa)
+
+* Core: handle gracefully a missing `kubernetes.labels` field (#23)
 
 * Core: Add `strict true|false` option to the logfmt parser plugin (#27)
+
+* Core: Add `add_labels` to  `@type mounted_file` plug-in (#26)
+
+* Core: Fix `@type mounted_file` for multi-container pods producing log files (#29)
 
 * Helm: `podAnnotations` lets you annotate the daemonset pods (@cw-sakamoto) (#25)
 
