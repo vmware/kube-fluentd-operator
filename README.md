@@ -525,6 +525,7 @@ Flags:
   --meta-values=META-VALUES     Metadata in the k=v,k2=v2 format
   --fluentd-binary=FLUENTD-BINARY
                                 Path to fluentd binary used to validate configuration
+  --prometheus-enabled          Prometheus metrics enabled (default: false)
 
 ```
 

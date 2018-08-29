@@ -21,14 +21,6 @@ var (
 	Version = "unknown"
 )
 
-// PrometheusConfig prometheus monitoring configuration
-type PrometheusConfig struct {
-	Enabled bool
-	Bind    string
-	Port    int
-	Path    string
-}
-
 // Config is a project-wide configuration
 type Config struct {
 	Master                 string
@@ -50,7 +42,7 @@ type Config struct {
 	MetaValues             string
 	KubeletRoot            string
 	Namespaces             []string
-	Prometheus             PrometheusConfig
+	PrometheusEnabled      bool
 	// parsed or processed/cached fields
 	level            logrus.Level
 	ParsedMetaValues map[string]string
@@ -70,12 +62,7 @@ var defaultConfig = &Config{
 	KubeletRoot:          "/var/lib/kubelet/",
 	IntervalSeconds:      60,
 	ID:                   "default",
-	Prometheus: PrometheusConfig{
-		Enabled: false,
-		Bind:    "0.0.0.0",
-		Port:    24231,
-		Path:    "/metrics",
-	},
+	PrometheusEnabled:    false,
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -183,10 +170,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
 
-	app.Flag("prometheus-enabled", "Prometheus metrics enabled (default: false)").BoolVar(&cfg.Prometheus.Enabled)
-	app.Flag("prometheus-bind", "Prometheus metrics bind").Default(defaultConfig.Prometheus.Bind).StringVar(&cfg.Prometheus.Bind)
-	app.Flag("prometheus-port", "Prometheus metrics port").Default(strconv.Itoa(defaultConfig.Prometheus.Port)).IntVar(&cfg.Prometheus.Port)
-	app.Flag("prometheus-path", "Prometheus metrics path").Default(defaultConfig.Prometheus.Path).StringVar(&cfg.Prometheus.Path)
+	app.Flag("prometheus-enabled", "Prometheus metrics enabled (default: false)").BoolVar(&cfg.PrometheusEnabled)
 
 	app.Flag("kubelet-root", "Kubelet root dir, configured using --root-dir on the kubelet service").Default(defaultConfig.KubeletRoot).StringVar(&cfg.KubeletRoot)
 	app.Flag("namespaces", "List of namespaces to process. If empty, processes all namespaces").StringsVar(&cfg.Namespaces)

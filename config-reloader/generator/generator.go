@@ -287,11 +287,11 @@ func (g *Generator) renderIncludableFile(templateFile string, dest string) {
 
 	// this is the model for the includable files
 	model := struct {
-		ID         string
-		Prometheus config.PrometheusConfig
+		ID                string
+		PrometheusEnabled bool
 	}{
-		ID:         util.MakeFluentdSafeName(g.cfg.ID),
-		Prometheus: g.cfg.Prometheus,
+		ID:                util.MakeFluentdSafeName(g.cfg.ID),
+		PrometheusEnabled: g.cfg.PrometheusEnabled,
 	}
 
 	buf := &bytes.Buffer{}
