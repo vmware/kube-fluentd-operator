@@ -27,14 +27,12 @@ type kubeMultimapConnection struct {
 func (d *kubeMultimapConnection) readConfig(namespace string, maps *core.ConfigMapList) (string, error) {
 	contents := ""
 	for _, configMap := range maps.Items {
-		if _, ok := configMap.Annotations[d.cfg.AnnotConfigmapName]; ok {
-			mapData, ok := configMap.Data[entryName]
-			if ok {
-				contents = fmt.Sprintf("%s\n%s", contents, mapData)
-				logrus.Debugf("loaded config data from config map %s/%s", namespace, configMap.Name)
-			} else {
-				logrus.Warnf("cannot find entry %s in config map %s/%s", entryName, namespace, configMap.Name)
-			}
+		mapData, ok := configMap.Data[entryName]
+		if ok {
+			contents = fmt.Sprintf("%s\n%s", contents, mapData)
+			logrus.Debugf("loaded config data from config map %s/%s", namespace, configMap.Name)
+		} else {
+			logrus.Warnf("cannot find entry %s in config map %s/%s", entryName, namespace, configMap.Name)
 		}
 	}
 
@@ -57,7 +55,7 @@ func (d *kubeMultimapConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 
 	var result []*NamespaceConfig
 	for _, item := range resp.Items {
-		maps, err := d.client.CoreV1().ConfigMaps(item.Name).List(metav1.ListOptions{})
+		maps, err := d.client.CoreV1().ConfigMaps(item.Name).List(metav1.ListOptions{LabelSelector: d.cfg.ParsedLabelSelector.AsSelector().String()})
 		if err != nil {
 			logrus.Debugf("will not process namespace '%s': %+v", item.Name, err)
 			result = append(result, d.unconfiguredNamespace(item.Name))
@@ -68,14 +66,14 @@ func (d *kubeMultimapConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 			continue
 		}
 
+		logrus.Debugf("processing namespace '%s'", item.Name)
+
 		contents, err := d.readConfig(item.Name, maps)
 		if err != nil {
 			logrus.Debugf("will not process namespace '%s': %+v", item.Name, err)
 			result = append(result, d.unconfiguredNamespace(item.Name))
 			continue
 		}
-
-		logrus.Debugf("processing namespace '%s'", item.Name)
 
 		obj := &NamespaceConfig{
 			Name:               item.Name,
@@ -99,37 +97,24 @@ func (d *kubeMultimapConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 }
 
 func (d *kubeMultimapConnection) needsProcessing(ns string, maps *core.ConfigMapList) bool {
-	if len(d.cfg.Namespaces) == 0 {
-		if d.containsProcessableMap(maps) {
-			return true
-		}
+	if len(maps.Items) == 0 {
 		logrus.Debugf("ignoring namespace '%s' because it doesn't contain any processable map", ns)
 		return false
 	}
 
+	if len(d.cfg.Namespaces) == 0 {
+		return true
+	}
+
 	for _, item := range d.cfg.Namespaces {
 		if item == ns {
-			if d.containsProcessableMap(maps) {
-				return true
-			}
-			logrus.Debugf("ignoring namespace '%s' because it doesn't contain any processable map", ns)
-			return false
+			return true
 		}
 	}
 
 	logrus.Debugf("ignoring namespace '%s' because of --namespaces flag", ns)
 	return false
 }
-
-func (d *kubeMultimapConnection) containsProcessableMap(maps *core.ConfigMapList) (bool) {
-	for _, configMap := range maps.Items {
-		if _, ok := configMap.Annotations[d.cfg.AnnotConfigmapName]; ok {
-			return true
-		}
-	}
-	return false
-}
-
 
 func (d *kubeMultimapConnection) WriteCurrentConfigHash(namespace string, hash string) {
 	d.hashes[namespace] = hash
