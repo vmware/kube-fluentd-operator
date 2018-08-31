@@ -446,7 +446,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors appending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
-* fluent-plugin-amqp2
+* fluent-plugin-amqp
 * fluent-plugin-concat
 * fluent-plugin-detect-exceptions
 * fluent-plugin-elasticsearch
