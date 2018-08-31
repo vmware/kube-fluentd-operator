@@ -2,6 +2,8 @@
 
 ## [1.8.0]
 
+* Fluentd: replace fluent-plugin-amqp plugin with fluent-plugin-amqp2
+
 ## [1.7.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.7.0)
 
 * Fluentd: add plugin `extract` to base image - a simple filter plugin to enrich log events based on regex and templates
