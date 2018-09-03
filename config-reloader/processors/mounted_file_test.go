@@ -206,7 +206,7 @@ func TestConvertToFragment(t *testing.T) {
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
 	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
-	assert.Equal(t, "kube.monitoring.123.container-name", dir.Param("tag"))
+	assert.Equal(t, "kube.monitoring.123.container-name-b3f8f41cab18c93a7c8057277947de0d1d76d1d6", dir.Param("tag"))
 	assert.Equal(t, "parse", dir.Nested[0].Name)
 	assert.Equal(t, "/var/log/kfotail-b3f8f41cab18c93a7c8057277947de0d1d76d1d6.pos", dir.Param("pos_file"))
 	assert.Equal(t, "none", dir.Nested[0].Type())
@@ -226,7 +226,7 @@ func TestConvertToFragment(t *testing.T) {
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
 	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", dir.Param("path"))
-	assert.Equal(t, "kube.monitoring.abc.nginx", dir.Param("tag"))
+	assert.Equal(t, "kube.monitoring.abc.nginx-82357fcda2cbd45c066d8a538cbf1f3e96b1ce6a", dir.Param("tag"))
 
 	mod = result[1]
 	assert.Equal(t, "filter", mod.Name)

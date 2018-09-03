@@ -117,11 +117,12 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 				dir.SetParam("@type", "tail")
 
 				hostPath := state.makeHostPath(cf, hm, mc)
-				tag := fmt.Sprintf("kube.%s.%s.%s", state.Context.Namepsace, mc.PodName, mc.Name)
+				pos := util.Hash(state.Context.DeploymentID, fmt.Sprintf("%s-%s-%s", mc.PodID, mc.Name, hostPath))
+				tag := fmt.Sprintf("kube.%s.%s.%s-%s", state.Context.Namepsace, mc.PodName, mc.Name, pos)
 				dir.SetParam("path", hostPath)
 				dir.SetParam("read_from_head", "true")
 				dir.SetParam("tag", tag)
-				pos := util.Hash(state.Context.DeploymentID, fmt.Sprintf("%s-%s-%s", mc.PodID, mc.Name, hostPath))
+
 				dir.SetParam("pos_file", fmt.Sprintf("/var/log/kfotail-%s.pos", pos))
 
 				if cf.Parse != nil {
