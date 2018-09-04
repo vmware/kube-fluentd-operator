@@ -6,13 +6,13 @@
 
 TL;DR: a sane, no-brainer K8S+Helm distribution of Fluentd with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in. Use Kubernetes labels to filter/route logs!
 
-*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how an Ingress controller would compile nginx configuration based from an Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need NOT coordinate with namespace admins.
+*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how an Ingress controller would compile nginx configuration from several Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need NOT coordinate with namespace admins.
 
 Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
 
-*kube-fluentd-operator* also extends the Fluentd configuration language to make it possible to refer to pods based on their labels and the container. This enables for very fined-grained targeting of log streams for the purpose of pre-processing before shipping.
+*kube-fluentd-operator* also extends the Fluentd configuration language making it possible to refer to pods based on their labels and the container. This enables for very fined-grained targeting of log streams for the purpose of pre-processing before shipping.
 
-Finally, it is possible to ingest logs from a file on the container filesystem. While this is not recommended there are still legacy or misconfigured apps that still log to local file(s).
+Finally, it is possible to ingest logs from a file on the container filesystem. While this is not recommended, there are still legacy or misconfigured apps that insist on logging to the local filesystem.
 
 ## Try it out
 
@@ -593,13 +593,13 @@ noisy-namespace.conf:
   @type null
 </match>
 
-# all other logs are captyre here
+# all other logs are captured here
 <match **>
   @type ...
 </match>
 ```
 
-On the bright side, the configuration of `other-namespace` contains nothing specific to other-namespace and the same content can be used for all namespaces whose logs we need collected.
+On the bright side, the configuration of `noisy-namespace` contains nothing specific to noisy-namespace and the same content can be used for all namespaces whose logs we need collected.
 
 ### I am getting errors "namespaces is forbidden: ... cannot list namespaces at the cluster scope"
 
@@ -611,7 +611,7 @@ helm install ./log-router --set rbac.create=true ...
 
 ### I have a legacy container that logs to /var/log/httpd/access.log
 
-First you need version 1.1.0 or later. At the namespace level you need to add a `source` directive:
+First you need version 1.1.0 or later. At the namespace level you need to add a `source` directive of type `mounted-file`:
 
 ```xml
 <source>
@@ -628,7 +628,7 @@ First you need version 1.1.0 or later. At the namespace level you need to add a 
 </match>
 ```
 
-The type `mounted-file` is again a macro that is expanded to a `tail` plugin invocation. The `<parse>` directive is optional and if not set a `@type none` will be used instead.
+The type `mounted-file` is again a macro that is expanded to a `tail` plugin. The `<parse>` directive is optional and if not set a `@type none` will be used instead.
 
 In order for this to work the pod must define a mount of type `emptyDir` at `/var/log/httpd` or any of it parent folders. For example, this pod definition is part of the test suite (it logs to /var/log/hello.log):
 
@@ -654,6 +654,26 @@ spec:
   volumes:
   - name: logs
     emptyDir: {}
+```
+To get the hello.log ingested by Fluetd you need at least this in the configuration for `kfo-test` namespace:
+
+```xml
+<source>
+  @type mounted-file
+  # need to specify the path on the container filesystem
+  path /var/log/hello.log
+
+  # only look at pods labeled this way
+  labels msg=hello
+  <parse>
+    @type none
+  </parse>
+</source>
+
+<match $labels(msg=hello)>
+  # store the hello.log somewhere
+  @type ...
+</match>
 ```
 
 ### I want to push logs from namespace `demo` to logz.io
@@ -753,8 +773,8 @@ For details you should consult the plugin documentation.
 
 ### I want to validate my config file before using it as a configmap
 
-The container comes with a file validation command. To use it put all your *.conf file in a directory. Use the namespace name for the filename.
-Then use this one-liner, bind-mounting the folder and feeding it as a `DATASOURCE_DIR` env var:
+The container comes with a file validation command. To use it put all your \*.conf file in a directory. Use the namespace name for the filename. Then use this one-liner, bind-mounting the folder and feeding it as a `DATASOURCE_DIR` env var:
+
 
 ```bash
 docker run --entrypoint=/bin/validate-from-dir.sh \
@@ -796,11 +816,10 @@ Use `<label>` as usual, the daemon ensures that label names are unique cluster-w
   </match>
 </label>
 
-# at this point, foo and bar's logs are being handled by the @blackhole chain,
+# at this point, foo and bar's logs are being handled in the @blackhole chain,
 # the rest are still available for processing
 <match **>
   @type ..
-  # destination X
 </match>
 ```
 
@@ -823,7 +842,7 @@ The ingress controller uses a format different than the plain Nginx. You can use
 </match>
 ```
 
-The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly.
+The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly. Given the horrendous regex above, you really should be outputting access logs in json format and just specify `format json`.
 
 ### I have my kubectl configured and my configmaps ready. I want to see the generated files before deploying the Helm chart
 
@@ -833,15 +852,15 @@ You need to run `make` like this:
 make run-once
 ```
 
-This will build the code, then `config-reloader` will connect to the K8S cluster, fetch the data and generate *.conf files in the `./tmp` directory. If there are errors the namespaces will be annotated.
+This will build the code, then `config-reloader` will connect to the K8S cluster, fetch the data and generate \*.conf files in the `./tmp` directory. If there are errors the namespaces will be annotated.
 
 ### I want to build a custom image with my own fluentd plugin
 
-Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual.
+Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
 
 ### I run two clusters - in us-east-2 and eu-west-2. How to differentiate between them when pushing logs to a single location?
 
-When deploying the daemonset using Helm, make sure to pass metadata:
+When deploying the daemonset using Helm, make sure to pass some metadata:
 
 For the cluster in USA:
 
@@ -879,21 +898,6 @@ Use `--annotation=acme.com/fancy-config` to use acme.com/fancy-config as annotat
 Currently space-delimited tags are not supported. For example, instead of `<filter a b>`, you need to use `<filter a>` and `<filter b>`.
 This limitation will be addressed in a later version.
 
-Some Fluentd plug-ins cause fluentd to exit if missconfigured. Starting with version 1.5.0 the namespace config is first run in a sandbox as `--dry-run` doesn't catch errors in the start() method of a plug-in.
-
-If you are using an older version, misconfiguring the S3 plugin for a single namespace will in make the service unavailable for all. As a workaround, don't use S3 if you cannot ensure it will be configured properly. To enforce it, build a custom image by un-installing the S3 plugin:
-
-```Dockerfile
-FROM ...
-
-RUN fluent-gem uninstall fluent-plugin-s3
-```
-
-Then use the new image with helm:
-
-```bash
-helm install ... --set image.repository=acme.com/my-custom-image
-```
 
 ## Releases
 
@@ -903,7 +907,7 @@ helm install ... --set image.repository=acme.com/my-custom-image
 
 * This plugin is used to provide kubernetes metadata https://github.com/fabric8io/fluent-plugin-kubernetes_metadata_filter
 * This daemonset definition is used as a template: https://github.com/fluent/fluentd-kubernetes-daemonset/tree/master/docker-image/v0.12/debian-elasticsearch, however `kube-fluentd-operator` uses version 1.x version of fluentd and all the compatible plugin versions.
-* This [Github issue](https://github.com/fabric8io/fluent-plugin-kubernetes_metadata_filter/issues/73) was used as an inspiration for the project. In particular it borrows the tag rewriting based on Kubernetes metadata to allow easier routing after that.
+* This [Github issue](https://github.com/fabric8io/fluent-plugin-kubernetes_metadata_filter/issues/73) was the inspiration for the project. In particular it borrows the tag rewriting based on Kubernetes metadata to allow easier routing after that.
 
 ## Contributing
 
