@@ -82,6 +82,7 @@ spec:
           {{- end }}
           command:
           -  /bin/config-reloader
+          - --datasource={{ .Values.datasource }}
           - --interval={{ .Values.interval }}
           - --log-level={{ .Values.logLevel }}
           - --output-dir=/fluentd/etc
@@ -98,6 +99,10 @@ spec:
           {{- end }}
           {{- if .Values.prometheusEnabled }}
           - --prometheus-enabled
+          {{- end }}
+          {{- if and (eq .Values.datasource "multimap") .Values.labelSelector.matchLabels }}
+          - --label-selector={{- range $k, $v := .Values.labelSelector.matchLabels }}{{$k}}={{$v}},
+          {{- end }}
           {{- end }}
           {{- range  .Values.namespaces }}
           - --namespaces

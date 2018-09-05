@@ -184,8 +184,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("master", "The Kubernetes API server to connect to (default: auto-detect)").Default(defaultConfig.Master).StringVar(&cfg.Master)
 	app.Flag("kubeconfig", "Retrieve target cluster configuration from a Kubernetes configuration file (default: auto-detect)").Default(defaultConfig.KubeConfig).StringVar(&cfg.KubeConfig)
 
-	app.Flag("datasource", "Datasource to use").Default("default").EnumVar(&cfg.Datasource, "default", "fake", "fs", "multimap")
-	app.Flag("fs-dir", "If datasource=fs is used, configure the dir hosting the files").StringVar(&cfg.FsDatasourceDir)
+	app.Flag("datasource", "Datasource to use default|fake|fs|multimap (default: default) ").Default("default").EnumVar(&cfg.Datasource, "default", "fake", "fs", "multimap")
+	app.Flag("fs-dir", "If --datasource=fs is used, configure the dir hosting the files").StringVar(&cfg.FsDatasourceDir)
 
 	app.Flag("interval", "Run every x seconds").Default(strconv.Itoa(defaultConfig.IntervalSeconds)).IntVar(&cfg.IntervalSeconds)
 
@@ -212,7 +212,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 
 	app.Flag("fluentd-binary", "Path to fluentd binary used to validate configuration").StringVar(&cfg.FluentdValidateCommand)
 
-	app.Flag("label-selector", "Label selector in the k=v,k2=v2 format (used only with 'multimap' datasource)").StringVar(&cfg.LabelSelector)
+	app.Flag("label-selector", "Label selector in the k=v,k2=v2 format (used only with --datasource=multimap)").StringVar(&cfg.LabelSelector)
 	_, err := app.Parse(args)
 
 	if err != nil {
