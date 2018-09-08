@@ -545,12 +545,14 @@ Flags:
 | `interval`                               | How often to check for config changes (seconds)                 | `45`          |
 | `meta.key`                               | The metadata key (optional)                 | `""`                                |
 | `meta.values`                            | Metadata to use for the key   | `{}`
-| `extraVolumeMounts`                      | Mount extra volumes, required to mount ssl certificates when elasticsearch has tls enabled |          |
 | `extraVolumes`                           | Extra volumes                               |                                                            |
-| `fluentdResources`                       | Resource definitions for the fluentd container                 | `{}`|
-| `reloaderResources`                      | Resource definitions for the reloader container              | `{}`                     |
+| `fluentd.extraVolumeMounts`              | Mount extra volumes for the fluentd container, required to mount ssl certificates when elasticsearch has tls enabled |          |
+| `fluentd.resources`                      | Resource definitions for the fluentd container                 | `{}`|
+| `fluentd.extraEnv`                       | Extra env vars to pass to the fluentd container           | `{}`                     |
+| `reloader.extraVolumeMounts`             | Mount extra volumes for the reloader container |          |
+| `reloader.resources`                     | Resource definitions for the reloader container              | `{}`                     |
+| `reloader.extraEnv`                      | Extra env vars to pass to the reloader container           | `{}`                     |
 | `tolerations`                            | Pod tolerations             | `[]`                     |
-| `extraEnv`                               | Extra env vars to pass to fluentd           | `{}`                     |
 | `updateStrategy`                         | UpdateStrategy for the daemonset. Leave empty to get the K8S' default (probably the safest choice)            | `{}`                     |
 | `podAnnotations`                         | Pod annotations for the daemonset  |                    |
 

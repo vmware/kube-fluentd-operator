@@ -18,8 +18,10 @@ spec:
       labels:
         app: {{ template "fluentd-router.name" . }}
         release: {{ .Release.Name }}
-      {{- if .Values.podAnnotations }}
       annotations:
+        checksum/fluentd-extraenv: {{ toYaml .Values.fluentd.extraEnv | sha256sum }}
+        checksum/reloader-extraenv: {{ toYaml .Values.reloader.extraEnv | sha256sum }}
+      {{- if .Values.podAnnotations }}
 {{ toYaml .Values.podAnnotations | indent 8 }}
       {{- end }}
     spec:
@@ -36,12 +38,12 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-        {{- range $key, $value := .Values.extraEnv }}
+        {{- range $key, $value := .Values.fluentd.extraEnv }}
           - name: {{ $key }}
             valueFrom:
               secretKeyRef:
                 name: {{ template "fluentd-router.fullname" $root }}
-                key: {{ $key }}
+                key: fluentd.{{ $key }}
         {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.prometheusEnabled }}
@@ -60,15 +62,24 @@ spec:
           - name: varlibdockercontainers
             mountPath: /var/lib/docker/containers
             readOnly: true
-{{- if .Values.extraVolumeMounts }}
-{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+{{- if .Values.fluentd.extraVolumeMounts }}
+{{ toYaml .Values.fluentd.extraVolumeMounts | indent 10 }}
 {{- end }}
           resources:
-{{ toYaml .Values.fluentdResources | indent 12 }}
-
+{{ toYaml .Values.fluentd.resources | indent 12 }}
         - name: reloader
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.reloader.extraEnv }}
+          env:
+        {{- range $key, $value := .Values.reloader.extraEnv }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fluentd-router.fullname" $root }}
+                key: reloader.{{ $key }}
+        {{- end }}
+          {{- end }}
           command:
           -  /bin/config-reloader
           - --interval={{ .Values.interval }}
@@ -95,8 +106,11 @@ spec:
           volumeMounts:
           - name: fluentconf
             mountPath: /fluentd/etc
+{{- if .Values.reloader.extraVolumeMounts }}
+{{ toYaml .Values.reloader.extraVolumeMounts | indent 10 }}
+{{- end }}
           resources:
-{{ toYaml .Values.reloaderResources | indent 12 }}
+{{ toYaml .Values.reloader.resources | indent 12 }}
 {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}
