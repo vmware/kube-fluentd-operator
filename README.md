@@ -885,7 +885,7 @@ If you are using ELK you can easily get only the logs from Europe using `cluster
 ### I don't want to annotate all my namespaces at all
 
 It is possible to reduce configuration burden by using a default configmap name. The default value is `fluentd-config` - kube-fluentd-operator will read the configmap by that name if the namespace is not annotated.
-If you don't like this default name or happen to use this configmap for other purposes then override the default with `--defualt-configmap=my-default`.
+If you don't like this default name or happen to use this configmap for other purposes then override the default with `--default-configmap=my-default`.
 
 ### How can I be sure to use a valid path for the .pos and .buf files
 
