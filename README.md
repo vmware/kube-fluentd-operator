@@ -280,7 +280,7 @@ The only allowed `<source>` directive is of type `mounted-file`. It is used to i
 </source>
 ```
 
-The `labels` parameter is similar to the `$labels` macro and helps the daemon locate all pods that might log to the given file path. The `<parse>` directive is optional and if omitted the default `@type none` will be used. If you know the format of the log file you can explicity specify it, for example `@type apache2` or `@type json`.
+The `labels` parameter is similar to the `$labels` macro and helps the daemon locate all pods that might log to the given file path. The `<parse>` directive is optional and if omitted the default `@type none` will be used. If you know the format of the log file you can explicitly specify it, for example `@type apache2` or `@type json`.
 
 The above configuration would translate at runtime to something similar to this:
 
