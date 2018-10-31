@@ -484,7 +484,7 @@ If you need other destination plugins you are welcome to contribute a patch or j
 
 ## Synopsis
 
-The config-reloader binary is the one that listens to changes in K8S and generates Fluentd files. It runs as a daemonset and is not intended to interact with directly. The synopsis is useful when trying to understand the Helm chart or jsut hacking.
+The config-reloader binary is the one that listens to changes in K8S and generates Fluentd files. It runs as a daemonset and is not intended to interact with directly. The synopsis is useful when trying to understand the Helm chart or just hacking.
 
 ```txt
 usage: config-reloader [<flags>]
