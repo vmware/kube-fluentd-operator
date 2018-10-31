@@ -316,7 +316,7 @@ Most log streams are line-oriented. However, stacktraces always span multiple li
 </match>
 ```
 
-Notice how `filter` is used instead of `match` as descibed in[fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
+Notice how `filter` is used instead of `match` as described in[fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
 
 Also, users don't need to bother with setting the correct `stream` parameter. *kube-fluentd-operator* generates one internally based on the container id and the stream.
 
