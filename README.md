@@ -300,7 +300,7 @@ The above configuration would translate at runtime to something similar to this:
 
 ### Dealing with multi-line exception stacktraces (since v1.3.0)
 
-Most log streams are line-oriented. However, stacktraces always span mulitple lines. *kube-fluentd-operator* integrates stacktrace processing using the [fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). If a Java-based pod produces stacktraces in the logs, then the stacktraces can be collapsed in a single log event like this:
+Most log streams are line-oriented. However, stacktraces always span multiple lines. *kube-fluentd-operator* integrates stacktrace processing using the [fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). If a Java-based pod produces stacktraces in the logs, then the stacktraces can be collapsed in a single log event like this:
 
 ```xml
 <filter $labels(app=jpetstore)>
