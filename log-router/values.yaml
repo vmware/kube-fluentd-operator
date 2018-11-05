@@ -10,6 +10,9 @@ rbac:
 
 serviceAccountName: "default"
 
+# Possible values: default|fake|fs|multimap
+datasource: default
+
 image:
   repository: vmware/kube-fluentd-operator
   pullPolicy: IfNotPresent
@@ -24,6 +27,12 @@ kubeletRoot: /var/lib/kubelet
 meta:
   key: ""
   values: {}
+
+# Use with datasource: multimap, the label selector will be used for finding ConfigMaps inside
+# the Namespaces in order to compile the Namespace fluentd configuration. The simple concatenation
+# is used and the ConfigMap is then processed for macros.
+labelSelector:
+  matchLabels: {}
 
 #extraVolumes:
 #   - name: es-certs

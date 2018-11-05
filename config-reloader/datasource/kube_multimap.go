@@ -5,41 +5,41 @@ package datasource
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
+
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 
 	"github.com/sirupsen/logrus"
 	core "k8s.io/api/core/v1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"fmt"
 )
 
-type kubeConnection struct {
+type kubeMultimapConnection struct {
 	client kubernetes.Interface
 	hashes map[string]string
 	cfg    *config.Config
 }
 
-func (d *kubeConnection) readConfig(namespace string, configMapName string) (string, error) {
-	opts := meta_v1.GetOptions{}
-	configMap, err := d.client.CoreV1().ConfigMaps(namespace).Get(configMapName, opts)
-
-	if err != nil {
-		return "", err
-	}
-
-	contents, ok := configMap.Data[entryName]
-	if !ok {
-		return "", fmt.Errorf("cannot find entry %s in config map %s/%s", entryName, namespace, configMapName)
+func (d *kubeMultimapConnection) readConfig(namespace string, maps *core.ConfigMapList) (string, error) {
+	contents := ""
+	for _, configMap := range maps.Items {
+		mapData, ok := configMap.Data[entryName]
+		if ok {
+			contents = fmt.Sprintf("%s\n%s", contents, mapData)
+			logrus.Debugf("loaded config data from config map %s/%s", namespace, configMap.Name)
+		} else {
+			logrus.Warnf("cannot find entry %s in config map %s/%s", entryName, namespace, configMap.Name)
+		}
 	}
 
 	return contents, nil
 }
 
-func (d *kubeConnection) unconfiguredNamespace(ns string) *NamespaceConfig {
+func (d *kubeMultimapConnection) unconfiguredNamespace(ns string) *NamespaceConfig {
 	return &NamespaceConfig{
 		Name:               ns,
 		FluentdConfig:      "",
@@ -47,40 +47,33 @@ func (d *kubeConnection) unconfiguredNamespace(ns string) *NamespaceConfig {
 	}
 }
 
-func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
-	resp, err := d.client.CoreV1().Namespaces().List(meta_v1.ListOptions{})
+func (d *kubeMultimapConnection) GetNamespaces() ([]*NamespaceConfig, error) {
+	resp, err := d.client.CoreV1().Namespaces().List(metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	result := []*NamespaceConfig{}
+	var result []*NamespaceConfig
 	for _, item := range resp.Items {
-		if !d.needsProcessing(item.Name) {
-			logrus.Debugf("Ignoring namespace '%s' because of --namespaces flag", item.Name)
-			continue
-		}
-
-		configMapName := item.Annotations[d.cfg.AnnotConfigmapName]
-		if configMapName == "" {
-			if d.cfg.DefaultConfigmapName != "" {
-				configMapName = d.cfg.DefaultConfigmapName
-				logrus.Debugf("Using default configmap for namespace '%s'", item.Name)
-			} else {
-				logrus.Debugf("Will not process namespace '%s': not annotated with '%s'", item.Name, d.cfg.AnnotConfigmapName)
-				// namespace not annotated
-				result = append(result, d.unconfiguredNamespace(item.Name))
-				continue
-			}
-		}
-
-		contents, err := d.readConfig(item.Name, configMapName)
+		maps, err := d.client.CoreV1().ConfigMaps(item.Name).List(metav1.ListOptions{LabelSelector: d.cfg.ParsedLabelSelector.AsSelector().String()})
 		if err != nil {
-			logrus.Debugf("Will not process namespace '%s': %+v", item.Name, err)
+			logrus.Debugf("will not process namespace '%s': %+v", item.Name, err)
 			result = append(result, d.unconfiguredNamespace(item.Name))
 			continue
 		}
 
-		logrus.Debugf("Processing namespace '%s' using configmap '%s'", item.Name, configMapName)
+		if !d.needsProcessing(item.Name, maps) {
+			continue
+		}
+
+		logrus.Debugf("processing namespace '%s'", item.Name)
+
+		contents, err := d.readConfig(item.Name, maps)
+		if err != nil {
+			logrus.Debugf("will not process namespace '%s': %+v", item.Name, err)
+			result = append(result, d.unconfiguredNamespace(item.Name))
+			continue
+		}
 
 		obj := &NamespaceConfig{
 			Name:               item.Name,
@@ -90,7 +83,7 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 			Labels:             item.Labels,
 		}
 
-		resp, err := d.client.CoreV1().Pods(item.Name).List(meta_v1.ListOptions{})
+		resp, err := d.client.CoreV1().Pods(item.Name).List(metav1.ListOptions{})
 		if err == nil {
 			obj.MiniContainers = convertPodToMinis(resp)
 		} else {
@@ -103,7 +96,12 @@ func (d *kubeConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 	return result, nil
 }
 
-func (d *kubeConnection) needsProcessing(ns string) bool {
+func (d *kubeMultimapConnection) needsProcessing(ns string, maps *core.ConfigMapList) bool {
+	if len(maps.Items) == 0 {
+		logrus.Debugf("ignoring namespace '%s' because it doesn't contain any processable map", ns)
+		return false
+	}
+
 	if len(d.cfg.Namespaces) == 0 {
 		return true
 	}
@@ -114,16 +112,17 @@ func (d *kubeConnection) needsProcessing(ns string) bool {
 		}
 	}
 
+	logrus.Debugf("ignoring namespace '%s' because of --namespaces flag", ns)
 	return false
 }
 
-func (d *kubeConnection) WriteCurrentConfigHash(namespace string, hash string) {
+func (d *kubeMultimapConnection) WriteCurrentConfigHash(namespace string, hash string) {
 	d.hashes[namespace] = hash
 }
 
-func (d *kubeConnection) UpdateStatus(namespace string, status string) {
+func (d *kubeMultimapConnection) UpdateStatus(namespace string, status string) {
 	patch := &core.Namespace{
-		ObjectMeta: meta_v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: namespace,
 			Annotations: map[string]string{
 				d.cfg.AnnotStatus: status,
@@ -140,7 +139,7 @@ func (d *kubeConnection) UpdateStatus(namespace string, status string) {
 	}
 }
 
-func NewKubernetesDatasource(cfg *config.Config) (Datasource, error) {
+func NewKubernetesMultimapDatasource(cfg *config.Config) (Datasource, error) {
 	kubeConfig := cfg.KubeConfig
 	if cfg.KubeConfig == "" {
 		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
@@ -160,7 +159,7 @@ func NewKubernetesDatasource(cfg *config.Config) (Datasource, error) {
 
 	logrus.Infof("Connected to cluster at %s", kubeCfg.Host)
 
-	return &kubeConnection{
+	return &kubeMultimapConnection{
 		client: client,
 		hashes: make(map[string]string),
 		cfg:    cfg,
