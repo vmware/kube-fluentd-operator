@@ -398,10 +398,10 @@ The metadata is nested under a key chosen with `--meta-key`. Using the helm char
 
 ```bash
 helm instal ... \
-  --set=meta.key=metadata \
-  --set=meta.values.region=us-east-1 \
-  --set=meta.values.env=staging \
-  --set=meta.values.cluster=legacy
+  --set meta.key=metadata \
+  --set meta.values.region=us-east-1 \
+  --set meta.values.env=staging \
+  --set meta.values.cluster=legacy
 ```
 
 Every log event, be it from a pod, mounted-file or a systemd unit, will now carry this metadata:
