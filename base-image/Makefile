@@ -32,3 +32,11 @@ test: build-image
 		-e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
 		-e PAPERTRAIL_HOST=$$PAPERTRAIL_HOST \
 	  $(IMAGE):$(TAG)
+
+list-gems:
+	@docker run -ti --rm \
+	  --net=host --entrypoint /bin/bash \
+	  $(IMAGE):$(TAG) \
+	  -c 'fluent-gem list' | \
+	  grep '^fluent' | sed 's/^/* /'
+

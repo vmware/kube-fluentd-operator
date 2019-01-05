@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/dumb-init /bin/sh
 
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
@@ -11,7 +11,7 @@
 set -e
 
 if [ ! -e /fluentd/etc/${FLUENTD_CONF} ]; then
-  echo Using failsafe configuration for now
+  echo "Using failsafe configuration for now"
   cp /fluentd/failsafe.conf /fluentd/etc/${FLUENTD_CONF}
 fi
 

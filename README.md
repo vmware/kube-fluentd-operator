@@ -450,8 +450,8 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-concat
 * fluent-plugin-detect-exceptions
 * fluent-plugin-elasticsearch
-* fluent-plugin-grok-parser
 * fluent-plugin-google-cloud
+* fluent-plugin-grok-parser
 * fluent-plugin-kafka
 * fluent-plugin-kinesis
 * fluent-plugin-kubernetes
@@ -477,6 +477,8 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-splunkhec
 * fluent-plugin-sumologic_output
 * fluent-plugin-systemd
+* fluent-plugin-vertica
+* fluent-plugin-verticajson
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macro language.
 

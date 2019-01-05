@@ -1,7 +1,7 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-FROM fluent/fluentd:v1.1.3-debian
+FROM fluent/fluentd:v1.2.6-debian
 
 
 # start with a valid empty file
@@ -9,20 +9,21 @@ COPY failsafe.conf /fluentd/failsafe.conf
 COPY entrypoint.sh /fluentd/entrypoint.sh
 ENTRYPOINT ["/fluentd/entrypoint.sh"]
 
-# the below is based on https://github.com/fluent/fluentd-kubernetes-daemonset/tree/master/docker-image/v0.12/debian-elasticsearch
+# https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.1/debian-elasticsearch/Dockerfile
 # the main difference is that all fluentd plugins are installed in a single image
 
 USER root
 WORKDIR /home/fluent
 
-ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v0.12/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
+ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
+ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
 
 RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
      && apt-get update \
      && apt-get upgrade -y \
      && apt-get install \
      -y --no-install-recommends \
-     $buildDeps \
+     $buildDeps libjemalloc1 \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
     && fluent-gem install fluent-plugin-amqp \
@@ -66,5 +67,8 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
  && rm -rf /var/lib/apt/lists/* \
     && gem sources --clear-all \
     && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+
+# See https://packages.debian.org/stretch/amd64/libjemalloc1/filelist
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.1"
 
 COPY plugins /fluentd/plugins
