@@ -116,14 +116,12 @@ ls -l tmp/
 ### Project structure
 
 * `log-router`: Builds the Helm chart
-* `base-image`: Builds a Fluentd 1.x image with a curated list of plugins
+* `base-image`: Builds a Fluentd 1.2.x image with a curated list of plugins
 * `config-reloader`: Builds the daemon that generates fluentd configuration files
 
 ### Config-reloader
 
-This is where interesting work happens. The dependency graph shows the high-level package interaction and general dataflow.
-
-![package dep](config-reloader/godepgraph.png)
+This is where interesting work happens. The [dependency graph](config-reloader/godepgraph.png) shows the high-level package interaction and general dataflow.
 
 * `config`: handles startup configuration, reading and validation
 * `datasource`: fetches Pods, Namespaces, ConfigMaps from Kubernetes
@@ -316,7 +314,7 @@ Most log streams are line-oriented. However, stacktraces always span multiple li
 </match>
 ```
 
-Notice how `filter` is used instead of `match` as described in[fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
+Notice how `filter` is used instead of `match` as described in [fluent-plugin-detect-exceptions](https://github.com/GoogleCloudPlatform/fluent-plugin-detect-exceptions). Internally, this filter is translated into several `match` directives so that the end user doesn't need to bother with rewriting the Fluentd tag.
 
 Also, users don't need to bother with setting the correct `stream` parameter. *kube-fluentd-operator* generates one internally based on the container id and the stream.
 
