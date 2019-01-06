@@ -162,11 +162,16 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 	buf := &bytes.Buffer{}
 	fmt.Fprintf(buf, "record['stream']='%s'; ", cf.Path)
 	fmt.Fprintf(buf, "record['kubernetes']=%s; ", util.ToRubyMapLiteral(map[string]string{
-		"container_name": mc.Name,
-		"namespace_name": state.Context.Namepsace,
-		"pod_name":       mc.PodName,
-		"pod_id":         mc.PodID,
-		"host":           mc.NodeName,
+		"container_name":  mc.Name,
+		"container_image": mc.Image,
+		"namespace_name":  state.Context.Namepsace,
+		"pod_name":        mc.PodName,
+		"pod_id":          mc.PodID,
+		"host":            mc.NodeName,
+	}))
+
+	fmt.Fprintf(buf, "record['docker']=%s; ", util.ToRubyMapLiteral(map[string]string{
+		"container_id": mc.ContainerID,
 	}))
 
 	fmt.Fprintf(buf, "record['container_info']='%s'; ", util.Hash(mc.PodID, cf.Path))

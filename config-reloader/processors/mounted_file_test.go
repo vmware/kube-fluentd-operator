@@ -66,7 +66,7 @@ func TestMountedFileCatchesMissingFile(t *testing.T) {
 	  @type mounted-file
 	  labels app=spring-mvc
 	</source>
-	
+
 	<match **>
 	  @type logzio
 	</match
@@ -80,9 +80,9 @@ func TestMountedFileCatchesEmptyLabels(t *testing.T) {
 	missingPath := `
 	<source>
 	  @type mounted-file
-	  labels 
+	  labels
 	</source>
-	
+
 	<match **>
 	  @type logzio
 	</match
@@ -98,7 +98,7 @@ func TestMountedFileCatchesMissingLabels(t *testing.T) {
 	  @type mounted-file
 	  file /etc/hosts
 	</source>
-	
+
 	<match **>
 	  @type logzio
 	</match
@@ -235,10 +235,12 @@ func TestConvertToFragment(t *testing.T) {
 
 func TestProcessMountedFile(t *testing.T) {
 	c1 := &datasource.MiniContainer{
-		PodID:   "123-id",
-		PodName: "123",
-		Name:    "redis-main",
-		Labels:  map[string]string{"app": "redis"},
+		PodID:       "123-id",
+		PodName:     "123",
+		Image:       "image-c1",
+		ContainerID: "contid-c1",
+		Name:        "redis-main",
+		Labels:      map[string]string{"app": "redis"},
 		HostMounts: []*datasource.Mount{
 			{
 				Path:       "/var/log",
@@ -248,10 +250,12 @@ func TestProcessMountedFile(t *testing.T) {
 	}
 
 	c2 := &datasource.MiniContainer{
-		PodID:   "abc-id",
-		PodName: "abc",
-		Name:    "nginx-main",
-		Labels:  map[string]string{"app": "nginx"},
+		PodID:       "abc-id",
+		PodName:     "abc",
+		Image:       "image-c2",
+		ContainerID: "contid-c2",
+		Name:        "nginx-main",
+		Labels:      map[string]string{"app": "nginx"},
 		HostMounts: []*datasource.Mount{
 			{
 				Path:       "/var/log",
@@ -305,6 +309,12 @@ func TestProcessMountedFile(t *testing.T) {
 	assert.Equal(t, 4, len(prep))
 	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
 	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
+
+	payload := prep.String()
+	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c2'"))
+	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c1'"))
+	assert.True(t, strings.Contains(payload, "record['docker']={'container_id'=>'contid-c1'}"))
+	assert.True(t, strings.Contains(payload, "record['docker']={'container_id'=>'contid-c2'}"))
 
 	main, err := Process(input, ctx, state)
 	assert.Nil(t, err)

@@ -5,6 +5,7 @@ package datasource
 
 import (
 	"sort"
+
 	core "k8s.io/api/core/v1"
 )
 
@@ -22,6 +23,9 @@ type MiniContainer struct {
 	// the pod id
 	PodID   string
 	PodName string
+
+	Image       string
+	ContainerID string
 
 	// pod labels
 	Labels map[string]string
@@ -71,17 +75,34 @@ func (s byLength) Less(i, j int) bool {
 	return len(s[i].Path) > len(s[j].Path)
 }
 
+func findContainerStatus(statuses []core.ContainerStatus, name string) *core.ContainerStatus {
+	for _, st := range statuses {
+		if st.Name == name {
+			return &st
+		}
+	}
+	return nil
+}
+
 func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 	var res []*MiniContainer
 
 	for _, pod := range resp.Items {
 		for _, cont := range pod.Spec.Containers {
+			contStatus := findContainerStatus(pod.Status.ContainerStatuses, cont.Name)
+			cid := ""
+			if contStatus != nil {
+				cid = contStatus.ContainerID
+			}
+
 			mini := &MiniContainer{
-				PodID:    string(pod.UID),
-				PodName:  pod.Name,
-				Labels:   pod.Labels,
-				Name:     cont.Name,
-				NodeName: pod.Spec.NodeName,
+				PodID:       string(pod.UID),
+				PodName:     pod.Name,
+				Labels:      pod.Labels,
+				Name:        cont.Name,
+				NodeName:    pod.Spec.NodeName,
+				Image:       cont.Image,
+				ContainerID: cid,
 			}
 
 			for _, vm := range cont.VolumeMounts {
