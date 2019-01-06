@@ -442,45 +442,45 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 }
 ```
 
-## Available plugins
+## Available plugins in latest release (1.7.0)
 
-`kube-fluentd-operator` aims to be easy to use and flexible. It also favors appending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
+`kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
-* fluent-plugin-amqp
-* fluent-plugin-concat
-* fluent-plugin-detect-exceptions
-* fluent-plugin-elasticsearch
-* fluent-plugin-google-cloud
-* fluent-plugin-grok-parser
-* fluent-plugin-kafka
-* fluent-plugin-kinesis
-* fluent-plugin-kubernetes
-* fluent-plugin-kubernetes_metadata_filter
-* fluent-plugin-logentries
-* fluent-plugin-loggly
-* fluent-plugin-logzio
-* fluent-plugin-mail
-* fluent-plugin-mongo
-* fluent-plugin-out-http-ext
-* fluent-plugin-papertrail
-* fluent-plugin-parser
-* fluent-plugin-prometheus
-* fluent-plugin-record-modifier
-* fluent-plugin-record-reformer
-* fluent-plugin-redis
-* fluent-plugin-remote_syslog
-* fluent-plugin-rewrite-tag-filter
-* fluent-plugin-route
-* fluent-plugin-s3
-* fluent-plugin-scribe
-* fluent-plugin-secure-forward
-* fluent-plugin-splunkhec
-* fluent-plugin-sumologic_output
-* fluent-plugin-systemd
-* fluent-plugin-vertica
-* fluent-plugin-verticajson
+* fluent-config-regexp-type (1.0.0)
+* fluent-mixin-config-placeholders (0.4.0)
+* fluent-plugin-amqp2 (0.2.0)
+* fluent-plugin-concat (2.3.0)
+* fluent-plugin-detect-exceptions (0.0.11)
+* fluent-plugin-elasticsearch (2.11.6)
+* fluent-plugin-google-cloud (0.6.23)
+* fluent-plugin-grok-parser (2.2.0)
+* fluent-plugin-kafka (0.7.7)
+* fluent-plugin-kinesis (2.1.1)
+* fluent-plugin-kubernetes (0.3.1)
+* fluent-plugin-kubernetes_metadata_filter (2.1.2)
+* fluent-plugin-logentries (0.2.10)
+* fluent-plugin-loggly (0.0.9)
+* fluent-plugin-logzio (0.0.17)
+* fluent-plugin-mail (0.3.0)
+* fluent-plugin-mongo (1.1.2)
+* fluent-plugin-out-http-ext (0.1.10)
+* fluent-plugin-papertrail (0.2.5)
+* fluent-plugin-parser (0.6.1)
+* fluent-plugin-record-modifier (1.1.0)
+* fluent-plugin-record-reformer (0.9.1)
+* fluent-plugin-redis (0.3.3)
+* fluent-plugin-remote_syslog (1.0.0)
+* fluent-plugin-rewrite-tag-filter (2.1.0)
+* fluent-plugin-route (1.0.0)
+* fluent-plugin-s3 (1.1.4)
+* fluent-plugin-scribe (0.10.14)
+* fluent-plugin-secure-forward (0.4.5)
+* fluent-plugin-splunkhec (1.7)
+* fluent-plugin-sumologic_output (1.3.0)
+* fluent-plugin-systemd (1.0.1)
+* fluentd (1.1.3, 0.14.25, 0.12.43)
 
-When customizing the image be careful not to uninstall plugins that are used internally to implement the macro language.
+When customizing the image be careful not to uninstall plugins that are used internally to implement macros.
 
 If you need other destination plugins you are welcome to contribute a patch or just create an issue.
 
