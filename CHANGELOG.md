@@ -1,12 +1,18 @@
 # CHANGELOG
 
-## [1.8.0]
+## 1.9.0
+
+## [1.8.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.8.0)
 
 * Fluentd: replace fluent-plugin-amqp plugin with fluent-plugin-amqp2
 
 * Fluentd: update fluentd to 1.2.6
 
 * Fluentd: add plugin `fluent-plugin-vertica` to base image (@rhatlapa)
+
+* Core configmaps per namespace support (#31) (@coufalja)
+
+* Helm: chart updated to 0.3.0 adding support for multiple configmaps per namespace
 
 ## [1.7.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.7.0)
 
