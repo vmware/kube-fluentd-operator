@@ -242,6 +242,8 @@ A recommended configuration for the `kube-system` namespace is this one - it cap
 </match>
 ```
 
+Note the `<match systemd.**` syntax. A single `*` would not work as the tag is the full name - including the unit type, for example *systemd.nginx.service*
+
 ### Using the $labels macro
 
 A very useful feature is the `<filter>` and the `$labels` macro to define parsing at the namespace level. For example, the config-reloader container uses the `logfmt` format. This makes it easy to use structured logging and ingest json data into a remote log ingestion service.
