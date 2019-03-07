@@ -16,11 +16,17 @@ module Fluent::Plugin
         config_param :key, :string
         config_param :pattern do |value|
           if value.start_with?("/") && value.end_with?("/")
-              Regexp.compile(value[1..-2])
+            s = value[1..-2]
           else
-              $log.warn "You should use \"pattern /#{value}/\" instead of \"pattern #{value}\""
-              Regexp.compile(value)
+            $log.warn "You should use \"pattern /#{value}/\" instead of \"pattern #{value}\""
+            s = value
           end
+
+          if !s.start_with?("(?")
+            # implied dot-matchall unless mode is set
+            s = "(?m)" + s
+          end
+          Regexp.compile(s)
         end
         config_param :set, :string
         config_param :to, :string

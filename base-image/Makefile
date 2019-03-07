@@ -27,6 +27,7 @@ test: build-image
 	docker run -ti --rm \
 	  --net=host \
 	  -v `pwd`:/workspace \
+	  -v `pwd/plugins`:/fluentd/plugins \
 	  -v `pwd`/test/local.conf:/fluentd/etc/fluent.conf \
 	  -e FLUENTD_OPT="--no-supervisor" \
 		-e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
