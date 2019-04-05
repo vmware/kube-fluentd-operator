@@ -43,7 +43,6 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-mongo \
     && fluent-gem install fluent-plugin-out-http-ext \
     && fluent-gem install fluent-plugin-papertrail \
-    && fluent-gem install fluent-plugin-parser \
     && fluent-gem install fluent-plugin-prometheus \
     && fluent-gem install fluent-plugin-record-modifier \
     && fluent-gem install fluent-plugin-record-reformer \
