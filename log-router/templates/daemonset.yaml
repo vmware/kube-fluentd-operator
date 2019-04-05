@@ -45,6 +45,10 @@ spec:
                 name: {{ template "fluentd-router.fullname" $root }}
                 key: fluentd.{{ $key }}
         {{- end }}
+        {{- range $key, $value := .Values.fluentd.extraPluginsEnv }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+        {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.prometheusEnabled }}
           ports:

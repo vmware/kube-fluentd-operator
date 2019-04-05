@@ -554,7 +554,8 @@ Flags:
 | `extraVolumes`                           | Extra volumes                               |                                                            |
 | `fluentd.extraVolumeMounts`              | Mount extra volumes for the fluentd container, required to mount ssl certificates when elasticsearch has tls enabled |          |
 | `fluentd.resources`                      | Resource definitions for the fluentd container                 | `{}`|
-| `fluentd.extraEnv`                       | Extra env vars to pass to the fluentd container           | `{}`                     |
+| `fluentd.extraEnv`                       | Extra env vars to pass to the fluentd container (secrets) | `{}`                     |
+| `fluentd.extraPluginsEnv`                | Extra env vars to pass to the fluentd container           | `{}`                     |
 | `reloader.extraVolumeMounts`             | Mount extra volumes for the reloader container |          |
 | `reloader.resources`                     | Resource definitions for the reloader container              | `{}`                     |
 | `reloader.extraEnv`                      | Extra env vars to pass to the reloader container           | `{}`                     |

@@ -46,7 +46,9 @@ labelSelector:
 
 
 fluentd:
+  # Use extraEnv to define env vars from secrets and extraPluginsEnv to define env vars directly
   extraEnv: {}
+  extraPluginsEnv: {}
   resources: {}
 # extraVolumeMounts:
 #  - name: es-certs
