@@ -58,6 +58,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-systemd \
     && fluent-gem install fluent-plugin-vertica \
     && fluent-gem install fluent-plugin-verticajson \
+    && fluent-gem install fluent-plugin-kubernetes_sumologic \
     && fluent-gem install logfmt \
     && SUDO_FORCE_REMOVE=yes \
     apt-get purge -y --auto-remove \
