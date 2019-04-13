@@ -138,7 +138,9 @@ also has some sensible defaults built in. To get a quick idea what happens behin
 ```xml
 <filter $labels(server=apache)>
   @type parse
-  format apache2
+  <parse>
+    @type apache2
+  </parse>
 </filter>
 
 <filter $labels(app=django)>
@@ -180,7 +182,9 @@ It gets processed into the following configuration which is then fed to Fluentd:
 
 <filter kube.monitoring.*.*._labels.*.apache _proc.kube.monitoring.*.*._labels.*.apache>
   @type parse
-  format apache2
+  <parse>
+    @type apache2
+  </parse>
 </filter>
 
 <match kube.monitoring.*.*._labels.django.*>
@@ -251,8 +255,10 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 ```xml
 <filter $labels(app=log-router, _container=reloader)>
   @type parse
-  format logfmt
   reserve_data true
+  <parse>
+    @type logfmt
+  </parse>
 </filter>
 
 <match **>
@@ -465,7 +471,6 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-mongo (1.2.1)
 * fluent-plugin-out-http-ext (0.1.10)
 * fluent-plugin-papertrail (0.2.6)
-* fluent-plugin-parser (0.6.1)
 * fluent-plugin-prometheus (1.3.0)
 * fluent-plugin-record-modifier (1.1.0)
 * fluent-plugin-record-reformer (0.9.1)
@@ -838,11 +843,13 @@ The ingress controller uses a format different than the plain Nginx. You can use
 ```xml
 <filter $labels(app=nginx-ingress, _container=nginx-ingress-controller)>
   @type parser
-
-  format /(?<remote_addr>[^ ]*) - \[(?<proxy_protocol_addr>[^ ]*)\] - (?<remote_user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<request>[^\"]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*) "(?<referer>[^\"]*)" "(?<agent>[^\"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<proxy_upstream_name>[^ ]*)\] (?<upstream_addr>[^ ]*) (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*)/
-  time_format %d/%b/%Y:%H:%M:%S %z
   key_name log
   reserve_data true
+  <parse>
+    @type regexp
+    expression /(?<remote_addr>[^ ]*) - \[(?<proxy_protocol_addr>[^ ]*)\] - (?<remote_user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<request>[^\"]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*) "(?<referer>[^\"]*)" "(?<agent>[^\"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<proxy_upstream_name>[^ ]*)\] (?<upstream_addr>[^ ]*) (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*)/
+    time_format %d/%b/%Y:%H:%M:%S %z
+  </parse>
 </filter>
 
 <match **>
@@ -850,7 +857,7 @@ The ingress controller uses a format different than the plain Nginx. You can use
 </match>
 ```
 
-The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly. Given the horrendous regex above, you really should be outputting access logs in json format and just specify `format json`.
+The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly. Given the horrendous regex above, you really should be outputting access logs in json format and just specify `@type json`.
 
 ### I have my kubectl configured and my configmaps ready. I want to see the generated files before deploying the Helm chart
 
