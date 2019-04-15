@@ -72,7 +72,7 @@ All configuration errors are stored in the annotation `logging.csp.vmware.com/fl
 ```bash
 # extract just the value of logging.csp.vmware.com/fluentd-status
 kubectl get ns demo -o jsonpath='{.metadata.annotations.logging\.csp\.vmware\.com/fluentd-status}'
-bad tag for <match>: hello-world. Tag must start with **, $thins or demo
+bad tag for <match>: hello-world. Tag must start with **, $thisns or demo
 ```
 
 When the configuration is made valid again the `fluentd-status` is set to "".
@@ -403,7 +403,7 @@ Often you run mulitple Kubernetes clusters but you need to aggregate all logs to
 The metadata is nested under a key chosen with `--meta-key`. Using the helm chart, metadata can be enabled like this:
 
 ```bash
-helm instal ... \
+helm install ... \
   --set meta.key=metadata \
   --set meta.values.region=us-east-1 \
   --set meta.values.env=staging \
@@ -698,10 +698,12 @@ demo.conf:
   endpoint_url https://listener.logz.io:8071?token=TOKEN&type=log-router
   output_include_time true
   output_include_tags true
-  buffer_type    file
-  buffer_path    /var/log/kube-system-logz.buf
-  flush_interval 10s
-  buffer_chunk_limit 1m
+  <buffer>
+    @type memory
+    flush_thread_count 4
+    flush_interval 3s
+    queue_limit_length 4096
+  </buffer>
 </match>
 ```
 
@@ -814,12 +816,12 @@ Use `<label>` as usual, the daemon ensures that label names are unique cluster-w
 
 ```xml
 <match $labels(app=foo)>
-  @type label
+  @type relabel
   @label blackhole
 </match>
 
 <match $labels(app=bar)>
-  @type label
+  @type relabel
   @label blackhole
 </match>
 
@@ -880,7 +882,7 @@ When deploying the daemonset using Helm, make sure to pass some metadata:
 For the cluster in USA:
 
 ```bash
-helm instal ... \
+helm install ... \
   --set=meta.key=cluster_info \
   --set=meta.values.region=us-east-2
 ```
@@ -888,7 +890,7 @@ helm instal ... \
 For the cluster in Europe:
 
 ```bash
-helm instal ... \
+helm install ... \
   --set=meta.key=cluster_info \
   --set=meta.values.region=eu-west-2
 ```

@@ -55,7 +55,7 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 		s := strings.Replace(d.Tag, macroThisns, goodPrefix, -1)
 
 		if !strings.HasPrefix(s, goodPrefix+".") {
-			return fmt.Errorf("bad tag for <%s>: %s. Tag must start with **, $thins or %s", d.Name, d.Tag, namespace)
+			return fmt.Errorf("bad tag for <%s>: %s. Tag must start with **, $thisns or %s", d.Name, d.Tag, namespace)
 		}
 
 		return nil
