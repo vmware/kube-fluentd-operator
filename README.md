@@ -873,7 +873,7 @@ This will build the code, then `config-reloader` will connect to the K8S cluster
 
 ### I want to build a custom image with my own fluentd plugin
 
-Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
+Use the `jvassev/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
 
 ### I run two clusters - in us-east-2 and eu-west-2. How to differentiate between them when pushing logs to a single location?
 
