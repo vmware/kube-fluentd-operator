@@ -14,7 +14,7 @@ serviceAccountName: "default"
 datasource: default
 
 image:
-  repository: vmware/kube-fluentd-operator
+  repository: jvassev/kube-fluentd-operator
   pullPolicy: IfNotPresent
   tag: latest
   pullSecret: ""
@@ -74,6 +74,7 @@ tolerations: []
   #  memory: 128Mi
 
 updateStrategy: {}
+#  type: RollingUpdate
 
 ## Annotations to add to the DaemonSet's Pods
 #podAnnotations:
