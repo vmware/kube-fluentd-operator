@@ -455,6 +455,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.12.0)
+* fluent-plugin-cloudwatch-logs (0.7.3)
 * fluent-plugin-concat (2.3.0)
 * fluent-plugin-detect-exceptions (0.0.11)
 * fluent-plugin-elasticsearch (3.0.1)
