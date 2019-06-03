@@ -18,7 +18,7 @@ WORKDIR /home/fluent
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
 
-RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
+RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
      && apt-get update \
      && apt-get upgrade -y \
      && apt-get install \
@@ -27,7 +27,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
     && fluent-gem install fluent-plugin-amqp \
-    && fluent-gem install fluent-plugin-cloudwatch-logs \ 
+    && fluent-gem install fluent-plugin-cloudwatch-logs \
     && fluent-gem install fluent-plugin-concat \
     && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
@@ -61,6 +61,9 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev" \
     && fluent-gem install fluent-plugin-verticajson \
     && fluent-gem install fluent-plugin-kubernetes_sumologic \
     && fluent-gem install logfmt \
+    && wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v1.0.0/fluent-plugin-vmware-log-intelligence-1.0.0.gem \
+    && fluent-gem install --local fluent-plugin-vmware-log-intelligence-1.0.0.gem \
+    && rm fluent-plugin-vmware-log-intelligence-1.0.0.gem \
     && SUDO_FORCE_REMOVE=yes \
     apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \
