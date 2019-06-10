@@ -1,6 +1,19 @@
 # CHANGELOG
 
-## 1.9.0
+## 1.10.0
+
+## [1.9.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.9.0)
+
+* Fluentd: BREAKING CHANGE: the plugin `fluent-plugin-parser` is not installed anymore. Instead the built-in `@type parser`
+  is used and it has a different syntax (https://github.com/tagomoris/fluent-plugin-parser)
+
+* Fluentd: Updated K8S integration to latest recommended for Fluentd 1.2.x
+
+* Plugins: refresh all plugins to latest versions as of the release date.
+
+* Plugins: add plugin `cloudwatch-logs` (@conradj87)
+
+* Helm: improve Helm chart and bump version to 0.3.1 (@PabloCastellano)
 
 ## [1.8.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.8.0)
 
