@@ -41,6 +41,10 @@ func TestExpandPlugins(t *testing.T) {
 	username admin
 	buffer_path /hello/world
 	buffer_size 1m
+	<buffer>
+		@type file
+		path /var/log/fluentd.*.buffer
+	</buffer>
 </plugin>
 `
 
@@ -90,6 +94,7 @@ func TestExpandPlugins(t *testing.T) {
 	processed, err := state.Process(fragment)
 	assert.Nil(t, err)
 
+	// fmt.Printf("Processed:\n%s\n", processed)
 	matchDir := processed[1]
 	assert.Equal(t, "es", matchDir.Type())
 
@@ -101,6 +106,10 @@ func TestExpandPlugins(t *testing.T) {
 
 	// param that's overriden
 	assert.Equal(t, "5m", matchDir.Param("buffer_size"))
+
+	// nested content is present
+	assert.Equal(t, "buffer", matchDir.Nested[0].Name)
+	assert.Equal(t, "/var/log/fluentd.*.buffer", matchDir.Nested[0].Param("path"))
 
 	// types not found in the generation context are not touched
 	matchDir = processed[2]

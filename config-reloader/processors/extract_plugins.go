@@ -51,7 +51,7 @@ func (p *expandPluginsState) Process(input fluentd.Fragment) (fluentd.Fragment, 
 
 		// replace any nested content (buffers etc)
 		// there is no option to redefine nested content
-		d.Nested = d.Nested.Clone()
+		d.Nested = replacement.Nested.Clone()
 
 		// replace the params
 		for k, v := range replacement.Params {
