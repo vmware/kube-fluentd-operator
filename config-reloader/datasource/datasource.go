@@ -16,6 +16,7 @@ const (
 type Mount struct {
 	Path       string
 	VolumeName string
+	SubPath    string
 }
 
 // MiniContainer container subset with the parent pod's metadata
@@ -127,6 +128,7 @@ func makeVolume(volumes []core.Volume, volumeMount *core.VolumeMount) *Mount {
 			return &Mount{
 				VolumeName: v.Name,
 				Path:       volumeMount.MountPath,
+				SubPath:    volumeMount.SubPath,
 			}
 		}
 	}
