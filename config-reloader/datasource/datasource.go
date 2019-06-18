@@ -124,7 +124,7 @@ func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 
 func makeVolume(volumes []core.Volume, volumeMount *core.VolumeMount) *Mount {
 	for _, v := range volumes {
-		if v.Name == volumeMount.Name && v.EmptyDir != nil {
+		if v.Name == volumeMount.Name {
 			return &Mount{
 				VolumeName: v.Name,
 				Path:       volumeMount.MountPath,

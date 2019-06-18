@@ -224,10 +224,10 @@ func TestConvertToFragment(t *testing.T) {
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
-	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", dir.Param("path"))
-	assert.Equal(t, "kube.monitoring.123.container-name-b3f8f41cab18c93a7c8057277947de0d1d76d1d6", dir.Param("tag"))
+	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/*/logs/redis.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.123.container-name-1b0164f4e0229a5ba19ce429a68e244e7bd188ef", dir.Param("tag"))
 	assert.Equal(t, "parse", dir.Nested[0].Name)
-	assert.Equal(t, "/var/log/kfotail-b3f8f41cab18c93a7c8057277947de0d1d76d1d6.pos", dir.Param("pos_file"))
+	assert.Equal(t, "/var/log/kfotail-1b0164f4e0229a5ba19ce429a68e244e7bd188ef.pos", dir.Param("pos_file"))
 	assert.Equal(t, "none", dir.Nested[0].Type())
 
 	mod := result[1]
@@ -244,8 +244,8 @@ func TestConvertToFragment(t *testing.T) {
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
-	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", dir.Param("path"))
-	assert.Equal(t, "kube.monitoring.abc.nginx-82357fcda2cbd45c066d8a538cbf1f3e96b1ce6a", dir.Param("tag"))
+	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/*/logs/nginx.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.abc.nginx-e2494382cb107230086812b14c1970eedcd138d2", dir.Param("tag"))
 
 	mod = result[1]
 	assert.Equal(t, "filter", mod.Name)
@@ -258,8 +258,8 @@ func TestConvertToFragment(t *testing.T) {
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
-	assert.Equal(t, "/kubelet-root/pods/abcd-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", dir.Param("path"))
-	assert.Equal(t, "kube.monitoring.abcd.nginx-sub-47c6dc18d51fcc522768361782c12ee10ca66215", dir.Param("tag"))
+	assert.Equal(t, "/kubelet-root/pods/abcd-id/volumes/*/logs/files/nginx.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.abcd.nginx-sub-5383902a5a6533ad979ac5c0cbb1d5b9399c2120", dir.Param("tag"))
 
 	mod = result[1]
 	assert.Equal(t, "filter", mod.Name)
@@ -363,9 +363,9 @@ func TestProcessMountedFile(t *testing.T) {
 	prep, err := Prepare(input, ctx, state)
 	assert.Nil(t, err)
 	assert.Equal(t, 6, len(prep))
-	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
-	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
-	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", prep[4].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/*/logs/redis.log", prep[0].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/*/logs/nginx.log", prep[2].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/*/logs/files/nginx.log", prep[4].Param("path"))
 
 	payload := prep.String()
 	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c2'"))
