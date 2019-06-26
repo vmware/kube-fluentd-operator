@@ -137,7 +137,7 @@ also has some sensible defaults built in. To get a quick idea what happens behin
 
 ```xml
 <filter $labels(server=apache)>
-  @type parse
+  @type parser
   <parse>
     @type apache2
   </parse>
@@ -181,7 +181,7 @@ It gets processed into the following configuration which is then fed to Fluentd:
 </filter>
 
 <filter kube.monitoring.*.*._labels.*.apache _proc.kube.monitoring.*.*._labels.*.apache>
-  @type parse
+  @type parser
   <parse>
     @type apache2
   </parse>
@@ -254,7 +254,7 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 
 ```xml
 <filter $labels(app=log-router, _container=reloader)>
-  @type parse
+  @type parser
   reserve_data true
   <parse>
     @type logfmt
