@@ -47,6 +47,7 @@ type Config struct {
 	level               logrus.Level
 	ParsedMetaValues    map[string]string
 	ParsedLabelSelector labels.Set
+  TestPerformance        bool
 }
 
 var defaultConfig = &Config{
@@ -64,6 +65,7 @@ var defaultConfig = &Config{
 	IntervalSeconds:      60,
 	ID:                   "default",
 	PrometheusEnabled:    false,
+  TestPerformance:      false,
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -213,6 +215,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("fluentd-binary", "Path to fluentd binary used to validate configuration").StringVar(&cfg.FluentdValidateCommand)
 
 	app.Flag("label-selector", "Label selector in the k=v,k2=v2 format (used only with --datasource=multimap)").StringVar(&cfg.LabelSelector)
+
+	app.Flag("test-performance", "Performance testing enabled (default: false)").BoolVar(&cfg.TestPerformance)
 	_, err := app.Parse(args)
 
 	if err != nil {

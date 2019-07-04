@@ -23,6 +23,7 @@ image:
 logLevel: debug
 interval: 45
 kubeletRoot: /var/lib/kubelet
+perfTest: false
 
 meta:
   key: ""

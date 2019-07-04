@@ -108,7 +108,10 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		MetaKey                 string
 		MetaValue               string
 		PreprocessingDirectives []string
-	}{}
+		TestPerformance         bool
+	}{
+		TestPerformance:        g.cfg.TestPerformance,
+	}
 
 	if g.cfg.MetaKey != "" {
 		model.MetaKey = g.cfg.MetaKey
