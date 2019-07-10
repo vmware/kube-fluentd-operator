@@ -29,6 +29,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
     && fluent-gem install fluent-plugin-amqp \
     && fluent-gem install fluent-plugin-cloudwatch-logs \
     && fluent-gem install fluent-plugin-concat \
+    && fluent-gem install fluent-plugin-datadog \
     && fluent-gem install fluent-plugin-detect-exceptions \
     && fluent-gem install fluent-plugin-elasticsearch \
     && fluent-gem install fluent-plugin-google-cloud \
