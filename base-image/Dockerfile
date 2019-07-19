@@ -12,9 +12,6 @@ ENTRYPOINT ["/fluentd/entrypoint.sh"]
 # https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.1/debian-elasticsearch/Dockerfile
 # the main difference is that all fluentd plugins are installed in a single image
 
-USER root
-WORKDIR /home/fluent
-
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
 
@@ -23,7 +20,7 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
      && apt-get upgrade -y \
      && apt-get install \
      -y --no-install-recommends \
-     $buildDeps libjemalloc1 \
+     $buildDeps \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && fluent-gem install ffi \
     && fluent-gem install fluent-plugin-amqp \
@@ -72,8 +69,5 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
  && rm -rf /var/lib/apt/lists/* \
     && gem sources --clear-all \
     && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
-
-# See https://packages.debian.org/stretch/amd64/libjemalloc1/filelist
-ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.1"
 
 COPY plugins /fluentd/plugins
