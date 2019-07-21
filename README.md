@@ -455,17 +455,19 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.13.0)
-* fluent-plugin-cloudwatch-logs (0.7.3)
+* fluent-plugin-azure-loganalytics (0.4.0)
+* fluent-plugin-cloudwatch-logs (0.7.4)
 * fluent-plugin-concat (2.3.0)
+* fluent-plugin-datadog (0.10.5)
 * fluent-plugin-detect-exceptions (0.0.12)
 * fluent-plugin-elasticsearch (3.5.2)
-* fluent-plugin-google-cloud (0.7.13)
+* fluent-plugin-google-cloud (0.7.15)
 * fluent-plugin-grok-parser (2.5.1)
-* fluent-plugin-kafka (0.9.6)
+* fluent-plugin-kafka (0.11.0)
 * fluent-plugin-kinesis (3.1.0)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.1.6)
-* fluent-plugin-kubernetes_sumologic (2.3.1)
+* fluent-plugin-kubernetes_metadata_filter (2.2.0)
+* fluent-plugin-kubernetes_sumologic (2.4.1)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (0.0.9)
 * fluent-plugin-logzio (0.0.20)
@@ -480,20 +482,18 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-remote_syslog (1.0.0)
 * fluent-plugin-rewrite-tag-filter (2.2.0)
 * fluent-plugin-route (1.0.0)
-* fluent-plugin-s3 (1.1.10)
+* fluent-plugin-s3 (1.1.11)
 * fluent-plugin-scribe (1.0.0)
 * fluent-plugin-secure-forward (0.4.5)
 * fluent-plugin-splunkhec (2.0)
-* fluent-plugin-sumologic_output (1.4.1)
+* fluent-plugin-sumologic_output (1.5.0)
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-vertica (0.0.2)
 * fluent-plugin-verticajson (0.0.5)
 * fluent-plugin-vmware-log-intelligence (1.0.0)
 * fluentd (1.4.2, 1.2.6, 0.10.62)
 
-
-
-When customizing the image be careful not to uninstall plugins that are used internally to implement macros.
+When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
 If you need other destination plugins you are welcome to contribute a patch or just create an issue.
 
