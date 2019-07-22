@@ -39,7 +39,7 @@ func (p *expandPluginsState) Process(input fluentd.Fragment) (fluentd.Fragment, 
 	}
 
 	f := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-		if d.Name != "match" {
+		if d.Name != "match" && d.Name != "store" {
 			// only output plugins supported
 			return nil
 		}
