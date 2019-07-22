@@ -60,9 +60,9 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
     && fluent-gem install fluent-plugin-verticajson \
     && fluent-gem install fluent-plugin-kubernetes_sumologic \
     && fluent-gem install logfmt \
-    && wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v1.0.0/fluent-plugin-vmware-log-intelligence-1.0.0.gem \
-    && fluent-gem install --local fluent-plugin-vmware-log-intelligence-1.0.0.gem \
-    && rm fluent-plugin-vmware-log-intelligence-1.0.0.gem \
+    && wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v2.0.0/fluent-plugin-vmware-log-intelligence-2.0.0.gem \
+    && fluent-gem install --local fluent-plugin-vmware-log-intelligence-2.0.0.gem \
+    && rm fluent-plugin-vmware-log-intelligence-2.0.0.gem \
     && SUDO_FORCE_REMOVE=yes \
     apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \

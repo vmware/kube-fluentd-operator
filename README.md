@@ -490,8 +490,9 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-vertica (0.0.2)
 * fluent-plugin-verticajson (0.0.5)
-* fluent-plugin-vmware-log-intelligence (1.0.0)
+* fluent-plugin-vmware-log-intelligence (2.0.0)
 * fluentd (1.4.2, 1.2.6, 0.10.62)
+
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
