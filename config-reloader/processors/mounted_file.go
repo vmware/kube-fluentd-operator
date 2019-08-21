@@ -213,7 +213,7 @@ func (state *mountedFileState) makeHostPath(cf *ContainerFile, hm *datasource.Mo
 	// var/lib/kubelet/pods/8e0f9442-41b5-11e8-a138-02b2be114bba/volumes/kubernetes.io~empty-dir/empty/hello.log
 	volumentName := hm.VolumeName
 	subPath := cf.Path[len(hm.Path):]
-	return path.Join(state.Context.KubeletRoot, "pods", mc.PodID, "volumes", "kubernetes.io~empty-dir", volumentName, subPath)
+	return path.Join(state.Context.KubeletRoot, "pods", mc.PodID, "volumes", "kubernetes.io~empty-dir", volumentName, hm.SubPath, subPath)
 }
 
 func (state *mountedFileState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {

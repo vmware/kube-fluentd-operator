@@ -183,12 +183,31 @@ func TestConvertToFragment(t *testing.T) {
 		},
 	}
 
+	specC3 := &ContainerFile{
+		Path:   "/var/log/nginx.log",
+		Labels: map[string]string{"app": "nginx-sub"},
+	}
+	c3 := &datasource.MiniContainer{
+		PodID:   "abcd-id",
+		PodName: "abcd",
+		Name:    "nginx-sub",
+		Labels:  map[string]string{"app": "nginx-sub"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+				SubPath:    "files",
+			},
+		},
+	}
+
 	ctx := &ProcessorContext{
 		Namepsace:   "monitoring",
 		KubeletRoot: "/kubelet-root",
 		MiniContainers: []*datasource.MiniContainer{
 			c1,
 			c2,
+			c3,
 		},
 	}
 
@@ -231,6 +250,20 @@ func TestConvertToFragment(t *testing.T) {
 	mod = result[1]
 	assert.Equal(t, "filter", mod.Name)
 	assert.Equal(t, "record_modifier", mod.Type())
+
+	result = state.convertToFragement(specC3)
+	assert.Equal(t, 2, len(result))
+
+	dir = result[0]
+
+	assert.Equal(t, "source", dir.Name)
+	assert.Equal(t, "tail", dir.Type())
+	assert.Equal(t, "/kubelet-root/pods/abcd-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", dir.Param("path"))
+	assert.Equal(t, "kube.monitoring.abcd.nginx-sub-47c6dc18d51fcc522768361782c12ee10ca66215", dir.Param("tag"))
+
+	mod = result[1]
+	assert.Equal(t, "filter", mod.Name)
+	assert.Equal(t, "record_modifier", mod.Type())
 }
 
 func TestProcessMountedFile(t *testing.T) {
@@ -268,12 +301,29 @@ func TestProcessMountedFile(t *testing.T) {
 		},
 	}
 
+	c3 := &datasource.MiniContainer{
+                PodID:       "abc-sub-id",
+		PodName:     "abc-sub",
+		Image:       "image-c3",
+		ContainerID: "contid-c3",
+		Name:        "nginx-sub",
+		Labels:      map[string]string{"app": "nginx-sub"},
+		HostMounts: []*datasource.Mount{
+			{
+				Path:       "/var/log",
+				VolumeName: "logs",
+				SubPath:    "files",
+			},
+		},
+	}
+
 	ctx := &ProcessorContext{
 		Namepsace:   "monitoring",
 		KubeletRoot: "/kubelet-root",
 		MiniContainers: []*datasource.MiniContainer{
 			c1,
 			c2,
+			c3,
 		},
 	}
 
@@ -296,6 +346,12 @@ func TestProcessMountedFile(t *testing.T) {
 		labels app=nginx, _container=nginx-main
 	</source>
 
+	<source>
+		@type mounted-file
+		path /var/log/nginx.log
+		labels app=nginx-sub
+	</source>
+
 	<match **>
 		@type null
 	</match>
@@ -306,15 +362,18 @@ func TestProcessMountedFile(t *testing.T) {
 
 	prep, err := Prepare(input, ctx, state)
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(prep))
+	assert.Equal(t, 6, len(prep))
 	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
 	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", prep[4].Param("path"))
 
 	payload := prep.String()
 	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c2'"))
 	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c1'"))
+	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c3'"))
 	assert.True(t, strings.Contains(payload, "record['docker']={'container_id'=>'contid-c1'}"))
 	assert.True(t, strings.Contains(payload, "record['docker']={'container_id'=>'contid-c2'}"))
+	assert.True(t, strings.Contains(payload, "record['docker']={'container_id'=>'contid-c3'}"))
 
 	main, err := Process(input, ctx, state)
 	assert.Nil(t, err)
