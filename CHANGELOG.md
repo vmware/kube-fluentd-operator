@@ -2,6 +2,24 @@
 
 ## 1.10.0
 
+* Fluentd: Upgrade to 1.5.2
+
+* Fluentd: Use libjemalloc from base image improving multi-platform build (@james-crowley)
+
+* Plugins: Add fluent-plugin-datadog (@chirauki)
+
+* Plugins: Add Azure Log Analytics plugin (@zachomedia)
+
+* Plugins: Upgrade LINT plugin to version 2.0
+
+* Plugins: Remove vertica plugins as they fail to install on 1.5.2
+
+* Core: `<plugin>`'s content is expanded correctly (#62) (@)
+
+* Core: Allow the use of virtual `<plugin>` in store directive (#71) (@zachomedia)
+
+* Core: Add subPath support to mounted-file (#63) (@jonasrutishauser)
+
 ## [1.9.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.9.0)
 
 * Fluentd: BREAKING CHANGE: the plugin `fluent-plugin-parser` is not installed anymore. Instead the built-in `@type parser`
