@@ -89,7 +89,7 @@ spec:
           - --templates-dir=/templates
           - --id={{ template "fluentd-router.fullname" . }}
           - --fluentd-binary
-          - /usr/local/bin/fluentd -p /fluentd/plugins
+          - /usr/local/bundle/bin/fluentd -p /fluentd/plugins
           - --kubelet-root
           - "{{ .Values.kubeletRoot }}"
           {{- if .Values.meta.key }}
