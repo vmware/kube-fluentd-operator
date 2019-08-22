@@ -1,4 +1,4 @@
-#!/usr/bin/dumb-init /bin/sh
+#!/bin/sh
 
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause

@@ -1,21 +1,21 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-FROM fluent/fluentd:v1.2.6-debian
+FROM fluent/fluentd:v1.5.2-debian-1.0
 
-
+USER root
 # start with a valid empty file
 COPY failsafe.conf /fluentd/failsafe.conf
 COPY entrypoint.sh /fluentd/entrypoint.sh
-ENTRYPOINT ["/fluentd/entrypoint.sh"]
 
+ENTRYPOINT ["tini", "--", "/fluentd/entrypoint.sh"]
 # https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.1/debian-elasticsearch/Dockerfile
 # the main difference is that all fluentd plugins are installed in a single image
 
-ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
-ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.2/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
+ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_kubernetes.rb /fluentd/plugins
+ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
 
-RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
+RUN buildDeps="make gcc g++ libc-dev ruby-dev libffi-dev wget" \
      && apt-get update \
      && apt-get upgrade -y \
      && apt-get install \
@@ -56,8 +56,6 @@ RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev libffi-dev wget" \
     && fluent-gem install fluent-plugin-splunkhec \
     && fluent-gem install fluent-plugin-sumologic_output \
     && fluent-gem install fluent-plugin-systemd \
-    && fluent-gem install fluent-plugin-vertica \
-    && fluent-gem install fluent-plugin-verticajson \
     && fluent-gem install fluent-plugin-kubernetes_sumologic \
     && fluent-gem install logfmt \
     && wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v2.0.0/fluent-plugin-vmware-log-intelligence-2.0.0.gem \
