@@ -8,11 +8,15 @@
 
 * Plugins: Add fluent-plugin-datadog (@chirauki)
 
+* Plugins: Add fluent-plugin-multi-format-parser
+
+* Plugins: Add fluent-plugin-json-in-json-2
+
 * Plugins: Add Azure Log Analytics plugin (@zachomedia)
 
-* Plugins: Upgrade LINT plugin to version 2.0
+* Plugins: Upgrade LINT plugin to version 2.0.0
 
-* Plugins: Remove vertica plugins as they fail to install on 1.5.2
+* Plugins: Remove vertica plugins as they fail to build with 1.5.2
 
 * Core: `<plugin>`'s content is expanded correctly (#62) (@)
 
