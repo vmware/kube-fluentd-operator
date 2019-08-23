@@ -461,9 +461,9 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-datadog (0.10.5)
 * fluent-plugin-detect-exceptions (0.0.12)
 * fluent-plugin-elasticsearch (3.5.4)
-* fluent-plugin-google-cloud (0.7.16)
+* fluent-plugin-google-cloud (0.4.10)
 * fluent-plugin-grok-parser (2.6.0)
-* fluent-plugin-kafka (0.11.0)
+* fluent-plugin-kafka (0.11.1)
 * fluent-plugin-kinesis (3.1.0)
 * fluent-plugin-kubernetes (0.3.1)
 * fluent-plugin-kubernetes_metadata_filter (2.2.0)
@@ -489,10 +489,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-sumologic_output (1.5.0)
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-vmware-log-intelligence (2.0.0)
-* fluentd (1.6.3, 1.5.2)
-
-
-
+* fluentd (1.5.2)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
