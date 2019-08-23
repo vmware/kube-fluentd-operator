@@ -6,13 +6,15 @@
 
 * Fluentd: Use libjemalloc from base image improving multi-platform build (@james-crowley)
 
-* Plugins: Add fluent-plugin-datadog (@chirauki)
+* Plugins: Add `fluent-plugin-datadog` (@chirauki)
 
-* Plugins: Add fluent-plugin-multi-format-parser
+* Plugins: Add `fluent-plugin-multi-format-parser`
 
-* Plugins: Add fluent-plugin-json-in-json-2
+* Plugins: Add `fluent-plugin-json-in-json-2`
 
-* Plugins: Add Azure Log Analytics plugin (@zachomedia)
+* Plugins: Add `fluent-plugin-gelf-hs`
+
+* Plugins: Add `fluent-plugin-azure-loganalytics` (@zachomedia)
 
 * Plugins: Upgrade LINT plugin to version 2.0.0
 

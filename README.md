@@ -461,6 +461,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 * fluent-plugin-datadog (0.10.5)
 * fluent-plugin-detect-exceptions (0.0.12)
 * fluent-plugin-elasticsearch (3.5.4)
+* fluent-plugin-gelf-hs (1.0.8)
 * fluent-plugin-google-cloud (0.4.10)
 * fluent-plugin-grok-parser (2.6.0)
 * fluent-plugin-json-in-json-2 (1.0.2)

@@ -22,7 +22,7 @@ ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master
 ADD https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb /fluentd/plugins
 
 # list gems here
-COPY Gemfile /tmp
+COPY Gemfile /fluentd
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN buildDeps="make gcc g++ libc-dev ruby-dev libffi-dev wget" \
@@ -33,7 +33,7 @@ RUN buildDeps="make gcc g++ libc-dev ruby-dev libffi-dev wget" \
     && echo 'gem: --no-document' >> /etc/gemrc \
     && gem install bundler --version 1.16.2 \
     && bundle config silence_root_warning true \
-    && bundle install --gemfile=/tmp/Gemfile \
+    && bundle install --gemfile=/fluentd/Gemfile \
     && wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v2.0.0/fluent-plugin-vmware-log-intelligence-2.0.0.gem \
     && fluent-gem install --local fluent-plugin-vmware-log-intelligence-2.0.0.gem \
     && rm fluent-plugin-vmware-log-intelligence-2.0.0.gem \
