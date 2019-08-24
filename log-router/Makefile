@@ -7,6 +7,7 @@ HELM_PACKAGE := log-router
 -include vmware.mk
 
 helm-package: clean
+	helm lint .
 	helm package .
 
 helm-dry-run:
