@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.10.0
+## [1.10.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.10.0)
 
 * Fluentd: Upgrade to 1.5.2
 

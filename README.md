@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.9.0 \
+  --set image.tag=v1.10.0 \
   --set image.repository=jvassev/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.9.0/log-router-0.3.1.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.10.0/log-router-0.3.2.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.9.0 \
+  --set image.tag=v1.10.0 \
   --set image.repository=jvassev/kube-fluentd-operator
 ```
 
@@ -448,7 +448,19 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 }
 ```
 
-## Available plugins in latest release (1.8.0)
+## Tracking Fluentd version
+
+This projects tries to keep up with major releases for [Fluentd docker image](https://github.com/fluent/fluentd-docker-image/).
+
+| Fluentd version            | Operator version        |
+|----------------------------|-------------------------|
+| 0.12.x                     | 1.0.0                   |
+| 1.1.0                      | 1.2.0                   |
+| 1.1.3                      | 1.3.0                   |
+| 1.2.6                      | 1.8.0                   |
+| 1.5.2                      | 1.10.0                  |
+
+## Plugins in latest release (1.10.0)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
