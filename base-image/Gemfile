@@ -41,5 +41,6 @@ gem 'fluent-plugin-secure-forward'
 gem 'fluent-plugin-splunkhec'
 gem 'fluent-plugin-sumologic_output'
 gem 'fluent-plugin-systemd'
+gem "fluent-plugin-vmware-loginsight"
 gem 'gelf'
 gem 'logfmt'
