@@ -1,0 +1,48 @@
+version: 2.1
+
+orbs:
+  codacy: codacy/base@1.0.0
+
+jobs:
+  helm_push_external:
+    executor: codacy/aws
+    working_directory: ~/workdir
+    environment:
+      CHART_DIR: log-router
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Set version using semver
+          command: |
+            ytool -s version "$(cat .version)" -f "${CHART_DIR}/Chart.yaml" -e
+            git --no-pager diff --no-color
+      - deploy:
+          name: Push to charts museum
+          command: |
+            export CHARTS_REPO_URL="https://charts.codacy.com/external"
+
+            helm repo add --username "${CHARTS_REPO_USER}" --password "${CHARTS_REPO_PASS}" codacy $CHARTS_REPO_URL
+            helm push ${CHART_DIR} codacy
+
+workflows:
+  lint_and_publish:
+    jobs:
+      - codacy/checkout_and_version
+      - codacy/helm_aws:
+          name: helm_lint
+          cmd: helm lint log-router
+          requires:
+            - codacy/checkout_and_version
+      - helm_push_external:
+          context: CodacyHelm
+          requires:
+            - helm_lint
+          filters:
+            branches:
+              only:
+                - master
+      - codacy/tag_version:
+          name: tag_version
+          requires:
+            - helm_push_external
