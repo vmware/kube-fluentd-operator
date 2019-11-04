@@ -35,7 +35,9 @@ jobs:
           command: docker load --input target/docker-image.tar
       - deploy:
           name: Publish docker image
-          command: docker push codacy/$CIRCLE_PROJECT_REPONAME:$(cat .version)
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push codacy/$CIRCLE_PROJECT_REPONAME:$(cat .version)
 
 workflows:
   lint_and_publish:
