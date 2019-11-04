@@ -83,6 +83,7 @@ spec:
           command:
           -  /bin/config-reloader
           - --datasource={{ .Values.datasource }}
+          - --default-configmap={{ .Values.defaultConfigmap }}
           - --interval={{ .Values.interval }}
           - --log-level={{ .Values.logLevel }}
           - --output-dir=/fluentd/etc
