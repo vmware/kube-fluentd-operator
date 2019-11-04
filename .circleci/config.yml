@@ -4,26 +4,38 @@ orbs:
   codacy: codacy/base@1.0.0
 
 jobs:
-  helm_push_external:
-    executor: codacy/aws
+  build_image:
+    executor: codacy/machine
     working_directory: ~/workdir
-    environment:
-      CHART_DIR: log-router
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          name: Set version using semver
-          command: |
-            ytool -s version "$(cat .version)" -f "${CHART_DIR}/Chart.yaml" -e
-            git --no-pager diff --no-color
-      - deploy:
-          name: Push to charts museum
-          command: |
-            export CHARTS_REPO_URL="https://charts.codacy.com/external"
+          name: Build base docker image
+          command: make -C base-image
+      - run:
+          name: Build docker image
+          command: make -C config-reloader build-image VERSION=$(cat .version) TAG=$(cat .version) IMAGE="codacy/$CIRCLE_PROJECT_REPONAME"
+      - run:
+          name: Save docker image
+          command: mkdir target && docker save --output target/docker-image.tar codacy/$CIRCLE_PROJECT_REPONAME:$(cat .version)
+      - persist_to_workspace:
+          paths:
+            - workdir/target
+          root: ~/
 
-            helm repo add --username "${CHARTS_REPO_USER}" --password "${CHARTS_REPO_PASS}" codacy $CHARTS_REPO_URL
-            helm push ${CHART_DIR} codacy
+  docker_push:
+    executor: codacy/machine
+    working_directory: ~/workdir
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Load docker image
+          command: docker load --input target/docker-image.tar
+      - deploy:
+          name: Publish docker image
+          command: docker push codacy/$CIRCLE_PROJECT_REPONAME:$(cat .version)
 
 workflows:
   lint_and_publish:
@@ -34,14 +46,27 @@ workflows:
           cmd: helm lint log-router
           requires:
             - codacy/checkout_and_version
-      - helm_push_external:
-          context: CodacyHelm
+      - build_image:
+          requires:
+            - codacy/checkout_and_version
+
+      # Only in master
+      - docker_push:
+          context: CodacyDocker
           requires:
             - helm_lint
+            - build_image
           filters:
             branches:
               only:
                 - master
+      - codacy/helm_push:
+          name: helm_push_external
+          context: CodacyHelm
+          chart_name: log-router
+          charts_repo_url: "https://charts.codacy.com/external"
+          requires:
+            - docker_push
       - codacy/tag_version:
           name: tag_version
           requires:

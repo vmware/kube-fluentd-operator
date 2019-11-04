@@ -14,7 +14,7 @@ serviceAccountName: "default"
 datasource: default
 
 image:
-  repository: jvassev/kube-fluentd-operator
+  repository: codacy/kube-fluentd-operator
   pullPolicy: IfNotPresent
   tag: latest
   pullSecret: ""
