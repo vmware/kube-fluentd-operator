@@ -66,6 +66,7 @@ workflows:
           name: helm_push_external
           context: CodacyHelm
           chart_name: log-router
+          helm_dir: ./
           charts_repo_url: "https://charts.codacy.com/external"
           requires:
             - docker_push
