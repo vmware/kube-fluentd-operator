@@ -503,6 +503,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-splunkhec (2.0)
 * fluent-plugin-sumologic_output (1.5.0)
 * fluent-plugin-systemd (1.0.2)
+* fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-vmware-log-intelligence (2.0.0)
 * fluentd (1.5.2)
 
