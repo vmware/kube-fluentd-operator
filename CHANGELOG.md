@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [1.11.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.11.0)
+
+* Plugins: Add `fluent-plugin-verticajson` again (@skalickym)
+
+* Plugins: Add `fluent-plugin-verticajson` (@rjackson90)
+
+* Plugins: Add `fluent-plugin-out-http`
+
+* Plugins: update to latest compatible versions
+
+* Core: Efficient Kubernetes API Updates using Informers (#75) (rjackson90)
+
+* Fluend: Add support for CRI-O format (#80) (@jonasrutishauser)
+
 ## [1.10.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.10.0)
 
 * Fluentd: Upgrade to 1.5.2
