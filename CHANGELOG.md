@@ -4,13 +4,13 @@
 
 * Plugins: Add `fluent-plugin-verticajson` again (@skalickym)
 
-* Plugins: Add `fluent-plugin-verticajson` (@rjackson90)
+* Plugins: Add `fluent-plugin-uri-parser` (@rjackson90)
 
 * Plugins: Add `fluent-plugin-out-http`
 
 * Plugins: update to latest compatible versions
 
-* Core: Efficient Kubernetes API Updates using Informers (#75) (rjackson90)
+* Core: Efficient Kubernetes API Updates using Informers (#75) (@rjackson90)
 
 * Fluend: Add support for CRI-O format (#80) (@jonasrutishauser)
 
