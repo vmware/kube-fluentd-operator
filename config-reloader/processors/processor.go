@@ -192,6 +192,7 @@ func augmentTag(orig string) string {
 func DefaultProcessors() []FragmentProcessor {
 	return []FragmentProcessor{
 		&expandPluginsState{},
+		&expandTagsState{},
 		&expandThisnsMacroState{},
 		&fixDestinations{},
 		&expandLabelsMacroState{},
