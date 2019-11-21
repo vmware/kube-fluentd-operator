@@ -28,7 +28,7 @@ func normalizeLabelName(ctx *ProcessorContext, label string) string {
 
 func (p *rewriteLabelsState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	normalizeAllLabels := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-		if d.Name != "match" {
+		if d.Name != "match" && d.Name != "store" {
 			return nil
 		}
 
