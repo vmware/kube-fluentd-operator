@@ -115,6 +115,63 @@ func TestLabelsAreRewritten(t *testing.T) {
 	assert.Equal(t, "**", match.Tag)
 }
 
+func TestCopyPluginLabelsAreRewritten(t *testing.T) {
+	var s = `
+	<match kube.monitoring.**>
+	  @type copy
+	  <store>
+		@type relabel
+		@label @output
+	  </store>
+	  <store>
+		@type relabel
+		@label @postprocessing
+	  </store>
+	</match>
+
+	<label @output>
+	  <match **>
+		@type forward
+		# forward logs to output
+	  </match>
+	</label>
+
+	<label @postprocessing>
+	  <match **>
+		@type null
+		# perform additional processing for other output
+	  </match>
+	</label>
+
+	`
+
+	fragment, err := fluentd.ParseString(s)
+	assert.Nil(t, err)
+
+	fmt.Printf("Original:\n%s\n", fragment)
+
+	ctx := &ProcessorContext{
+		Namepsace: "monitoring",
+		GenerationContext: &GenerationContext{
+			ReferencedBridges: map[string]bool{},
+		},
+	}
+	fragment, err = Process(fragment, ctx, &rewriteLabelsState{})
+	assert.Nil(t, err)
+	fmt.Printf("Processed:\n%s\n", fragment)
+
+	outputRelabel := fragment[0].Nested[0].Param("@label")
+	postprocessingRelabel := fragment[0].Nested[1].Param("@label")
+
+	outputLabel := fragment[1].Tag
+	postprocessingLabel := fragment[2].Tag
+
+	assert.Equal(t, outputRelabel, outputLabel)
+	assert.Equal(t, postprocessingRelabel, postprocessingLabel)
+	assert.NotEqual(t, outputRelabel, "@output")
+	assert.NotEqual(t, postprocessingRelabel, "@postprocessing")
+}
+
 func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 	s := `
 <match $labels(app=grafana, release=rel, _container=main)>
