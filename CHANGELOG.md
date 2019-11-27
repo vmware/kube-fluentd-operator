@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [1.12.0]
+
+* Core: Fix labels not being rewritten in copy plugin (#86) (@tommasopozzetti)
+
 ## [1.11.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.11.0)
 
 * Plugins: Add `fluent-plugin-verticajson` again (@skalickym)
