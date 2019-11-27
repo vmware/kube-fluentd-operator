@@ -108,6 +108,9 @@ spec:
           - --namespaces
           - "{{ . }}"
           {{- end }}
+          {{- if .Values.allowTagExpansion }}
+          - --allow-tag-expansion
+          {{- end }}
           volumeMounts:
           - name: fluentconf
             mountPath: /fluentd/etc

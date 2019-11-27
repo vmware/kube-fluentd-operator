@@ -81,3 +81,5 @@ updateStrategy: {}
 #  scheduler.alpha.kubernetes.io/tolerations: '[{"key": "example", "value": "foo"}]'
 
 prometheusEnabled: false
+
+allowTagExpansion: false

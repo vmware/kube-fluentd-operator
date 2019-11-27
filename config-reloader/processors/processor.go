@@ -44,6 +44,7 @@ type ProcessorContext struct {
 	MiniContainers    []*datasource.MiniContainer
 	KubeletRoot       string
 	GenerationContext *GenerationContext
+	AllowTagExpansion bool
 }
 
 type BaseProcessorState struct {

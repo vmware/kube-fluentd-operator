@@ -29,6 +29,7 @@ func TestTagsExpandOk(t *testing.T) {
 		ctx := &ProcessorContext{
 			Namepsace:         "monitoring",
 			GenerationContext: &GenerationContext{},
+			AllowTagExpansion: true,
 		}
 		fragment, err = Process(fragment, ctx, &expandTagsState{})
 		assert.Nil(t, err)
@@ -71,6 +72,7 @@ func TestNestedTagsExpandOk(t *testing.T) {
 	ctx := &ProcessorContext{
 		Namepsace:         "monitoring",
 		GenerationContext: &GenerationContext{},
+		AllowTagExpansion: true,
 	}
 	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
 	assert.Nil(t, err)
@@ -94,7 +96,8 @@ func TestNestedTagsExpandOk(t *testing.T) {
 func TestTagsExpandBadConfig(t *testing.T) {
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namepsace:         "monitoring",
+		AllowTagExpansion: true,
 	}
 
 	list := []string{
