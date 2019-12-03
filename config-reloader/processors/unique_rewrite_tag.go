@@ -19,7 +19,7 @@ type uniqueRewriteTagState struct {
 func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	adaptUniqueRewriteTagPlugin := func(d *fluentd.Directive, ctx *ProcessorContext) error {
 
-		if d.Name != "match" || d.Type() != "unique_rewrite_tag" {
+		if d.Name != "match" || d.Type() != "retag" {
 			return nil
 		}
 
@@ -30,11 +30,11 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 
 			tagParam := rule.Param("tag")
 			if !strings.HasPrefix(tagParam, macroUniqueTag) || !strings.HasSuffix(tagParam, ")") {
-				return fmt.Errorf("unique_rewrite_tag plugin requires each rule to have a tag parameter specifying the tag inside the $tag() macro")
+				return fmt.Errorf("retag plugin requires each rule to have a tag parameter specifying the tag inside the $tag() macro")
 			}
 
 			if strings.Index(tagParam, "${tag_parts[") >= 0 || strings.Index(tagParam, "__TAG_PARTS[") >= 0 {
-				return fmt.Errorf("unique_rewrite_tag plugin does not yet support the ${tag_parts[n]} and __TAG_PARTS[n]__ placeholders")
+				return fmt.Errorf("retag plugin does not yet support the ${tag_parts[n]} and __TAG_PARTS[n]__ placeholders")
 			}
 
 			targetTag := tagParam[len(macroUniqueTag)+1 : len(tagParam)-1]
@@ -60,7 +60,7 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 		}
 
 		if !strings.HasSuffix(d.Tag, ")") {
-			return fmt.Errorf("Malformed tag. To match output from the unique_rewrite_tag plugin the tag must be placed inside the $tag() macro")
+			return fmt.Errorf("Malformed tag. To match output from the retag plugin the tag must be placed inside the $tag() macro")
 		}
 
 		targetTag := d.Tag[len(macroUniqueTag)+1 : len(d.Tag)-1]

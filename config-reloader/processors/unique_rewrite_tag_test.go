@@ -13,7 +13,7 @@ import (
 func TestTagsRewrittenOk(t *testing.T) {
 	var s = `
 	<match kube.monitoring.**>
-      @type unique_rewrite_tag
+      @type retag
       <rule>
         key message
         pattern ^ERROR
@@ -93,7 +93,7 @@ func TestRewriteTagsBadConfig(t *testing.T) {
 			</rule>
 		 </match>`,
 		`<match kube.monitoring.**>
-		  @type unique_rewrite_tag
+		  @type retag
 		  <rule>
 		    key message
 		    pattern ^ERROR
