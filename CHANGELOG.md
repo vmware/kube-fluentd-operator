@@ -4,7 +4,7 @@
 
 * Core: Fix labels not being rewritten in copy plugin (#86) (@tommasopozzetti)
 
-* Fluentd: upgrade fluentd to 1.6.2
+* Fluentd: upgrade fluentd to 1.7.4
 
 ## [1.11.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.11.0)
 
