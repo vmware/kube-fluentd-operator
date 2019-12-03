@@ -363,6 +363,48 @@ acme-staging.conf
 
 kube-fluentd-operator will insert the content of the `plugin` directive in the `match` directive. From then on, regular validation and postprocessing takes place.
 
+### Retagging based on log contents (since v1.12.0)
+
+Sometimes you might need to split a single log stream to perform different processing based on the contents of one of the fields. To achieve this you can use the `retag` plugin that allows to specify a set of rules that match regular expressions against the specified fields. If one of the rules matches, the log is re-emitted with the new specified tag.
+
+The tag is specified using the `$tag` macro, and logs that are emitted by this plugin can be consequently filtered and processed by using the same `$tag` macro when specifiying the tag:
+
+```xml
+<match $labels(app=apache)>
+  @type retag
+  <rule>
+    key message
+    pattern /^(ERROR) .*$/
+    tag $tag(notifications.$1) # refer to a capturing group using $number
+  </rule>
+  <rule>
+    key message
+    pattern /^(FATAL) .*$/
+    tag $tag(notifications.$1)
+  </rule>
+  <rule>
+    key message
+    pattern /^(ERROR)|(FATAL) .*$/
+    tag $tag(notifications.other)
+    invert true # rewrite tag when unmatch pattern
+  </rule>
+</match>
+
+<filter $tag(notifications.ERROR)>
+  # perform some extra processing
+</filter>
+
+<filter $tag(notifications.FATAL)>
+  # perform different processing
+</filter>
+
+<match $tag(notifications.**)>
+  # send to common output plugin
+</match>
+```
+
+*kube-fluentd-operator* ensures that tags specified using the `$tag` macro never conflict with tags from other namespaces, even if the tag itself is equivalent.
+
 ### Sharing logs between namespaces
 
 By default, you can consume logs only from your namespaces. Often it is useful for multiple namespaces (tenants) to get access to the logs streams of a shared resource (pod, namespace). *kube-fluentd-operator* makes it possible using two constructs: the source namespace expresses its intent to share logs with a destination namespace and the destination namespace expresses its desire to consume logs from a source. As a result logs are streamed only when both sides agree.
@@ -882,6 +924,35 @@ The ingress controller uses a format different than the plain Nginx. You can use
 ```
 
 The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly. Given the horrendous regex above, you really should be outputting access logs in json format and just specify `@type json`.
+
+### I want to send logs to different sinks based on log contents
+
+The `retag` plugin allows to split a log stream based on whether the contents of certain fields match the given regular expressions.
+
+```xml
+<match $labels(app=apache)>
+  @type retag
+  <rule>
+    key message
+    pattern ^ERR
+    tag $tag(notifications.error)
+  </rule>
+  <rule>
+    key message
+    pattern ^ERR
+    invert true
+    tag $tag(notifications.other)
+  </rule>
+</match>
+
+<match $tag(notifications.error)>
+  # manage log stream with error severity
+</match>
+
+<match $tag(notifications.**)>
+  # manage log stream with non-error severity
+</match>
+```
 
 ### I have my kubectl configured and my configmaps ready. I want to see the generated files before deploying the Helm chart
 
