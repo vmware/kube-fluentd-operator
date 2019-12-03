@@ -1,7 +1,7 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-FROM fluent/fluentd:v1.5.2-debian-1.0
+FROM fluent/fluentd:v1.6.2-debian-1.0
 
 # rever user fluent from parent
 USER root
