@@ -3,9 +3,11 @@ package datasource
 import (
 	"encoding/json"
 	"fmt"
-	"k8s.io/apimachinery/pkg/labels"
 	"os"
 	"strings"
+	"time"
+
+	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -29,12 +31,13 @@ func (e *namespaceNotConfigured) Error() string {
 }
 
 type kubeInformerConnection struct {
-	client  kubernetes.Interface
-	hashes  map[string]string
-	cfg     *config.Config
-	cfglist listerv1.ConfigMapLister
-	nslist  listerv1.NamespaceLister
-	podlist listerv1.PodLister
+	client     kubernetes.Interface
+	hashes     map[string]string
+	cfg        *config.Config
+	cfglist    listerv1.ConfigMapLister
+	nslist     listerv1.NamespaceLister
+	podlist    listerv1.PodLister
+	updateChan chan time.Time
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
@@ -212,10 +215,59 @@ func (d *kubeInformerConnection) readConfig(configmaps []*core.ConfigMap) string
 	return strings.Join(configdata, "\n")
 }
 
+func (d *kubeInformerConnection) handleCMChange(obj interface{}) {
+	var object metav1.Object
+	var ok bool
+	if object, ok = obj.(metav1.Object); !ok {
+		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+		if !ok {
+			logrus.Warnf("error decoding object, invalid type")
+			return
+		}
+		object, ok = tombstone.Obj.(metav1.Object)
+		if !ok {
+			logrus.Warnf("error decoding object tombstone, invalid type")
+			return
+		}
+	}
+
+	if len(d.cfg.Namespaces) != 0 {
+		toProcess := false
+		for _, ns := range d.cfg.Namespaces {
+			if object.GetNamespace() == ns {
+				toProcess = true
+				break
+			}
+		}
+		if !toProcess {
+			return
+		}
+	}
+
+	if d.cfg.Datasource == "multimap" {
+		cmLabels := object.GetLabels()
+		if len(cmLabels) == 0 || !labels.AreLabelsInWhiteList(d.cfg.ParsedLabelSelector, labels.Set(cmLabels)) {
+			return
+		}
+	} else {
+		mapName, err := d.detectConfigMapName(object.GetNamespace())
+		if err != nil || object.GetName() != mapName {
+			return
+		}
+	}
+
+	select {
+	case d.updateChan <- time.Now():
+	default:
+		// There is already one pending notification. Useless to send another one since, when
+		// the pending one will be processed all new changes will be reloaded.
+	}
+}
+
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
 // The returned Datasource uses Informers to efficiently track objects in the kubernetes
 // API by watching for updates to a known state.
-func NewKubernetesInformerDatasource(cfg *config.Config) (Datasource, error) {
+func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
 	kubeConfig := cfg.KubeConfig
 	if cfg.KubeConfig == "" {
 		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
@@ -239,6 +291,25 @@ func NewKubernetesInformerDatasource(cfg *config.Config) (Datasource, error) {
 	configMapLister := factory.Core().V1().ConfigMaps().Lister()
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
 	podLister := factory.Core().V1().Pods().Lister()
+
+	datasource := &kubeInformerConnection{
+		client:     client,
+		hashes:     make(map[string]string),
+		cfg:        cfg,
+		cfglist:    configMapLister,
+		nslist:     namespaceLister,
+		podlist:    podLister,
+		updateChan: updateChan,
+	}
+
+	factory.Core().V1().ConfigMaps().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: datasource.handleCMChange,
+		UpdateFunc: func(old, new interface{}) {
+			datasource.handleCMChange(new)
+		},
+		DeleteFunc: datasource.handleCMChange,
+	})
+
 	factory.Start(nil)
 	if cache.WaitForCacheSync(nil,
 		factory.Core().V1().ConfigMaps().Informer().HasSynced,
@@ -248,12 +319,5 @@ func NewKubernetesInformerDatasource(cfg *config.Config) (Datasource, error) {
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
-	return &kubeInformerConnection{
-		client:  client,
-		hashes:  make(map[string]string),
-		cfg:     cfg,
-		cfglist: configMapLister,
-		nslist:  namespaceLister,
-		podlist: podLister,
-	}, nil
+	return datasource, nil
 }
