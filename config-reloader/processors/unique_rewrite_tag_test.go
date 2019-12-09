@@ -17,12 +17,12 @@ func TestTagsRewrittenOk(t *testing.T) {
       <rule>
         key message
         pattern ^ERROR
-        tag $tag(notifications.error)
+        tag notifications.error
       </rule>
       <rule>
         key message
         pattern ^FATAL
-        tag $tag(notifications.fatal)
+        tag notifications.fatal
       </rule>
     </match>
 
@@ -70,7 +70,7 @@ func TestTagsRewrittenOk(t *testing.T) {
 
 	match := fragment[3]
 
-	assert.Equal(t, strings.Split(filter1.Tag, ".")[0], strings.Split(match.Tag, ".")[0])
+	assert.Equal(t, strings.Split(filter1.Tag, ".error")[0], strings.Split(match.Tag, ".**")[0])
 	assert.True(t, strings.Index(match.Tag, macroUniqueTag) < 0)
 }
 
@@ -88,18 +88,25 @@ func TestRewriteTagsBadConfig(t *testing.T) {
 		  @type rewrite_tag_filter
 		  <rule>
 		    key message
-		      pattern ^ERROR
-		      tag $tag(notifications.error)
-			</rule>
-		 </match>`,
+			pattern ^ERROR
+			tag notifications.error
+		  </rule>
+		</match>`,
 		`<match kube.monitoring.**>
 		  @type retag
 		  <rule>
 		    key message
 		    pattern ^ERROR
-		    tag notifications.error
-		   </rule>
-		 </match>`,
+		  </rule>
+		</match>`,
+		`<match kube.monitoring.**>
+		  @type retag
+		  <rule>
+		    key message
+			pattern ^ERROR
+			tag notifications.${tag_parts[1]}
+		  </rule>
+		</match>`,
 	}
 
 	for _, s := range list {

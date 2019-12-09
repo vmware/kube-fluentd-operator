@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 )
 
 const (
@@ -29,17 +28,15 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 			}
 
 			tagParam := rule.Param("tag")
-			if !strings.HasPrefix(tagParam, macroUniqueTag) || !strings.HasSuffix(tagParam, ")") {
-				return fmt.Errorf("retag plugin requires each rule to have a tag parameter specifying the tag inside the $tag() macro")
+			if tagParam == "" {
+				return fmt.Errorf("retag plugin requires each rule to have a tag parameter")
 			}
 
 			if strings.Index(tagParam, "${tag_parts[") >= 0 || strings.Index(tagParam, "__TAG_PARTS[") >= 0 {
 				return fmt.Errorf("retag plugin does not yet support the ${tag_parts[n]} and __TAG_PARTS[n]__ placeholders")
 			}
 
-			targetTag := tagParam[len(macroUniqueTag)+1 : len(tagParam)-1]
-
-			targetTag = p.createUniqueTag(targetTag, ctx.Namepsace)
+			targetTag := p.createUniqueTag(tagParam, ctx.Namepsace)
 
 			rule.SetParam("tag", targetTag)
 		}
@@ -85,5 +82,5 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 }
 
 func (p *uniqueRewriteTagState) createUniqueTag(tag, namespace string) string {
-	return util.Hash(namespace, "") + "." + tag
+	return "kube." + namespace + "._retag." + tag
 }

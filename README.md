@@ -365,9 +365,9 @@ kube-fluentd-operator will insert the content of the `plugin` directive in the `
 
 ### Retagging based on log contents (since v1.12.0)
 
-Sometimes you might need to split a single log stream to perform different processing based on the contents of one of the fields. To achieve this you can use the `retag` plugin that allows to specify a set of rules that match regular expressions against the specified fields. If one of the rules matches, the log is re-emitted with the new specified tag.
+Sometimes you might need to split a single log stream to perform different processing based on the contents of one of the fields. To achieve this you can use the `retag` plugin that allows to specify a set of rules that match regular expressions against the specified fields. If one of the rules matches, the log is re-emitted with a new namespace-unique tag based on the specified tag.
 
-The tag is specified using the `$tag` macro, and logs that are emitted by this plugin can be consequently filtered and processed by using the same `$tag` macro when specifiying the tag:
+Logs that are emitted by this plugin can be consequently filtered and processed by using the `$tag` macro when specifiying the tag:
 
 ```xml
 <match $labels(app=apache)>
@@ -375,17 +375,17 @@ The tag is specified using the `$tag` macro, and logs that are emitted by this p
   <rule>
     key message
     pattern /^(ERROR) .*$/
-    tag $tag(notifications.$1) # refer to a capturing group using $number
+    tag notifications.$1 # refer to a capturing group using $number
   </rule>
   <rule>
     key message
     pattern /^(FATAL) .*$/
-    tag $tag(notifications.$1)
+    tag notifications.$1
   </rule>
   <rule>
     key message
     pattern /^(ERROR)|(FATAL) .*$/
-    tag $tag(notifications.other)
+    tag notifications.other
     invert true # rewrite tag when unmatch pattern
   </rule>
 </match>
@@ -935,13 +935,13 @@ The `retag` plugin allows to split a log stream based on whether the contents of
   <rule>
     key message
     pattern ^ERR
-    tag $tag(notifications.error)
+    tag notifications.error
   </rule>
   <rule>
     key message
     pattern ^ERR
     invert true
-    tag $tag(notifications.other)
+    tag notifications.other
   </rule>
 </match>
 
