@@ -33,7 +33,7 @@ var reSafe = regexp.MustCompile("[.-]|^$")
 // an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is
 // '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?'
 
-var reValidLabelName = regexp.MustCompile("^([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]$")
+var reValidLabelName = regexp.MustCompile("^([A-Za-z0-9][-A-Za-z0-9\\/_.]*)?[A-Za-z0-9]$")
 var reValidLabelValue = regexp.MustCompile("^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$")
 
 var fns = template.FuncMap{
@@ -176,7 +176,10 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 
 		return nil
 	}
-	applyRecursivelyInPlace(input, p.Context, collectLabels)
+	e := applyRecursivelyInPlace(input, p.Context, collectLabels)
+	if e != nil {
+		return nil, e
+	}
 	if len(allReferencedLabels) == 0 {
 		return input, nil
 	}
