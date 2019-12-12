@@ -14,7 +14,6 @@ import (
 
 func TestLabelsParseOk(t *testing.T) {
 	inputs := map[string]map[string]string{
-		"**.hello.world":                nil,
 		"$labels(a=b,,,)":               {"a": "b"},
 		"$labels(a=1, b=2)":             {"a": "1", "b": "2"},
 		"$labels(x=y,b=1)":              {"b": "1", "x": "y"},

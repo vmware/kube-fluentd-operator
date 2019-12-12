@@ -68,9 +68,6 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
 `))
 
 func parseTagToLabels(tag string) (map[string]string, error) {
-	if !strings.HasPrefix(tag, macroLabels) {
-		return nil, nil
-	}
 
 	if !strings.HasPrefix(tag, macroLabels+"(") &&
 		!strings.HasSuffix(tag, ")") {
@@ -161,7 +158,7 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if d.Tag == "" {
+		if !strings.HasPrefix(d.Tag, macroLabels) {
 			return nil
 		}
 
@@ -192,13 +189,13 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if d.Tag == "" {
+		if !strings.HasPrefix(d.Tag, macroLabels) {
 			return nil
 		}
 
 		labelNames, err := parseTagToLabels(d.Tag)
 		if err != nil {
-			// nothing to replace, it was not a $labels macro
+			// should never happen as the error should be caught beforehand
 			return nil
 		}
 
