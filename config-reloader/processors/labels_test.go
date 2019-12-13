@@ -14,12 +14,13 @@ import (
 
 func TestLabelsParseOk(t *testing.T) {
 	inputs := map[string]map[string]string{
-		"$labels(a=b,,,)":               {"a": "b"},
-		"$labels(a=1, b=2)":             {"a": "1", "b": "2"},
-		"$labels(x=y,b=1)":              {"b": "1", "x": "y"},
-		"$labels(x=1, b = 1)":           {"b": "1", "x": "1"},
-		"$labels(x=1, a=)":              {"a": "", "x": "1"},
-		"$labels(x=1, _container=main)": {"_container": "main", "x": "1"},
+		"$labels(a=b,,,)":                  {"a": "b"},
+		"$labels(a=1, b=2)":                {"a": "1", "b": "2"},
+		"$labels(x=y,b=1)":                 {"b": "1", "x": "y"},
+		"$labels(x=1, b = 1)":              {"b": "1", "x": "1"},
+		"$labels(x=1, a=)":                 {"a": "", "x": "1"},
+		"$labels(hello/world=ok, a=value)": {"hello/world": "ok", "a": "value"},
+		"$labels(x=1, _container=main)":    {"_container": "main", "x": "1"},
 	}
 
 	for tag, result := range inputs {
