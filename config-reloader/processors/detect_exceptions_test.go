@@ -86,7 +86,7 @@ func TestWithoutExceptions(t *testing.T) {
 	fmt.Printf("Processed:\n%s\n", processed)
 
 	last := processed[len(processed)-1]
-	assert.Equal(t, "kube.monitoring.*.*._labels.*", last.Tag)
+	assert.Equal(t, "kube.monitoring.**", last.Tag)
 }
 
 func TestWithExceptions(t *testing.T) {
@@ -128,7 +128,7 @@ func TestWithExceptions(t *testing.T) {
 	fmt.Printf("Processed:\n%s\n", processed)
 
 	last := processed[len(processed)-1]
-	assert.Equal(t, "kube.monitoring.*.*._labels.*.* _proc.kube.monitoring.*.*._labels.*.*", last.Tag)
+	assert.Equal(t, "kube.monitoring.** _proc.kube.monitoring.**", last.Tag)
 
 	detExc := processed[len(processed)-2]
 	assert.Equal(t, "container_info", detExc.Param("stream"))
