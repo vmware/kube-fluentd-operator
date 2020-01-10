@@ -13,6 +13,10 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "fluentd-router.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
