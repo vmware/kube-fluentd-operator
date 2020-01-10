@@ -3,7 +3,7 @@ Copyright © 2018 VMware, Inc. All Rights Reserved.
 SPDX-License-Identifier: BSD-2-Clause
 */}}
 {{- $root := . -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ template "fluentd-router.fullname" . }}
@@ -13,6 +13,10 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "fluentd-router.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
