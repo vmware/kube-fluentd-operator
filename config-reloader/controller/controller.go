@@ -15,7 +15,7 @@ import (
 )
 
 type Controller struct {
-	Interval   time.Duration
+	Updater    Updater
 	OutputDir  string
 	Reloader   *fluentd.Reloader
 	Datasource datasource.Datasource
@@ -30,7 +30,7 @@ func (c *Controller) Run(stop <-chan struct{}) {
 		}
 
 		select {
-		case <-time.After(c.Interval):
+		case <-c.Updater.GetUpdateChannel():
 		case <-stop:
 			logrus.Info("Terminating main controller loop")
 			return
@@ -41,26 +41,31 @@ func (c *Controller) Run(stop <-chan struct{}) {
 // New creates new controller
 func New(cfg *config.Config) (*Controller, error) {
 	var ds datasource.Datasource
+	var up Updater
 	var err error
 	var reloader *fluentd.Reloader
 
 	if cfg.Datasource == "fake" {
 		ds = datasource.NewFakeDatasource()
+		up = NewFixedTimeUpdater(cfg.IntervalSeconds)
 	} else if cfg.Datasource == "fs" {
 		ds = datasource.NewFileSystemDatasource(cfg.FsDatasourceDir, cfg.OutputDir)
+		up = NewFixedTimeUpdater(cfg.IntervalSeconds)
 	} else {
-		ds, err = datasource.NewKubernetesInformerDatasource(cfg)
+		updateChan := make(chan time.Time, 1)
+		ds, err = datasource.NewKubernetesInformerDatasource(cfg, updateChan)
 		if err != nil {
 			return nil, err
 		}
 		reloader = fluentd.NewReloader(cfg.FluentdRPCPort)
+		up = NewOnDemandUpdater(updateChan)
 	}
 
 	gen := generator.New(cfg)
 	gen.SetStatusUpdater(ds)
 
 	return &Controller{
-		Interval:   time.Duration(cfg.IntervalSeconds) * time.Second,
+		Updater:    up,
 		OutputDir:  cfg.OutputDir,
 		Reloader:   reloader,
 		Datasource: ds,
