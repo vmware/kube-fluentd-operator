@@ -34,6 +34,9 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       serviceAccountName: {{ if .Values.rbac.create }}{{ template "fluentd-router.fullname" . }}{{ else }}"{{ .Values.serviceAccountName }}"{{ end }}
+{{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+{{- end }}
       containers:
         - name: fluentd
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

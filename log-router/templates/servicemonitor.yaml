@@ -1,0 +1,22 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "fluentd-router.fullname" . }}
+  labels:
+    app: {{ template "fluentd-router.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: {{ template "fluentd-router.name" . }}
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: prometheus
+    {{- if .Values.serviceMonitor.interval }}
+    interval: {{ .Values.serviceMonitor.interval }}
+    {{- end }}
+{{- end }}
