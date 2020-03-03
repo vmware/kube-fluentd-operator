@@ -506,6 +506,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
+* fluent-plugin-vmware-loginsight (0.1.7)
 * fluent-plugin-vmware-log-intelligence (2.0.0)
 * fluentd (1.5.2)
 
