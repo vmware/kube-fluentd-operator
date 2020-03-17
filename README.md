@@ -563,6 +563,7 @@ Flags:
 |------------------------------------------|-------------------------------------|---------------------------------------------------|
 | `rbac.create`                            | Create a serviceaccount+role, use if K8s is using RBAC        | `false`                  |
 | `serviceAccountName`                     | Reuse an existing service account                | `""`                                             |
+| `defaultConfigmap`                       | Read the configmap by this name if the namespace is not annotated | `"fluentd-config"` |
 | `image.repositiry`                       | Repository                 | `jvassev/kube-fluentd-operator`                              |
 | `image.tag`                              | Image tag                | `latest`                          |
 | `image.pullPolicy`                       | Pull policy                 | `Always`                             |
