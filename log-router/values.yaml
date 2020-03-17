@@ -81,3 +81,7 @@ updateStrategy: {}
 #  scheduler.alpha.kubernetes.io/tolerations: '[{"key": "example", "value": "foo"}]'
 
 prometheusEnabled: false
+
+# If set to true, the log-router will only capture logs from the namespace it belongs to.
+# Otherwise, it will capture logs from all namespaces.
+useReleaseNamespaceOnly: false
