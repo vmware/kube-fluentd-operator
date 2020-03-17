@@ -108,9 +108,14 @@ spec:
           - --label-selector={{- range $k, $v := .Values.labelSelector.matchLabels }}{{$k}}={{$v}},
           {{- end }}
           {{- end }}
+          {{- if .Values.useReleaseNamespaceOnly }}
+          - --namespaces
+          - "{{ .Release.Namespace }}"
+          {{- else }}
           {{- range  .Values.namespaces }}
           - --namespaces
           - "{{ . }}"
+          {{- end }}
           {{- end }}
           volumeMounts:
           - name: fluentconf
