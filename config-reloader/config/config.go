@@ -9,9 +9,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
+
 	"github.com/alecthomas/kingpin"
 	"github.com/sirupsen/logrus"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -43,6 +44,7 @@ type Config struct {
 	KubeletRoot            string
 	Namespaces             []string
 	PrometheusEnabled      bool
+	AllowTagExpansion      bool
 	// parsed or processed/cached fields
 	level               logrus.Level
 	ParsedMetaValues    map[string]string
@@ -213,6 +215,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("fluentd-binary", "Path to fluentd binary used to validate configuration").StringVar(&cfg.FluentdValidateCommand)
 
 	app.Flag("label-selector", "Label selector in the k=v,k2=v2 format (used only with --datasource=multimap)").StringVar(&cfg.LabelSelector)
+
+	app.Flag("allow-tag-expansion", "Allow specifying tags in the format 'k.{a,b}.** k.c.**' (default: false)").BoolVar(&cfg.AllowTagExpansion)
 	_, err := app.Parse(args)
 
 	if err != nil {

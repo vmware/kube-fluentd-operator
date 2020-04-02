@@ -59,6 +59,7 @@ func TestWithoutExceptions(t *testing.T) {
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
+		AllowTagExpansion: true,
 	}
 
 	s := `
@@ -96,6 +97,7 @@ func TestWithExceptions(t *testing.T) {
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
+		AllowTagExpansion: true,
 	}
 
 	s := `

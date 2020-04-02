@@ -4,7 +4,6 @@
 package processors
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -41,10 +40,6 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			d.Tag = goodPrefix + d.Tag[len(macroThisns):]
 			ctx.GenerationContext.augmentTag(d)
 			return nil
-		}
-
-		if strings.Index(d.Tag, "{") >= 0 {
-			return errors.New("Cannot process {} in the tag yet")
 		}
 
 		if strings.HasPrefix(d.Tag, macroLabels) {

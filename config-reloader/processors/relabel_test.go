@@ -205,6 +205,7 @@ func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
+		AllowTagExpansion: true,
 	}
 
 	fragment, err = Process(fragment, ctx, DefaultProcessors()...)
@@ -240,6 +241,7 @@ func TestNastyRegex(t *testing.T) {
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
+		AllowTagExpansion: true,
 	}
 
 	_, err = Process(fragment, ctx, DefaultProcessors()...)

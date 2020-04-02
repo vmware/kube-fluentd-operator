@@ -89,9 +89,6 @@ func TestThisnsExpandBadConfig(t *testing.T) {
 		`<match>
 	       @type null
 		 </match>`,
-		`<match a.{b,c}>
-	       @type null
-	     </match>`,
 	}
 
 	for _, s := range list {

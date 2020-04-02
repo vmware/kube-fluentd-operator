@@ -270,6 +270,7 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 		MiniContainers:    ns.MiniContainers,
 		KubeletRoot:       g.cfg.KubeletRoot,
 		GenerationContext: genCtx,
+		AllowTagExpansion: g.cfg.AllowTagExpansion,
 	}
 	return ctx
 }
