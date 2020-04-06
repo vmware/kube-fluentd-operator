@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -181,6 +182,12 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 				// empty config is a valid input, clear error status
 				g.updateStatus(nsConf.Name, "")
 			}
+			// If a config file had been created, remove it
+			unusedFile := filepath.Join(outputDir, fmt.Sprintf("ns-%s.conf", nsConf.Name))
+			err := os.Remove(unusedFile)
+			if err != nil && !os.IsNotExist(err) {
+				logrus.Warnf("Error removing unused file %s: %+v", unusedFile, err)
+			}
 			continue
 		}
 
@@ -303,6 +310,24 @@ func (g *Generator) renderIncludableFile(templateFile string, dest string) {
 	}
 
 	util.WriteStringToFile(dest, buf.String())
+}
+
+// CleanupUnusedFiles removes "ns-*.conf" files of namespaces that are no more existent
+func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]string) {
+	files, err := filepath.Glob(fmt.Sprintf("%s/ns-*.conf", outputDir))
+	if err != nil {
+		logrus.Warnf("Error finding unused files: %+v", err)
+		return
+	}
+
+	for _, f := range files {
+		ns := strings.TrimSuffix(strings.TrimPrefix(filepath.Base(f), "ns-"), ".conf")
+		if _, ok := namespaces[ns]; !ok {
+			if err := os.Remove(f); err != nil {
+				logrus.Warnf("Error removing unused file %s: %+v", f, err)
+			}
+		}
+	}
 }
 
 // RenderToDisk write only valid configurations to disk
