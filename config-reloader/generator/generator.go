@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -157,15 +158,14 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		prepConfig, err := extractPrepConfig(nsConf.Name, prepareConfigs)
 
-		if err != nil {
-			configHash = util.Hash("ERROR", err.Error())
-		} else {
+		if err == nil {
 			// render config
 			renderedConfig, _, err = g.makeNamespaceConfiguration(nsConf, genCtx, onlyProcess)
 			configHash = util.Hash("", renderedConfig+prepConfig)
 		}
 
 		if err != nil {
+			configHash = util.Hash("ERROR", err.Error())
 			logrus.Infof("Configuration for namespace %s cannot be validated: %+v", nsConf.Name, err)
 			if nsConf.PreviousConfigHash != configHash {
 				g.updateStatus(nsConf.Name, err.Error())
@@ -180,6 +180,12 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			if nsConf.PreviousConfigHash != configHash && nsConf.IsKnownFromBefore {
 				// empty config is a valid input, clear error status
 				g.updateStatus(nsConf.Name, "")
+			}
+			// If a config file had been created, remove it
+			unusedFile := filepath.Join(outputDir, fmt.Sprintf("ns-%s.conf", nsConf.Name))
+			err := os.Remove(unusedFile)
+			if err != nil && !os.IsNotExist(err) {
+				logrus.Warnf("Error removing unused file %s: %+v", unusedFile, err)
 			}
 			continue
 		}
@@ -270,6 +276,7 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 		MiniContainers:    ns.MiniContainers,
 		KubeletRoot:       g.cfg.KubeletRoot,
 		GenerationContext: genCtx,
+		AllowTagExpansion: g.cfg.AllowTagExpansion,
 	}
 	return ctx
 }
@@ -302,6 +309,24 @@ func (g *Generator) renderIncludableFile(templateFile string, dest string) {
 	}
 
 	util.WriteStringToFile(dest, buf.String())
+}
+
+// CleanupUnusedFiles removes "ns-*.conf" files of namespaces that are no more existent
+func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]string) {
+	files, err := filepath.Glob(fmt.Sprintf("%s/ns-*.conf", outputDir))
+	if err != nil {
+		logrus.Warnf("Error finding unused files: %+v", err)
+		return
+	}
+
+	for _, f := range files {
+		ns := strings.TrimSuffix(strings.TrimPrefix(filepath.Base(f), "ns-"), ".conf")
+		if _, ok := namespaces[ns]; !ok {
+			if err := os.Remove(f); err != nil {
+				logrus.Warnf("Error removing unused file %s: %+v", f, err)
+			}
+		}
+	}
 }
 
 // RenderToDisk write only valid configurations to disk

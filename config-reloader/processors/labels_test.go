@@ -194,6 +194,7 @@ func TestLabelWithLabelsAndElse(t *testing.T) {
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
+		AllowTagExpansion: true,
 	}
 
 	fragment, err = Process(fragment, ctx, DefaultProcessors()...)

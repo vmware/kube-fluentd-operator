@@ -13,6 +13,8 @@ serviceAccountName: "default"
 # Possible values: default|fake|fs|multimap
 datasource: default
 
+defaultConfigmap: "fluentd-config"
+
 image:
   repository: jvassev/kube-fluentd-operator
   pullPolicy: IfNotPresent
@@ -85,3 +87,5 @@ prometheusEnabled: false
 # If set to true, the log-router will only capture logs from the namespace it belongs to.
 # Otherwise, it will capture logs from all namespaces.
 useReleaseNamespaceOnly: false
+
+allowTagExpansion: false
