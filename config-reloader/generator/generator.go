@@ -157,15 +157,14 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		prepConfig, err := extractPrepConfig(nsConf.Name, prepareConfigs)
 
-		if err != nil {
-			configHash = util.Hash("ERROR", err.Error())
-		} else {
+		if err == nil {
 			// render config
 			renderedConfig, _, err = g.makeNamespaceConfiguration(nsConf, genCtx, onlyProcess)
 			configHash = util.Hash("", renderedConfig+prepConfig)
 		}
 
 		if err != nil {
+			configHash = util.Hash("ERROR", err.Error())
 			logrus.Infof("Configuration for namespace %s cannot be validated: %+v", nsConf.Name, err)
 			if nsConf.PreviousConfigHash != configHash {
 				g.updateStatus(nsConf.Name, err.Error())
