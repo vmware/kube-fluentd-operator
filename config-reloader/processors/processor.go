@@ -197,6 +197,7 @@ func DefaultProcessors() []FragmentProcessor {
 		&expandThisnsMacroState{},
 		&fixDestinations{},
 		&expandLabelsMacroState{},
+		&uniqueRewriteTagState{},
 		&rewriteLabelsState{},
 		&mountedFileState{},
 		&shareLogsState{},
