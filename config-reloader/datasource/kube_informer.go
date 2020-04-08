@@ -153,9 +153,17 @@ func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Ti
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
 	podLister := factory.Core().V1().Pods().Lister()
 
-	kubeds, err := kubedatasource.NewConfigMapDS(cfg, factory, updateChan, entryName)
-	if err != nil {
-		return nil, err
+	var kubeds kubedatasource.KubeDS
+	if cfg.Datasource == "crd" {
+		kubeds, err = kubedatasource.NewFluentdConfigDS(cfg, kubeCfg, updateChan)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		kubeds, err = kubedatasource.NewConfigMapDS(cfg, factory, updateChan, entryName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	factory.Start(nil)
