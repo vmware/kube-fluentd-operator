@@ -10,7 +10,7 @@ rbac:
 
 serviceAccountName: "default"
 
-# Possible values: default|fake|fs|multimap
+# Possible values: default|fake|fs|multimap|crd
 datasource: default
 
 defaultConfigmap: "fluentd-config"
