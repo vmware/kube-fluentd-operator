@@ -19,27 +19,27 @@ limitations under the License.
 package v1beta1
 
 import (
-	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logging.csp.vmware.com/v1beta1"
+	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logs.vdp.vmware.com/v1beta1"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
-type LoggingV1beta1Interface interface {
+type LogsV1beta1Interface interface {
 	RESTClient() rest.Interface
 	FluentdConfigsGetter
 }
 
-// LoggingV1beta1Client is used to interact with features provided by the logging.csp.vmware.com group.
-type LoggingV1beta1Client struct {
+// LogsV1beta1Client is used to interact with features provided by the logs.vdp.vmware.com group.
+type LogsV1beta1Client struct {
 	restClient rest.Interface
 }
 
-func (c *LoggingV1beta1Client) FluentdConfigs(namespace string) FluentdConfigInterface {
+func (c *LogsV1beta1Client) FluentdConfigs(namespace string) FluentdConfigInterface {
 	return newFluentdConfigs(c, namespace)
 }
 
-// NewForConfig creates a new LoggingV1beta1Client for the given config.
-func NewForConfig(c *rest.Config) (*LoggingV1beta1Client, error) {
+// NewForConfig creates a new LogsV1beta1Client for the given config.
+func NewForConfig(c *rest.Config) (*LogsV1beta1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -48,12 +48,12 @@ func NewForConfig(c *rest.Config) (*LoggingV1beta1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &LoggingV1beta1Client{client}, nil
+	return &LogsV1beta1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new LoggingV1beta1Client for the given config and
+// NewForConfigOrDie creates a new LogsV1beta1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *LoggingV1beta1Client {
+func NewForConfigOrDie(c *rest.Config) *LogsV1beta1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -61,9 +61,9 @@ func NewForConfigOrDie(c *rest.Config) *LoggingV1beta1Client {
 	return client
 }
 
-// New creates a new LoggingV1beta1Client for the given RESTClient.
-func New(c rest.Interface) *LoggingV1beta1Client {
-	return &LoggingV1beta1Client{c}
+// New creates a new LogsV1beta1Client for the given RESTClient.
+func New(c rest.Interface) *LogsV1beta1Client {
+	return &LogsV1beta1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -81,7 +81,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *LoggingV1beta1Client) RESTClient() rest.Interface {
+func (c *LogsV1beta1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

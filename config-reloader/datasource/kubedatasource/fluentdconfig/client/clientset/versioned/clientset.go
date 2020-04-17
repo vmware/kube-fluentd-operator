@@ -21,7 +21,7 @@ package versioned
 import (
 	"fmt"
 
-	loggingv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logging.csp.vmware.com/v1beta1"
+	logsv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logs.vdp.vmware.com/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -29,19 +29,19 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	LoggingV1beta1() loggingv1beta1.LoggingV1beta1Interface
+	LogsV1beta1() logsv1beta1.LogsV1beta1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	loggingV1beta1 *loggingv1beta1.LoggingV1beta1Client
+	logsV1beta1 *logsv1beta1.LogsV1beta1Client
 }
 
-// LoggingV1beta1 retrieves the LoggingV1beta1Client
-func (c *Clientset) LoggingV1beta1() loggingv1beta1.LoggingV1beta1Interface {
-	return c.loggingV1beta1
+// LogsV1beta1 retrieves the LogsV1beta1Client
+func (c *Clientset) LogsV1beta1() logsv1beta1.LogsV1beta1Interface {
+	return c.logsV1beta1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -65,7 +65,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.loggingV1beta1, err = loggingv1beta1.NewForConfig(&configShallowCopy)
+	cs.logsV1beta1, err = logsv1beta1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.loggingV1beta1 = loggingv1beta1.NewForConfigOrDie(c)
+	cs.logsV1beta1 = logsv1beta1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -90,7 +90,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.loggingV1beta1 = loggingv1beta1.New(c)
+	cs.logsV1beta1 = logsv1beta1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

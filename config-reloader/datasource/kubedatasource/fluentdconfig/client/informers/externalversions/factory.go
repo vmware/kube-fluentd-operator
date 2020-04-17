@@ -25,7 +25,7 @@ import (
 
 	versioned "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
 	internalinterfaces "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions/internalinterfaces"
-	loggingcspvmwarecom "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions/logging.csp.vmware.com"
+	logsvdpvmwarecom "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions/logs.vdp.vmware.com"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -172,9 +172,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Logging() loggingcspvmwarecom.Interface
+	Logs() logsvdpvmwarecom.Interface
 }
 
-func (f *sharedInformerFactory) Logging() loggingcspvmwarecom.Interface {
-	return loggingcspvmwarecom.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Logs() logsvdpvmwarecom.Interface {
+	return logsvdpvmwarecom.New(f, f.namespace, f.tweakListOptions)
 }

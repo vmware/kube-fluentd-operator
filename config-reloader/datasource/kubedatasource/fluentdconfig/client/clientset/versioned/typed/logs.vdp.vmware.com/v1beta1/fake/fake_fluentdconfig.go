@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logging.csp.vmware.com/v1beta1"
+	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logs.vdp.vmware.com/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -30,13 +30,13 @@ import (
 
 // FakeFluentdConfigs implements FluentdConfigInterface
 type FakeFluentdConfigs struct {
-	Fake *FakeLoggingV1beta1
+	Fake *FakeLogsV1beta1
 	ns   string
 }
 
-var fluentdconfigsResource = schema.GroupVersionResource{Group: "logging.csp.vmware.com", Version: "v1beta1", Resource: "fluentdconfigs"}
+var fluentdconfigsResource = schema.GroupVersionResource{Group: "logs.vdp.vmware.com", Version: "v1beta1", Resource: "fluentdconfigs"}
 
-var fluentdconfigsKind = schema.GroupVersionKind{Group: "logging.csp.vmware.com", Version: "v1beta1", Kind: "FluentdConfig"}
+var fluentdconfigsKind = schema.GroupVersionKind{Group: "logs.vdp.vmware.com", Version: "v1beta1", Kind: "FluentdConfig"}
 
 // Get takes name of the fluentdConfig, and returns the corresponding fluentdConfig object, and an error if there is any.
 func (c *FakeFluentdConfigs) Get(name string, options v1.GetOptions) (result *v1beta1.FluentdConfig, err error) {

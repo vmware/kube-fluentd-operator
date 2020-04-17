@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
-	loggingv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logging.csp.vmware.com/v1beta1"
-	fakeloggingv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logging.csp.vmware.com/v1beta1/fake"
+	logsv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logs.vdp.vmware.com/v1beta1"
+	fakelogsv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logs.vdp.vmware.com/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -76,7 +76,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// LoggingV1beta1 retrieves the LoggingV1beta1Client
-func (c *Clientset) LoggingV1beta1() loggingv1beta1.LoggingV1beta1Interface {
-	return &fakeloggingv1beta1.FakeLoggingV1beta1{Fake: &c.Fake}
+// LogsV1beta1 retrieves the LogsV1beta1Client
+func (c *Clientset) LogsV1beta1() logsv1beta1.LogsV1beta1Interface {
+	return &fakelogsv1beta1.FakeLogsV1beta1{Fake: &c.Fake}
 }

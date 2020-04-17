@@ -21,10 +21,10 @@ package v1beta1
 import (
 	time "time"
 
-	loggingcspvmwarecomv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logging.csp.vmware.com/v1beta1"
+	logsvdpvmwarecomv1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logs.vdp.vmware.com/v1beta1"
 	versioned "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
 	internalinterfaces "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions/internalinterfaces"
-	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logging.csp.vmware.com/v1beta1"
+	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -61,16 +61,16 @@ func NewFilteredFluentdConfigInformer(client versioned.Interface, namespace stri
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LoggingV1beta1().FluentdConfigs(namespace).List(options)
+				return client.LogsV1beta1().FluentdConfigs(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LoggingV1beta1().FluentdConfigs(namespace).Watch(options)
+				return client.LogsV1beta1().FluentdConfigs(namespace).Watch(options)
 			},
 		},
-		&loggingcspvmwarecomv1beta1.FluentdConfig{},
+		&logsvdpvmwarecomv1beta1.FluentdConfig{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *fluentdConfigInformer) defaultInformer(client versioned.Interface, resy
 }
 
 func (f *fluentdConfigInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&loggingcspvmwarecomv1beta1.FluentdConfig{}, f.defaultInformer)
+	return f.factory.InformerFor(&logsvdpvmwarecomv1beta1.FluentdConfig{}, f.defaultInformer)
 }
 
 func (f *fluentdConfigInformer) Lister() v1beta1.FluentdConfigLister {

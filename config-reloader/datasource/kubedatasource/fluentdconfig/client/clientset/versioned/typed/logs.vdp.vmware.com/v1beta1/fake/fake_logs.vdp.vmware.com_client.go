@@ -19,22 +19,22 @@ limitations under the License.
 package fake
 
 import (
-	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logging.csp.vmware.com/v1beta1"
+	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/typed/logs.vdp.vmware.com/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeLoggingV1beta1 struct {
+type FakeLogsV1beta1 struct {
 	*testing.Fake
 }
 
-func (c *FakeLoggingV1beta1) FluentdConfigs(namespace string) v1beta1.FluentdConfigInterface {
+func (c *FakeLogsV1beta1) FluentdConfigs(namespace string) v1beta1.FluentdConfigInterface {
 	return &FakeFluentdConfigs{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeLoggingV1beta1) RESTClient() rest.Interface {
+func (c *FakeLogsV1beta1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

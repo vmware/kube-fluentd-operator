@@ -21,7 +21,7 @@ package v1beta1
 import (
 	"time"
 
-	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logging.csp.vmware.com/v1beta1"
+	v1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logs.vdp.vmware.com/v1beta1"
 	scheme "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -55,7 +55,7 @@ type fluentdConfigs struct {
 }
 
 // newFluentdConfigs returns a FluentdConfigs
-func newFluentdConfigs(c *LoggingV1beta1Client, namespace string) *fluentdConfigs {
+func newFluentdConfigs(c *LogsV1beta1Client, namespace string) *fluentdConfigs {
 	return &fluentdConfigs{
 		client: c.RESTClient(),
 		ns:     namespace,

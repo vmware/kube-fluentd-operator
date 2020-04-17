@@ -10,7 +10,7 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	kfoClient "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
 	kfoInformers "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions"
-	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logging.csp.vmware.com/v1beta1"
+	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
 
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -35,16 +35,16 @@ func NewFluentdConfigDS(cfg *config.Config, kubeCfg *rest.Config, updateChan cha
 	}
 
 	factory := kfoInformers.NewSharedInformerFactory(kfocli, 0)
-	fluentdConfigLister := factory.Logging().V1beta1().FluentdConfigs().Lister()
+	fluentdConfigLister := factory.Logs().V1beta1().FluentdConfigs().Lister()
 
 	fdDS := &FluentdConfigDS{
 		cfg:        cfg,
 		fdlist:     fluentdConfigLister,
-		fdready:    factory.Logging().V1beta1().FluentdConfigs().Informer().HasSynced,
+		fdready:    factory.Logs().V1beta1().FluentdConfigs().Informer().HasSynced,
 		updateChan: updateChan,
 	}
 
-	factory.Logging().V1beta1().FluentdConfigs().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+	factory.Logs().V1beta1().FluentdConfigs().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: fdDS.handleFDChange,
 		UpdateFunc: func(old, new interface{}) {
 			fdDS.handleFDChange(new)
@@ -136,10 +136,10 @@ func (f *FluentdConfigDS) handleFDChange(obj interface{}) {
 
 var fluentdConfigCRD = v1.CustomResourceDefinition{
 	ObjectMeta: metav1.ObjectMeta{
-		Name: "fluentdconfigs.logging.csp.vmware.com",
+		Name: "fluentdconfigs.logs.vdp.vmware.com",
 	},
 	Spec: v1.CustomResourceDefinitionSpec{
-		Group: "logging.csp.vmware.com",
+		Group: "logs.vdp.vmware.com",
 		Names: v1.CustomResourceDefinitionNames{
 			Plural: "fluentdconfigs",
 			Kind:   "FluentdConfig",
