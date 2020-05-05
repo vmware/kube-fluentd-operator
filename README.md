@@ -518,6 +518,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-elasticsearch (3.7.0)
 * fluent-plugin-gelf-hs (1.0.8)
 * fluent-plugin-google-cloud (0.4.10)
+* fluent-plugin-grafana-loki (1.2.11)
 * fluent-plugin-grok-parser (2.6.1)
 * fluent-plugin-json-in-json-2 (1.0.2)
 * fluent-plugin-kafka (0.12.1)
