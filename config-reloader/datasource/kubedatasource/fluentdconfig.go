@@ -1,8 +1,6 @@
 package kubedatasource
 
 import (
-	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -11,10 +9,8 @@ import (
 	kfoClient "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
 	kfoInformers "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions"
 	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/crd"
 
-	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/rest"
@@ -53,7 +49,7 @@ func NewFluentdConfigDS(cfg *config.Config, kubeCfg *rest.Config, updateChan cha
 	})
 
 	// Verify CRD availability
-	if err := fdDS.checkAndInstallCRDs(kubeCfg); err != nil {
+	if err := crd.CheckAndInstallCRD(kubeCfg); err != nil {
 		return nil, err
 	}
 
@@ -128,96 +124,4 @@ func (f *FluentdConfigDS) handleFDChange(obj interface{}) {
 		// There is already one pending notification. Useless to send another one since, when
 		// the pending one will be processed all new changes will be reloaded.
 	}
-}
-
-///////////////////////////////////////////
-// CRD Management for autoinstall
-///////////////////////////////////////////
-
-var fluentdConfigCRD = v1.CustomResourceDefinition{
-	ObjectMeta: metav1.ObjectMeta{
-		Name: "fluentdconfigs.logs.vdp.vmware.com",
-	},
-	Spec: v1.CustomResourceDefinitionSpec{
-		Group: "logs.vdp.vmware.com",
-		Names: v1.CustomResourceDefinitionNames{
-			Plural: "fluentdconfigs",
-			Kind:   "FluentdConfig",
-		},
-		Scope: v1.NamespaceScoped,
-		Versions: []v1.CustomResourceDefinitionVersion{
-			v1.CustomResourceDefinitionVersion{
-				Name:    "v1beta1",
-				Served:  true,
-				Storage: true,
-				Schema: &v1.CustomResourceValidation{
-					OpenAPIV3Schema: &v1.JSONSchemaProps{
-						Type: "object",
-						Properties: map[string]v1.JSONSchemaProps{
-							"spec": v1.JSONSchemaProps{
-								Type: "object",
-								Properties: map[string]v1.JSONSchemaProps{
-									"fluentconf": v1.JSONSchemaProps{
-										Type: "string",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
-// checkAndInstallCRDs checks whether the CRDs are already defined in the cluster
-// and, if not, installs them and waits for them to be available
-func (f *FluentdConfigDS) checkAndInstallCRDs(config *rest.Config) error {
-	clientset, err := clientset.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-
-	if _, err := clientset.ApiextensionsV1().CustomResourceDefinitions().Create(&fluentdConfigCRD); err != nil && !errors.IsAlreadyExists(err) {
-		return err
-	}
-
-	logrus.Infof("%s CRD is installed. Checking availability...", fluentdConfigCRD.ObjectMeta.Name)
-	if err := f.monitorCRDAvailability(clientset, fluentdConfigCRD.ObjectMeta.Name); err != nil {
-		return err
-	}
-	logrus.Infof("%s CRD is available", fluentdConfigCRD.ObjectMeta.Name)
-
-	return nil
-}
-
-func (f *FluentdConfigDS) monitorCRDAvailability(clientset *clientset.Clientset, name string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	for {
-		crd, err := clientset.ApiextensionsV1().CustomResourceDefinitions().Get(name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-
-		if f.isCRDStatusOK(crd) {
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("%s CRD has not become available before timeout", name)
-		case <-time.After(time.Second):
-		}
-	}
-}
-
-func (f *FluentdConfigDS) isCRDStatusOK(crd *v1.CustomResourceDefinition) bool {
-	for _, cond := range crd.Status.Conditions {
-		if cond.Type == v1.Established && cond.Status == v1.ConditionTrue {
-			return true
-		}
-	}
-	return false
 }
