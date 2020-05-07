@@ -16,37 +16,53 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+type manager interface {
+	ApplyCRD() error
+	CheckCRD() (bool, error)
+	GetCRDName() string
+}
+
 // CheckAndInstallCRDs checks whether the CRD is already defined in the cluster
 // and, if not, install it and waits for it to be available
 // It will automatically install either the legacy v1beta1 CRD or the neq v1 CRD
 // based on the available APIs in the Kubernetes cluster
 func CheckAndInstallCRD(config *rest.Config) error {
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
-	if err != nil {
-		return err
-	}
-
 	clientset, err := clientset.NewForConfig(config)
 	if err != nil {
 		return err
 	}
 
-	v1Available, err := isV1CRDAvailable(discoveryClient)
+	var crdManager manager
+	v1Available, err := isV1CRDAvailable(config)
 	if err != nil {
 		return err
 	}
 
-	if !v1Available {
-		v1beta1Manager := legacyManager{clientset}
-		return v1beta1Manager.checkAndInstallCRD()
-
+	if v1Available {
+		crdManager = &v1Manager{clientset}
+	} else {
+		crdManager = &v1beta1Manager{clientset}
 	}
 
-	v1Manager := manager{clientset}
-	return v1Manager.checkAndInstallCRD()
+	if err := crdManager.ApplyCRD(); err != nil {
+		return err
+	}
+
+	logrus.Infof("%s CRD is installed. Checking availability...", crdManager.GetCRDName())
+	if err := monitorCRDAvailability(crdManager); err != nil {
+		return err
+	}
+	logrus.Infof("%s CRD is available", crdManager.GetCRDName())
+
+	return nil
 }
 
-func isV1CRDAvailable(client *discovery.DiscoveryClient) (bool, error) {
+func isV1CRDAvailable(config *rest.Config) (bool, error) {
+	client, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		return false, err
+	}
+
 	apiGroups, err := client.ServerGroups()
 	if err != nil {
 		return false, err
@@ -74,9 +90,30 @@ func isV1CRDAvailable(client *discovery.DiscoveryClient) (bool, error) {
 	return v1Available, nil
 }
 
-///////////////////////////////////////////////////
-/////////////////// CRD Manager ///////////////////
-///////////////////////////////////////////////////
+func monitorCRDAvailability(crdManager manager) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	for {
+		ok, err := crdManager.CheckCRD()
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("%s CRD has not become available before timeout", crdManager.GetCRDName())
+		case <-time.After(time.Second):
+		}
+	}
+}
+
+//////////////////////////////////////////////////
+///////////////// v1 CRD Manager /////////////////
+//////////////////////////////////////////////////
 
 var fluentdConfigCRD = v1.CustomResourceDefinition{
 	ObjectMeta: metav1.ObjectMeta{
@@ -114,58 +151,39 @@ var fluentdConfigCRD = v1.CustomResourceDefinition{
 	},
 }
 
-type manager struct {
+type v1Manager struct {
 	clientset *clientset.Clientset
 }
 
-func (m *manager) checkAndInstallCRD() error {
+func (m *v1Manager) ApplyCRD() error {
 	if _, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Create(&fluentdConfigCRD); err != nil && !errors.IsAlreadyExists(err) {
 		return err
 	}
 
-	logrus.Infof("%s CRD is installed. Checking availability...", fluentdConfigCRD.ObjectMeta.Name)
-	if err := m.monitorCRDAvailability(fluentdConfigCRD.ObjectMeta.Name); err != nil {
-		return err
-	}
-	logrus.Infof("%s CRD is available", fluentdConfigCRD.ObjectMeta.Name)
-
 	return nil
 }
 
-func (m *manager) monitorCRDAvailability(name string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	for {
-		crd, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-
-		if m.isCRDStatusOK(crd) {
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("%s CRD has not become available before timeout", name)
-		case <-time.After(time.Second):
-		}
+func (m *v1Manager) CheckCRD() (bool, error) {
+	crd, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(m.GetCRDName(), metav1.GetOptions{})
+	if err != nil {
+		return false, err
 	}
-}
 
-func (m *manager) isCRDStatusOK(crd *v1.CustomResourceDefinition) bool {
 	for _, cond := range crd.Status.Conditions {
 		if cond.Type == v1.Established && cond.Status == v1.ConditionTrue {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
-//////////////////////////////////////////////////
-/////////////// Legacy CRD Manager ///////////////
-//////////////////////////////////////////////////
+func (m *v1Manager) GetCRDName() string {
+	return fluentdConfigCRD.ObjectMeta.Name
+}
+
+///////////////////////////////////////////////////
+/////////////// v1beta1 CRD Manager ///////////////
+///////////////////////////////////////////////////
 
 var legacyFluentdConfigCRD = v1beta1.CustomResourceDefinition{
 	ObjectMeta: metav1.ObjectMeta{
@@ -203,51 +221,32 @@ var legacyFluentdConfigCRD = v1beta1.CustomResourceDefinition{
 	},
 }
 
-type legacyManager struct {
+type v1beta1Manager struct {
 	clientset *clientset.Clientset
 }
 
-func (m *legacyManager) checkAndInstallCRD() error {
+func (m *v1beta1Manager) ApplyCRD() error {
 	if _, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(&legacyFluentdConfigCRD); err != nil && !errors.IsAlreadyExists(err) {
 		return err
 	}
 
-	logrus.Infof("%s CRD is installed. Checking availability...", legacyFluentdConfigCRD.ObjectMeta.Name)
-	if err := m.monitorCRDAvailability(legacyFluentdConfigCRD.ObjectMeta.Name); err != nil {
-		return err
-	}
-	logrus.Infof("%s CRD is available", legacyFluentdConfigCRD.ObjectMeta.Name)
-
 	return nil
 }
 
-func (m *legacyManager) monitorCRDAvailability(name string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	for {
-		crd, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-
-		if m.isCRDStatusOK(crd) {
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("%s CRD has not become available before timeout", name)
-		case <-time.After(time.Second):
-		}
+func (m *v1beta1Manager) CheckCRD() (bool, error) {
+	crd, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(m.GetCRDName(), metav1.GetOptions{})
+	if err != nil {
+		return false, err
 	}
-}
 
-func (m *legacyManager) isCRDStatusOK(crd *v1beta1.CustomResourceDefinition) bool {
 	for _, cond := range crd.Status.Conditions {
 		if cond.Type == v1beta1.Established && cond.Status == v1beta1.ConditionTrue {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
+}
+
+func (m *v1beta1Manager) GetCRDName() string {
+	return legacyFluentdConfigCRD.ObjectMeta.Name
 }
