@@ -611,7 +611,7 @@ Flags:
 | `rbac.create`                            | Create a serviceaccount+role, use if K8s is using RBAC        | `false`                  |
 | `serviceAccountName`                     | Reuse an existing service account                | `""`                                             |
 | `defaultConfigmap`                       | Read the configmap by this name if the namespace is not annotated | `"fluentd-config"` |
-| `image.repositiry`                       | Repository                 | `jvassev/kube-fluentd-operator`                              |
+| `image.repositiry`                       | Repository                 | `vmware/kube-fluentd-operator`                              |
 | `image.tag`                              | Image tag                | `latest`                          |
 | `image.pullPolicy`                       | Pull policy                 | `Always`                             |
 | `image.pullSecret`                       | Optional pull secret name                 | `""`                                |
@@ -861,7 +861,7 @@ docker run --entrypoint=/bin/validate-from-dir.sh \
     --net=host --rm \
     -v /path/to/config-folder:/workspace \
     -e DATASOURCE_DIR=/workspace \
-    jvassev/kube-fluentd-operator:latest
+    vmware/kube-fluentd-operator:latest
 ```
 
 It will run fluentd in dry-run mode and even catch incorrect plug-in usage.
@@ -967,7 +967,7 @@ This will build the code, then `config-reloader` will connect to the K8S cluster
 
 ### I want to build a custom image with my own fluentd plugin
 
-Use the `jvassev/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
+Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
 
 ### I run two clusters - in us-east-2 and eu-west-2. How to differentiate between them when pushing logs to a single location?
 
