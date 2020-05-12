@@ -160,9 +160,16 @@ func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Ti
 			return nil, err
 		}
 	} else {
-		kubeds, err = kubedatasource.NewConfigMapDS(cfg, factory, updateChan, entryName)
-		if err != nil {
-			return nil, err
+		if cfg.CRDMigrationMode {
+			kubeds, err = kubedatasource.NewMigrationModeDS(cfg, kubeCfg, factory, updateChan, entryName)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			kubeds, err = kubedatasource.NewConfigMapDS(cfg, factory, updateChan, entryName)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

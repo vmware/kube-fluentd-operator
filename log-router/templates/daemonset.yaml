@@ -90,6 +90,9 @@ spec:
           command:
           -  /bin/config-reloader
           - --datasource={{ .Values.datasource }}
+          {{- if .Values.crdMigrationMode }}
+          - --crd-migration-mode
+          {{- end }}
           - --default-configmap={{ .Values.defaultConfigmap }}
           - --interval={{ .Values.interval }}
           - --log-level={{ .Values.logLevel }}

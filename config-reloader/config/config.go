@@ -34,6 +34,7 @@ type Config struct {
 	DefaultConfigmapName   string
 	IntervalSeconds        int
 	Datasource             string
+	CRDMigrationMode       bool
 	FsDatasourceDir        string
 	AllowFile              bool
 	ID                     string
@@ -187,6 +188,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("kubeconfig", "Retrieve target cluster configuration from a Kubernetes configuration file (default: auto-detect)").Default(defaultConfig.KubeConfig).StringVar(&cfg.KubeConfig)
 
 	app.Flag("datasource", "Datasource to use default|fake|fs|multimap|crd (default: default) ").Default("default").EnumVar(&cfg.Datasource, "default", "fake", "fs", "multimap", "crd")
+	app.Flag("crd-migration-mode", "Enable the crd datasource together with the current datasource to facilitate the migration (used only with --datasource=default|multimap)").BoolVar(&cfg.CRDMigrationMode)
 	app.Flag("fs-dir", "If --datasource=fs is used, configure the dir hosting the files").StringVar(&cfg.FsDatasourceDir)
 
 	app.Flag("interval", "Run every x seconds").Default(strconv.Itoa(defaultConfig.IntervalSeconds)).IntVar(&cfg.IntervalSeconds)
