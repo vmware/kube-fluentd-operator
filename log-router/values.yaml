@@ -85,3 +85,8 @@ updateStrategy: {}
 prometheusEnabled: false
 
 allowTagExpansion: false
+
+# Change the following value to define a different namespace that is treated as admin
+# namespace, i.e. its configs are not validated or processed and virtual plugins can be
+# defined to be used in all other namespaces.
+adminNamespace: "kube-system"

@@ -45,6 +45,7 @@ type Config struct {
 	Namespaces             []string
 	PrometheusEnabled      bool
 	AllowTagExpansion      bool
+	AdminNamespace         string
 	// parsed or processed/cached fields
 	level               logrus.Level
 	ParsedMetaValues    map[string]string
@@ -66,6 +67,7 @@ var defaultConfig = &Config{
 	IntervalSeconds:      60,
 	ID:                   "default",
 	PrometheusEnabled:    false,
+	AdminNamespace:       "kube-system",
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -217,6 +219,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("label-selector", "Label selector in the k=v,k2=v2 format (used only with --datasource=multimap)").StringVar(&cfg.LabelSelector)
 
 	app.Flag("allow-tag-expansion", "Allow specifying tags in the format 'k.{a,b}.** k.c.**' (default: false)").BoolVar(&cfg.AllowTagExpansion)
+
+	app.Flag("admin-namespace", "Configurations defined in this namespace are copied as is, without further processing. Virtual plugins can also be defined in this namespace").Default(defaultConfig.AdminNamespace).StringVar(&cfg.AdminNamespace)
 	_, err := app.Parse(args)
 
 	if err != nil {
