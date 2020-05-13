@@ -13,6 +13,8 @@ serviceAccountName: "default"
 # Possible values: default|fake|fs|multimap
 datasource: default
 
+defaultConfigmap: "fluentd-config"
+
 image:
   repository: jvassev/kube-fluentd-operator
   pullPolicy: IfNotPresent
@@ -93,3 +95,5 @@ serviceMonitor:
 
     # Scrape interval. If not set, the Prometheus default scrape interval is used.
     interval: ""
+    
+allowTagExpansion: false

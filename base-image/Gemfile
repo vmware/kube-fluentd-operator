@@ -1,47 +1,49 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "1.7.4"
+gem "fluentd", "1.9.1"
 
-gem 'ffi'
-gem 'fluent-plugin-amqp'
-gem 'fluent-plugin-azure-loganalytics'
-gem 'fluent-plugin-cloudwatch-logs'
-gem 'fluent-plugin-concat'
-gem 'fluent-plugin-datadog'
-gem 'fluent-plugin-detect-exceptions'
-gem 'fluent-plugin-elasticsearch'
-gem 'fluent-plugin-gelf-hs'
-gem 'fluent-plugin-google-cloud'
-gem 'fluent-plugin-grok-parser'
-gem 'fluent-plugin-json-in-json-2'
-gem 'fluent-plugin-kafka'
-gem 'fluent-plugin-kinesis'
-gem 'fluent-plugin-kubernetes_metadata_filter'
-gem 'fluent-plugin-kubernetes_sumologic'
-gem 'fluent-plugin-kubernetes'
-gem 'fluent-plugin-logentries'
-gem 'fluent-plugin-loggly'
-gem 'fluent-plugin-logzio'
-gem 'fluent-plugin-mail'
-gem 'fluent-plugin-mongo'
-gem 'fluent-plugin-multi-format-parser'
-gem 'fluent-plugin-out-http'
-gem 'fluent-plugin-papertrail'
-gem 'fluent-plugin-prometheus'
-gem 'fluent-plugin-record-modifier'
-gem 'fluent-plugin-record-reformer'
-gem 'fluent-plugin-redis'
-gem 'fluent-plugin-remote_syslog'
-gem 'fluent-plugin-rewrite-tag-filter'
-gem 'fluent-plugin-route'
-gem 'fluent-plugin-s3'
-gem 'fluent-plugin-scribe'
-gem 'fluent-plugin-secure-forward'
-gem 'fluent-plugin-splunkhec'
-gem 'fluent-plugin-sumologic_output'
-gem 'fluent-plugin-systemd'
-gem 'fluent-plugin-uri-parser'
-gem 'fluent-plugin-verticajson'
-gem 'gelf'
-gem 'logfmt'
+gem 'ffi', "1.12.2"
+gem 'fluent-plugin-amqp', "0.13.0"
+gem 'fluent-plugin-azure-loganalytics', "0.4.1"
+gem 'fluent-plugin-cloudwatch-logs', "0.8.0"
+gem 'fluent-plugin-concat', "2.4.0"
+gem 'fluent-plugin-datadog', "0.12.0"
+gem 'fluent-plugin-detect-exceptions', "0.0.13"
+gem 'fluent-plugin-elasticsearch', "4.0.5"
+gem 'fluent-plugin-gelf-hs', "1.0.8"
+gem 'fluent-plugin-google-cloud', "0.4.10"
+gem 'fluent-plugin-grafana-loki', "1.2.11"
+gem 'fluent-plugin-grok-parser', "2.6.1"
+gem 'fluent-plugin-json-in-json-2', "1.0.2"
+gem 'fluent-plugin-kafka', "0.12.4"
+gem 'fluent-plugin-kinesis', "3.2.1"
+gem 'fluent-plugin-kubernetes_metadata_filter', "2.4.2"
+gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
+gem 'fluent-plugin-kubernetes', "0.3.1"
+gem 'fluent-plugin-logentries', "0.2.10"
+gem 'fluent-plugin-loggly', "0.0.9"
+gem 'fluent-plugin-logzio', "0.0.20"
+gem 'fluent-plugin-mail', "0.3.0"
+gem 'fluent-plugin-mongo', "1.3.0"
+gem 'fluent-plugin-multi-format-parser', "1.0.0"
+gem 'fluent-plugin-out-http', "1.3.3"
+gem 'fluent-plugin-papertrail', "0.2.8"
+gem 'fluent-plugin-prometheus', "1.7.3"
+gem 'fluent-plugin-record-modifier', "2.1.0"
+gem 'fluent-plugin-record-reformer', "0.9.1"
+gem 'fluent-plugin-redis', "0.3.4"
+gem 'fluent-plugin-remote_syslog', "1.0.0"
+gem 'fluent-plugin-rewrite-tag-filter', "2.2.0"
+gem 'fluent-plugin-route', "1.0.0"
+gem 'fluent-plugin-s3', "1.3.0"
+gem 'fluent-plugin-scribe', "1.0.0"
+gem 'fluent-plugin-secure-forward', "0.4.5"
+gem 'fluent-plugin-splunkhec', "2.0"
+gem 'fluent-plugin-sumologic_output', "1.6.1"
+gem 'fluent-plugin-systemd', "1.0.2"
+gem 'fluent-plugin-uri-parser', "0.3.0"
+gem 'fluent-plugin-verticajson', "0.0.6"
+gem 'fluent-plugin-vmware-loginsight', "0.1.7"
+gem 'gelf', "3.1.0"
+gem 'logfmt', "0.0.9"

@@ -90,6 +90,7 @@ spec:
           command:
           -  /bin/config-reloader
           - --datasource={{ .Values.datasource }}
+          - --default-configmap={{ .Values.defaultConfigmap }}
           - --interval={{ .Values.interval }}
           - --log-level={{ .Values.logLevel }}
           - --output-dir=/fluentd/etc
@@ -114,6 +115,9 @@ spec:
           {{- range  .Values.namespaces }}
           - --namespaces
           - "{{ . }}"
+          {{- end }}
+          {{- if .Values.allowTagExpansion }}
+          - --allow-tag-expansion
           {{- end }}
           volumeMounts:
           - name: fluentconf

@@ -4,7 +4,6 @@
 package processors
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -43,12 +42,8 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if strings.Index(d.Tag, "{") >= 0 {
-			return errors.New("Cannot process {} in the tag yet")
-		}
-
-		if strings.HasPrefix(d.Tag, macroLabels) {
-			// Let the labels processor handle this
+		if strings.HasPrefix(d.Tag, macroLabels) || strings.HasPrefix(d.Tag, macroUniqueTag) {
+			// Let other processors handle this
 			return nil
 		}
 

@@ -22,19 +22,19 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.11.0 \
-  --set image.repository=jvassev/kube-fluentd-operator
+  --set image.tag=v1.12.0 \
+  --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.11.0/log-router-0.3.2.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.12.0/log-router-0.3.3.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.11.0 \
-  --set image.repository=jvassev/kube-fluentd-operator
+  --set image.tag=v1.12.0 \
+  --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Then create a namespace `demo` and a configmap describing where all logs from `demo` should go to. The configmap must contain an entry called "fluent.conf". Finally, point the kube-fluentd-operator to this configmap using annotations.
@@ -363,6 +363,48 @@ acme-staging.conf
 
 kube-fluentd-operator will insert the content of the `plugin` directive in the `match` directive. From then on, regular validation and postprocessing takes place.
 
+### Retagging based on log contents (since v1.12.0)
+
+Sometimes you might need to split a single log stream to perform different processing based on the contents of one of the fields. To achieve this you can use the `retag` plugin that allows to specify a set of rules that match regular expressions against the specified fields. If one of the rules matches, the log is re-emitted with a new namespace-unique tag based on the specified tag.
+
+Logs that are emitted by this plugin can be consequently filtered and processed by using the `$tag` macro when specifiying the tag:
+
+```xml
+<match $labels(app=apache)>
+  @type retag
+  <rule>
+    key message
+    pattern /^(ERROR) .*$/
+    tag notifications.$1 # refer to a capturing group using $number
+  </rule>
+  <rule>
+    key message
+    pattern /^(FATAL) .*$/
+    tag notifications.$1
+  </rule>
+  <rule>
+    key message
+    pattern /^(ERROR)|(FATAL) .*$/
+    tag notifications.other
+    invert true # rewrite tag when unmatch pattern
+  </rule>
+</match>
+
+<filter $tag(notifications.ERROR)>
+  # perform some extra processing
+</filter>
+
+<filter $tag(notifications.FATAL)>
+  # perform different processing
+</filter>
+
+<match $tag(notifications.**)>
+  # send to common output plugin
+</match>
+```
+
+*kube-fluentd-operator* ensures that tags specified using the `$tag` macro never conflict with tags from other namespaces, even if the tag itself is equivalent.
+
 ### Sharing logs between namespaces
 
 By default, you can consume logs only from your namespaces. Often it is useful for multiple namespaces (tenants) to get access to the logs streams of a shared resource (pod, namespace). *kube-fluentd-operator* makes it possible using two constructs: the source namespace expresses its intent to share logs with a destination namespace and the destination namespace expresses its desire to consume logs from a source. As a result logs are streamed only when both sides agree.
@@ -459,9 +501,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.1.3                      | 1.3.0                   |
 | 1.2.6                      | 1.8.0                   |
 | 1.5.2                      | 1.10.0                  |
-| 1.7.4                      | 1.12.0                  |
+| 1.9.1                      | 1.12.0                  |
 
-## Plugins in latest release (1.11.0)
+## Plugins in latest release (1.12.0)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -469,19 +511,20 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.13.0)
 * fluent-plugin-azure-loganalytics (0.4.1)
-* fluent-plugin-cloudwatch-logs (0.7.4)
+* fluent-plugin-cloudwatch-logs (0.8.0)
 * fluent-plugin-concat (2.4.0)
-* fluent-plugin-datadog (0.11.0)
+* fluent-plugin-datadog (0.12.0)
 * fluent-plugin-detect-exceptions (0.0.13)
-* fluent-plugin-elasticsearch (3.7.0)
+* fluent-plugin-elasticsearch (4.0.5)
 * fluent-plugin-gelf-hs (1.0.8)
 * fluent-plugin-google-cloud (0.4.10)
+* fluent-plugin-grafana-loki (1.2.11)
 * fluent-plugin-grok-parser (2.6.1)
 * fluent-plugin-json-in-json-2 (1.0.2)
-* fluent-plugin-kafka (0.12.1)
-* fluent-plugin-kinesis (3.2.0)
+* fluent-plugin-kafka (0.12.4)
+* fluent-plugin-kinesis (3.2.1)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.4.0)
+* fluent-plugin-kubernetes_metadata_filter (2.4.2)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (0.0.9)
@@ -491,14 +534,14 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-multi-format-parser (1.0.0)
 * fluent-plugin-out-http (1.3.3)
 * fluent-plugin-papertrail (0.2.8)
-* fluent-plugin-prometheus (1.7.0)
-* fluent-plugin-record-modifier (2.0.1)
+* fluent-plugin-prometheus (1.7.3)
+* fluent-plugin-record-modifier (2.1.0)
 * fluent-plugin-record-reformer (0.9.1)
 * fluent-plugin-redis (0.3.4)
 * fluent-plugin-remote_syslog (1.0.0)
 * fluent-plugin-rewrite-tag-filter (2.2.0)
 * fluent-plugin-route (1.0.0)
-* fluent-plugin-s3 (1.2.1)
+* fluent-plugin-s3 (1.3.0)
 * fluent-plugin-scribe (1.0.0)
 * fluent-plugin-secure-forward (0.4.5)
 * fluent-plugin-splunkhec (2.0)
@@ -506,8 +549,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
+* fluent-plugin-vmware-loginsight (0.1.7)
 * fluent-plugin-vmware-log-intelligence (2.0.0)
-* fluentd (1.5.2)
+* fluentd (1.9.1)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
@@ -566,7 +610,8 @@ Flags:
 |------------------------------------------|-------------------------------------|---------------------------------------------------|
 | `rbac.create`                            | Create a serviceaccount+role, use if K8s is using RBAC        | `false`                  |
 | `serviceAccountName`                     | Reuse an existing service account                | `""`                                             |
-| `image.repositiry`                       | Repository                 | `jvassev/kube-fluentd-operator`                              |
+| `defaultConfigmap`                       | Read the configmap by this name if the namespace is not annotated | `"fluentd-config"` |
+| `image.repositiry`                       | Repository                 | `vmware/kube-fluentd-operator`                              |
 | `image.tag`                              | Image tag                | `latest`                          |
 | `image.pullPolicy`                       | Pull policy                 | `Always`                             |
 | `image.pullSecret`                       | Optional pull secret name                 | `""`                                |
@@ -816,7 +861,7 @@ docker run --entrypoint=/bin/validate-from-dir.sh \
     --net=host --rm \
     -v /path/to/config-folder:/workspace \
     -e DATASOURCE_DIR=/workspace \
-    jvassev/kube-fluentd-operator:latest
+    vmware/kube-fluentd-operator:latest
 ```
 
 It will run fluentd in dry-run mode and even catch incorrect plug-in usage.
@@ -881,6 +926,35 @@ The ingress controller uses a format different than the plain Nginx. You can use
 
 The above configuration assumes you're using the Helm charts for Nginx ingress. If not, make sure to the change the `app` and `_container` labels accordingly. Given the horrendous regex above, you really should be outputting access logs in json format and just specify `@type json`.
 
+### I want to send logs to different sinks based on log contents
+
+The `retag` plugin allows to split a log stream based on whether the contents of certain fields match the given regular expressions.
+
+```xml
+<match $labels(app=apache)>
+  @type retag
+  <rule>
+    key message
+    pattern ^ERR
+    tag notifications.error
+  </rule>
+  <rule>
+    key message
+    pattern ^ERR
+    invert true
+    tag notifications.other
+  </rule>
+</match>
+
+<match $tag(notifications.error)>
+  # manage log stream with error severity
+</match>
+
+<match $tag(notifications.**)>
+  # manage log stream with non-error severity
+</match>
+```
+
 ### I have my kubectl configured and my configmaps ready. I want to see the generated files before deploying the Helm chart
 
 You need to run `make` like this:
@@ -893,7 +967,7 @@ This will build the code, then `config-reloader` will connect to the K8S cluster
 
 ### I want to build a custom image with my own fluentd plugin
 
-Use the `jvassev/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
+Use the `vmware/kube-fluentd-operator:TAG` as a base and do any modification as usual. If this plugin is not top-secret consider sending us a patch :)
 
 ### I run two clusters - in us-east-2 and eu-west-2. How to differentiate between them when pushing logs to a single location?
 

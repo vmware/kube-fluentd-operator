@@ -1,10 +1,30 @@
 # CHANGELOG
 
-## [1.12.0]
+## [1.12.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.12.0)
+
+* Build kube-fluentd-operator on photon (#115) (@dimalbaby)
+
+* Plugins: Add `fluent-plugin-vmware-loginsight` (@naveens)
+
+* Plugins: Add `fluent-plugin-grafana-loki` (@SerialVelocity)
+
+* Core: Cleanup unused namespace configuration files (#110) (@tommasopozzetti)
 
 * Core: Fix labels not being rewritten in copy plugin (#86) (@tommasopozzetti)
 
-* Fluentd: upgrade fluentd to 1.7.4
+* Core: Fix $label processor ignoring errors and not accepting "/" (#93) (@tommasopozzetti)
+
+* Core: Fix namespace fluentd status annotation update (#92) (@tommasopozzetti)
+
+* Core: Fix slow CRI-O log parsing (#91) (@jonasrutishauser)
+
+* Core: Introduce a more efficient event-triggered reload system (#89)  (@tommasopozzetti)
+
+* Core: Add new processor to allow controlled tag rewriting (#88) (@tommasopozzetti)
+
+* Helm: improve Helm chart and bump version to 0.3.3 (#95) (@cablespaghetti)
+
+* Fluentd: upgrade fluentd to 1.9.1
 
 ## [1.11.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.11.0)
 

@@ -107,5 +107,7 @@ func (c *Controller) RunOnce() error {
 		c.Reloader.ReloadConfiguration()
 	}
 
+	c.Generator.CleanupUnusedFiles(c.OutputDir, configHashes)
+
 	return nil
 }

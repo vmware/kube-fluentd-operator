@@ -10,9 +10,27 @@
 
 set -e
 
-if [ ! -e /fluentd/etc/${FLUENTD_CONF} ]; then
-  echo "Using failsafe configuration for now"
-  cp /fluentd/failsafe.conf /fluentd/etc/${FLUENTD_CONF}
-fi
+function main() {
+  # Make sure the default configuration is under /fluentd/etc
+  # it should be already copied in the Dockerfile
+  DEFAULT_FLUENT_CONF=/fluentd/etc/${FLUENTD_CONF:-fluent.conf}
+  echo "Using configuration: ${DEFAULT_FLUENT_CONF}"
 
-exec fluentd -c /fluentd/etc/${FLUENTD_CONF} -p /fluentd/plugins ${FLUENTD_OPT}
+  local retries=${RETRIES:-30}
+  for attempt in $( seq 1 $retries ); do
+    if [ -f ${DEFAULT_FLUENT_CONF} ]; then
+      local ready=true
+      break
+    fi
+    echo Waiting for config file to become available: $attempt of $retries
+    sleep 10
+  done
+  if [ "$ready" != "true" ]; then
+    return 1
+  fi
+
+  echo "Found configuration file: ${DEFAULT_FLUENT_CONF}"
+  exec fluentd -c ${DEFAULT_FLUENT_CONF} -p /fluentd/plugins ${FLUENTD_OPT}
+}
+
+main

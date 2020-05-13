@@ -44,6 +44,7 @@ type ProcessorContext struct {
 	MiniContainers    []*datasource.MiniContainer
 	KubeletRoot       string
 	GenerationContext *GenerationContext
+	AllowTagExpansion bool
 }
 
 type BaseProcessorState struct {
@@ -192,9 +193,11 @@ func augmentTag(orig string) string {
 func DefaultProcessors() []FragmentProcessor {
 	return []FragmentProcessor{
 		&expandPluginsState{},
+		&expandTagsState{},
 		&expandThisnsMacroState{},
 		&fixDestinations{},
 		&expandLabelsMacroState{},
+		&uniqueRewriteTagState{},
 		&rewriteLabelsState{},
 		&mountedFileState{},
 		&shareLogsState{},
