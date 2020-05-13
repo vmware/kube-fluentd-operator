@@ -75,6 +75,7 @@ func (f *FluentdConfigDS) GetFluentdConfig(namespace string) (string, error) {
 	// Extract fluentd
 	configData := make([]string, 0, len(fluentdConfigs))
 	for _, fd := range fluentdConfigs {
+		logrus.Debugf("loaded config data from fluentdconfig: %s/%s", fd.ObjectMeta.Namespace, fd.ObjectMeta.Name)
 		configData = append(configData, fd.Spec.FluentConf)
 	}
 

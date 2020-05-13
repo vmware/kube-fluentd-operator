@@ -17,13 +17,13 @@ type MigrationModeDS struct {
 	cmKubeDS KubeDS
 }
 
-func NewMigrationModeDS(cfg *config.Config, kubeCfg *rest.Config, factory informers.SharedInformerFactory, updateChan chan time.Time, entryName string) (*MigrationModeDS, error) {
+func NewMigrationModeDS(cfg *config.Config, kubeCfg *rest.Config, factory informers.SharedInformerFactory, updateChan chan time.Time) (*MigrationModeDS, error) {
 	fdKubeDS, err := NewFluentdConfigDS(cfg, kubeCfg, updateChan)
 	if err != nil {
 		return nil, err
 	}
 
-	cmKubeDS, err := NewConfigMapDS(cfg, factory, updateChan, entryName)
+	cmKubeDS, err := NewConfigMapDS(cfg, factory, updateChan)
 	if err != nil {
 		return nil, err
 	}

@@ -9,10 +9,6 @@ import (
 	core "k8s.io/api/core/v1"
 )
 
-const (
-	entryName = "fluent.conf"
-)
-
 type Mount struct {
 	Path       string
 	VolumeName string

@@ -16,6 +16,10 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+const (
+	entryName = "fluent.conf"
+)
+
 type namespaceNotConfigured struct {
 	Namespace string
 }
@@ -30,10 +34,9 @@ type ConfigMapDS struct {
 	cfgready   func() bool
 	nslist     listerv1.NamespaceLister
 	updateChan chan time.Time
-	entryName  string
 }
 
-func NewConfigMapDS(cfg *config.Config, factory informers.SharedInformerFactory, updateChan chan time.Time, entryName string) (*ConfigMapDS, error) {
+func NewConfigMapDS(cfg *config.Config, factory informers.SharedInformerFactory, updateChan chan time.Time) (*ConfigMapDS, error) {
 	configMapLister := factory.Core().V1().ConfigMaps().Lister()
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
 
@@ -43,7 +46,6 @@ func NewConfigMapDS(cfg *config.Config, factory informers.SharedInformerFactory,
 		cfgready:   factory.Core().V1().ConfigMaps().Informer().HasSynced,
 		nslist:     namespaceLister,
 		updateChan: updateChan,
-		entryName:  entryName,
 	}
 
 	factory.Core().V1().ConfigMaps().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
@@ -114,12 +116,12 @@ func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
 func (c *ConfigMapDS) readConfig(configmaps []*core.ConfigMap) string {
 	configdata := make([]string, 0)
 	for _, cm := range configmaps {
-		mapData, exists := cm.Data[c.entryName]
+		mapData, exists := cm.Data[entryName]
 		if exists {
 			configdata = append(configdata, mapData)
 			logrus.Debugf("Loaded config data from config map: %s/%s", cm.ObjectMeta.Namespace, cm.ObjectMeta.Name)
 		} else {
-			logrus.Warnf("cannot find entry %s in configmap %s/%s", c.entryName, cm.ObjectMeta.Namespace, cm.ObjectMeta.Name)
+			logrus.Warnf("cannot find entry %s in configmap %s/%s", entryName, cm.ObjectMeta.Namespace, cm.ObjectMeta.Name)
 		}
 	}
 	return strings.Join(configdata, "\n")
