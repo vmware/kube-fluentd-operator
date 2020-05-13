@@ -75,6 +75,8 @@ tolerations: []
   #  cpu: 100m
   #  memory: 128Mi
 
+priorityClassName: ""
+
 updateStrategy: {}
 #  type: RollingUpdate
 
@@ -84,4 +86,14 @@ updateStrategy: {}
 
 prometheusEnabled: false
 
+serviceMonitor:
+    # enable support for Prometheus Operator
+    enabled: false
+
+    # Job label for scrape target
+    jobLabel: app
+
+    # Scrape interval. If not set, the Prometheus default scrape interval is used.
+    interval: ""
+    
 allowTagExpansion: false
