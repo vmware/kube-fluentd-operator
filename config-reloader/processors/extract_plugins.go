@@ -8,7 +8,7 @@ const (
 	dirPlugin = "plugin"
 )
 
-// ExtractPlugins looks at the top-level directives in the kube-system, deletes all <plugin>
+// ExtractPlugins looks at the top-level directives in the admin namespace, deletes all <plugin>
 // and stores the found plugin definitions under GenerationContext.Plugins map keyed by the plugin directive's path
 func ExtractPlugins(g *GenerationContext, input fluentd.Fragment) fluentd.Fragment {
 	plugins := map[string]*fluentd.Directive{}

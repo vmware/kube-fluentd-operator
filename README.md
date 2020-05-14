@@ -215,9 +215,9 @@ It gets processed into the following configuration which is then fed to Fluentd:
 
 To give the illusion that every namespace runs a dedicated Fluentd the user-provided configuration is post-processed. In general, expressions starting with `$` are macros that are expanded. These two directives are equivalent: `<match **>`, `<match $thisns>`. Almost always, using the `**` is the preferred way to match logs: this way you can reuse the same configuration for multiple namespaces.
 
-### A note on the `kube-system` namespace
+### The admin namespace
 
-The `kube-system` is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use any of the advanced features described bellow, you can just route all logs from all namespaces using this snippet at the `kube-system` level:
+Kube-fluentd-operator defines one namespace to be the *admin* namespace. By default this is set to `kube-system`. The *admin* namespace is treated differently. Its configuration is not processed further as it is assumed only the cluster admin can manipulate resources in this namespace. If you don't plan to use any of the advanced features described bellow, you can just route all logs from all namespaces using this snippet in the *admin* namespace:
 
 ```xml
 <match **>
@@ -235,8 +235,8 @@ Fluentd assumes it is running in a distro with systemd and generates logs with t
 * `k8s.{component}`: logs from a K8S component, for example `k8s.kube-apiserver`
 * `kube.{namespace}.{pod_name}.{container_name}`: a log originating from (namespace, pod, container)
 
-As `kube-system` is processed first, a match-all directive would consume all logs and any other namespace configuration will become irrelevant (unless `<copy>` is used).
-A recommended configuration for the `kube-system` namespace is this one - it captures all but the user namespaces' logs:
+As the *admin* namespace is processed first, a match-all directive would consume all logs and any other namespace configuration will become irrelevant (unless `<copy>` is used).
+A recommended configuration for the *admin* namespace is this one (assuming it is set to `kube-system`) - it captures all but the user namespaces' logs:
 
 ```xml
 <match systemd.** kube.kube-system.** k8s.** docker>
@@ -328,10 +328,10 @@ Also, users don't need to bother with setting the correct `stream` parameter. *k
 
 ### Reusing output plugin definitions (since v1.6.0)
 
-Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage, etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environement and you use loggly for a "staging" environment. The first thing you do is define these two output at the `kube-system` level:
+Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage, etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environement and you use loggly for a "staging" environment. The first thing you do is define these two output in the *admin* namespace:
 
 ```xml
-kube-system.conf:
+admin-ns.conf:
 <plugin test>
   @type s3
   aws_key_id  YOUR_AWS_KEY_ID
@@ -601,6 +601,8 @@ Flags:
   --fluentd-binary=FLUENTD-BINARY
                                 Path to fluentd binary used to validate configuration
   --prometheus-enabled          Prometheus metrics enabled (default: false)
+  --admin-namespace="kube-system"
+                                The namespace to be treated as admin namespace             
 
 ```
 
@@ -631,12 +633,13 @@ Flags:
 | `tolerations`                            | Pod tolerations             | `[]`                     |
 | `updateStrategy`                         | UpdateStrategy for the daemonset. Leave empty to get the K8S' default (probably the safest choice)            | `{}`                     |
 | `podAnnotations`                         | Pod annotations for the daemonset  |                    |
+| `adminNamespace`                         | The namespace to be treated as admin namespace  | `kube-system`      |
 
 ## Cookbook
 
 ### I want to use one destination for everything
 
-Simple, define configuration only for the kube-system namespace:
+Simple, define configuration only for the *admin* namespace (by default `kube-system`):
 
 ```bash
 kube-system.conf:
@@ -647,7 +650,7 @@ kube-system.conf:
 
 ### I dont't care for systemd and docker logs
 
-Simple, exclude them at the kube-system level:
+Simple, exclude them at the *admin* namespace level (by default `kube-system`):
 
 ```bash
 kube-system.conf:

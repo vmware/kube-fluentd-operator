@@ -104,7 +104,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	newFiles := []string{}
 	model := struct {
-		KubeSystem              bool
+		AdminNamespace          bool
 		Namespaces              []string
 		MetaKey                 string
 		MetaValue               string
@@ -122,13 +122,13 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	prepareConfigs := g.generatePrepareConfigs(genCtx)
 
-	// process kube-system first to collect the virtual plugins
+	// process the admin namespace first to collect the virtual plugins
 	for _, nsConf := range g.model {
-		if nsConf.Name != "kube-system" {
+		if nsConf.Name != g.cfg.AdminNamespace {
 			continue
 		}
 
-		model.KubeSystem = true
+		model.AdminNamespace = true
 
 		fragment, err := fluentd.ParseString(nsConf.FluentdConfig)
 		if err != nil {
@@ -139,9 +139,9 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		// normalize system config
 		renderedConfig := fragment.String()
-		fileHashesByNs["kube-system"] = util.Hash("", renderedConfig)
-		// don't validate the kube-system, just render it
-		err = util.WriteStringToFile(filepath.Join(outputDir, "kube-system.conf"), renderedConfig)
+		fileHashesByNs[nsConf.Name] = util.Hash("", renderedConfig)
+		// don't validate the admin namespace, just render it
+		err = util.WriteStringToFile(filepath.Join(outputDir, "admin-ns.conf"), renderedConfig)
 		if err != nil {
 			logrus.Infof("Cannot store config file for namespace %s", nsConf.Name)
 		}
@@ -150,7 +150,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 	}
 
 	for _, nsConf := range g.model {
-		if nsConf.Name == "kube-system" {
+		if nsConf.Name == g.cfg.AdminNamespace {
 			continue
 		}
 
@@ -242,7 +242,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 func (g *Generator) generatePrepareConfigs(genCtx *processors.GenerationContext) map[string]interface{} {
 	prepareConfigs := map[string]interface{}{}
 	for _, nsConf := range g.model {
-		if nsConf.Name == "kube-system" {
+		if nsConf.Name == g.cfg.AdminNamespace {
 			continue
 		}
 
