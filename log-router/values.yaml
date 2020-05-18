@@ -10,8 +10,12 @@ rbac:
 
 serviceAccountName: "default"
 
-# Possible values: default|fake|fs|multimap
+# Possible values: default|fake|fs|multimap|crd
 datasource: default
+
+# Use with datasource: default or datasource: multimap, crdMigrationMode enables also the crd datasource
+# together with the specified legacy datasource to facilitate the migration process to CRDs.
+crdMigrationMode: false
 
 defaultConfigmap: "fluentd-config"
 

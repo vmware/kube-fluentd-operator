@@ -27,4 +27,21 @@ rules:
       - namespaces
     verbs:
       - patch
+  {{- if eq .Values.datasource "crd" }}
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - create
+      - get
+      - watch
+      - list
+  - apiGroups: ["logs.vdp.vmware.com"]
+    resources:
+      - fluentdconfigs
+    verbs:
+      - get
+      - list
+      - watch
+  {{- end }}
 {{- end }}
