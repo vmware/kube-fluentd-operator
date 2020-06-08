@@ -21,7 +21,7 @@ COPY Gemfile /fluentd
 ENTRYPOINT ["/fluentd/entrypoint.sh"]
 
 RUN tdnf update -y && tdnf upgrade -y && tdnf erase -y toybox
-RUN tdnf install -y shadow wget which vim less tar gzip util-linux sed gcc build-essential zlib1g-dev zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel systemd net-tools
+RUN tdnf install -y shadow wget which vim less tar gzip util-linux sed gcc build-essential zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel systemd net-tools
 
 RUN curl -o ruby.tgz https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.5.tar.gz \
   && tar xvzf ruby.tgz \
