@@ -11,6 +11,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    {{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+    {{- end }}
   name: {{ template "fluentd-router.fullname" . }}
 subjects:
   - kind: ServiceAccount

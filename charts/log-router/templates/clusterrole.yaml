@@ -11,6 +11,9 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    {{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+    {{- end }}
   name: {{ template "fluentd-router.fullname" . }}
 rules:
   - apiGroups: [""]
@@ -27,7 +30,7 @@ rules:
       - namespaces
     verbs:
       - patch
-  {{- if eq .Values.datasource "crd" }}
+  {{- if or (eq .Values.datasource "crd") (eq .Values.crdMigrationMode true) }}
   - apiGroups: ["apiextensions.k8s.io"]
     resources:
       - customresourcedefinitions
