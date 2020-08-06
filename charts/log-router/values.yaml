@@ -20,7 +20,7 @@ crdMigrationMode: false
 defaultConfigmap: "fluentd-config"
 
 image:
-  repository: jvassev/kube-fluentd-operator
+  repository: vmware/kube-fluentd-operator
   pullPolicy: IfNotPresent
   tag: latest
   pullSecret: ""
@@ -89,6 +89,19 @@ updateStrategy: {}
 #  scheduler.alpha.kubernetes.io/tolerations: '[{"key": "example", "value": "foo"}]'
 
 prometheusEnabled: false
+
+### Disable privileged access and running service as root
+#securityContext:
+#  runAsUser: 0
+#  runAsGroup: 0
+#  fsGroup: 0
+
+### By default, Fluentd does not rotate log files
+logRotate:
+  enabled: false
+# logRotateAge: 5
+# logRotateSize: 1048576000
+
 
 serviceMonitor:
     # enable support for Prometheus Operator

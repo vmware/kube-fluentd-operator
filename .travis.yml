@@ -12,5 +12,5 @@ services:
 script:
   - cd base-image && make
   - cd ../config-reloader && make build-image
-  - cd ../log-router
+  - cd ../charts/log-router
   - PATH=$PATH:/tmp/bin make helm-package

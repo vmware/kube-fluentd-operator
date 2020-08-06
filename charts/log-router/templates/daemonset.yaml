@@ -34,6 +34,10 @@ spec:
       - name: {{ .Values.image.pullSecret }}
       {{- end }}
       serviceAccountName: {{ if .Values.rbac.create }}{{ template "fluentd-router.fullname" . }}{{ else }}"{{ .Values.serviceAccountName }}"{{ end }}
+      {{- if .Values.securityContext }}
+      securityContext:
+{{  toYaml .Values.securityContext | indent 8 }}
+      {{ end }}
 {{- if .Values.priorityClassName }}
       priorityClassName: {{ .Values.priorityClassName }}
 {{- end }}
@@ -100,7 +104,11 @@ spec:
           - --templates-dir=/templates
           - --id={{ template "fluentd-router.fullname" . }}
           - --fluentd-binary
+          {{- if .Values.logRotate.enabled }}
+          - /usr/local/bundle/bin/fluentd -p /fluentd/plugins --log-rotate-age {{  .Values.logRotate.logRotateAge  }} --log-rotate-size {{  .Values.logRotate.logRotateSize | int }}
+          {{ else }}
           - /usr/local/bundle/bin/fluentd -p /fluentd/plugins
+          {{ end }}
           - --kubelet-root
           - "{{ .Values.kubeletRoot }}"
           {{- if .Values.meta.key }}

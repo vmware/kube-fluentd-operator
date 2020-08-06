@@ -20,7 +20,7 @@ The easiest way to get started is using the Helm chart. Official images are not 
 
 ```bash
 git clone git@github.com:vmware/kube-fluentd-operator.git
-helm install --name kfo ./kube-fluentd-operator/log-router \
+helm install --name kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
   --set image.tag=v1.12.0 \
   --set image.repository=vmware/kube-fluentd-operator
@@ -29,7 +29,7 @@ helm install --name kfo ./kube-fluentd-operator/log-router \
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.12.0/log-router-0.3.3.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.12.0/log-router-0.3.4.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
@@ -98,7 +98,7 @@ cd $GOPATH/src/github.com/vmware/kube-fluentd-operator
 cd base-image && make
 
 # build helm chart
-cd log-router && make
+cd charts/log-router && make
 
 # build the daemon
 cd config-reloader
@@ -115,7 +115,7 @@ ls -l tmp/
 
 ### Project structure
 
-* `log-router`: Builds the Helm chart
+* `charts/log-router`: Builds the Helm chart
 * `base-image`: Builds a Fluentd 1.2.x image with a curated list of plugins
 * `config-reloader`: Builds the daemon that generates fluentd configuration files
 
@@ -687,7 +687,7 @@ On the bright side, the configuration of `noisy-namespace` contains nothing spec
 Your cluster is running under RBAC. You need to enable a serviceaccount for the log-router pods. It's easy when using the Helm chart:
 
 ```bash
-helm install ./log-router --set rbac.create=true ...
+helm install ./charts/log-router --set rbac.create=true ...
 ```
 
 ### I have a legacy container that logs to /var/log/httpd/access.log
