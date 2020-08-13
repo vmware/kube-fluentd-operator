@@ -334,7 +334,7 @@ Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket
 admin-ns.conf:
 <match systemd.** docker kube.kube-system.** k8s.**>
   @type loggly
-  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+  loggly_url https://logs-01.loggly.com/inputs/<TOKEN>/tag/fluentd
 </match>
 
 <plugin test>
@@ -347,7 +347,7 @@ admin-ns.conf:
 
 <plugin staging>
   @type loggly
-  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+  loggly_url https://logs-01.loggly.com/inputs/<TOKEN>/tag/fluentd
 </plugin>
 ```
 
