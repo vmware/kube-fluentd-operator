@@ -351,7 +351,7 @@ admin-ns.conf:
 </plugin>
 ```
 
-In the above example configuration for the admin namespace, we first have a `match` directive which will send all systemd, docker, kube-system, and kubernetes control plane logs to our loggly endpoint. Below the match directive are then the 2 plugin directives "test" and "staging" that can be re-used in namespace fluentd config maps. 
+In the above example configuration for the admin namespace, we first have a `match` directive which will send all `systemd`, `docker`, `kube-system`, and kubernetes control plane logs to our loggly endpoint. Below the match directive are then the 2 plugin directives "test" and "staging" that can be re-used in namespace fluentd config maps. 
 
 A namespace can refer to the `staging` and `test` plugins oblivious to the fact where exactly the logs end up:
 
