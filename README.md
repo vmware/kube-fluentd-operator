@@ -332,6 +332,11 @@ Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket
 
 ```xml
 admin-ns.conf:
+<match systemd.** docker kube.kube-system.** k8s.**>
+  @type loggly
+  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+</match>
+
 <plugin test>
   @type s3
   aws_key_id  YOUR_AWS_KEY_ID
@@ -345,6 +350,8 @@ admin-ns.conf:
   loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
 </plugin>
 ```
+
+In the above example for the admin configuration, the `match` directive is first defined to direct where to send logs for the `systemd`, `docker`, `kube-system`, and kubernetes control plane components. Below the `match` directive we have defined the `plugin` directives which define the log sinks that can be reused by namespace configurations. 
 
 A namespace can refer to the `staging` and `test` plugins oblivious to the fact where exactly the logs end up:
 
