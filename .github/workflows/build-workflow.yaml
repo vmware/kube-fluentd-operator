@@ -1,6 +1,6 @@
 name: build-workflow
 # This workflow is triggered on pushes to the repository.
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -8,12 +8,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build
+      - uses: engineerd/setup-kind@v0.4.0
+        with:
+          version: "v0.9.0"
+      - uses: FranzDiebold/github-env-vars-action@v1.2.1
+      - name: install-helm
         run: |
           wget https://storage.googleapis.com/kubernetes-helm/helm-v2.8.2-linux-amd64.tar.gz -O /tmp/helm-v2.8.2-linux-amd64.tar.gz
           mkdir /tmp/bin -p; tar xzf /tmp/helm-v2.8.2-linux-amd64.tar.gz -C /tmp/bin --strip-components=1;
           PATH=/tmp/bin:$PATH helm init --client-only
+      - name: build-base-image
+        run: |
           cd base-image && make
-          cd ../config-reloader && make build-image
-          cd ../charts/log-router
-          PATH=$PATH:/tmp/bin make helm-package
+      - name: build-config-reloader
+        run: |
+          cd config-reloader && make build-image TAG=v$GITHUB_SHA_SHORT
+      - name: load-image
+        run: |
+          kind load docker-image vmware/kube-fluentd-operator:v$GITHUB_SHA_SHORT
+      - name: install-log-router
+        run: |
+          cd charts
+          PATH=$PATH:/tmp/bin helm upgrade --install --set image.tag=vmware/kube-fluentd-operator:v$GITHUB_SHA_SHORT --wait --timeout 60s  log-router ./log-router
