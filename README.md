@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.12.0 \
+  --set image.tag=v1.13.0 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.12.0/log-router-0.3.4.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.13.0/log-router-0.3.4.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.12.0 \
+  --set image.tag=v1.13.0 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -497,6 +497,34 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 }
 ```
 
+### Custom resource definiton(CRD) support (since v1.13.0)
+Custom resources are introduced from v1.13.0 release onwards. It allows to have a dedicated resource for fluentd configurations, which enables to manage them in a more consistent way and move away from the generic ConfigMaps.
+It is possible to create configs for a new application simply by attaching a FluentdConfig resource to the application manifests, rather than using a more generic ConfigMap with specific names and/or labels.
+
+```xml
+apiVersion: logs.vdp.vmware.com/v1beta1
+kind: FluentdConfig
+metadata:
+  name: fd-config
+spec:
+  fluentconf: |
+    <match kube.ns.**>
+      @type relabel
+      @label @NOTIFICATIONS
+    </match>
+
+    <label @NOTIFICATIONS>
+     <match **>
+       @type null
+     </match>
+    </label>
+```
+The "crd" has been introduced as a new datasource, configurable through the helm chart values, to allow users that are currently set up with ConfigMaps and do not want to perform the switchover to FluentdConfigs, to be able to keep on using them. The config-reloader has been equipped with the capability of installing the CRD at startup if requested, so no manual actions to enable it on the cluster are needed.
+The existing configurations though ConfigMaps can be migrated to CRDs through the following migration flow
+
+* A new user, who is installing kube-fluentd-operator for the first time, should set the datasource: crd option in the chart. This enables the crd support
+* A user who is already using kube-fluentd-operator with either datasource: default or datasource: multimap will have update to the new chart and set the 'crdMigrationMode' property to 'true'. This enables the config-reloader to launch with the crd datasource and the legacy datasource (either default or multimap depending on what was configured in the datasource property). The user can slowly migrate one by one all configmap resources to the corresponding fluentdconfig resources. When the migration is complete, the Helm release can be upgraded by changing the 'crdMigrationMode' property to 'false' and switching the datasource property to 'crd'. This will effectively disable the legacy datasource and set the config-reloader to only watch fluentdconfig resources.
+
 ## Tracking Fluentd version
 
 This projects tries to keep up with major releases for [Fluentd docker image](https://github.com/fluent/fluentd-docker-image/).
@@ -510,14 +538,14 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.5.2                      | 1.10.0                  |
 | 1.9.1                      | 1.12.0                  |
 
-## Plugins in latest release (1.12.0)
+## Plugins in latest release (1.13.0)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.13.0)
-* fluent-plugin-azure-loganalytics (0.4.1)
+* fluent-plugin-azure-loganalytics (0.7.0)
 * fluent-plugin-cloudwatch-logs (0.8.0)
 * fluent-plugin-concat (2.4.0)
 * fluent-plugin-datadog (0.12.0)
@@ -581,7 +609,8 @@ Flags:
   --master=""                   The Kubernetes API server to connect to (default: auto-detect)
   --kubeconfig=""               Retrieve target cluster configuration from a Kubernetes
                                 configuration file (default: auto-detect)
-  --datasource=default          Datasource to use
+  --datasource=default          Datasource to use (default|fake|fs|multimap|crd)
+  --crd-migration-mode          Enable the crd datasource together with the current datasource to facilitate the migration (used only with --datasource=default|multimap)
   --fs-dir=FS-DIR               If datasource=fs is used, configure the dir hosting the files
   --interval=60                 Run every x seconds
   --allow-file                  Allow @type file for namespace configuration
