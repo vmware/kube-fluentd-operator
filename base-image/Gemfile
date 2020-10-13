@@ -5,7 +5,7 @@ gem "fluentd", "1.9.1"
 
 gem 'ffi', "1.12.2"
 gem 'fluent-plugin-amqp', "0.13.0"
-gem 'fluent-plugin-azure-loganalytics', "0.4.1"
+gem 'fluent-plugin-azure-loganalytics', "0.7.0"
 gem 'fluent-plugin-cloudwatch-logs', "0.8.0"
 gem 'fluent-plugin-concat', "2.4.0"
 gem 'fluent-plugin-datadog', "0.12.0"
