@@ -15,5 +15,5 @@ jobs:
           PATH=/tmp/bin:$PATH helm init --client-only
           cd base-image && make
           cd ../config-reloader && make build-image
-          cd ../log-router
+          cd ../charts/log-router
           PATH=$PATH:/tmp/bin make helm-package
