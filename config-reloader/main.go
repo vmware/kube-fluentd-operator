@@ -4,12 +4,14 @@
 package main
 
 import (
-	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/controller"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/controller"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/metrics"
 
 	"github.com/sirupsen/logrus"
 )
@@ -50,6 +52,10 @@ func main() {
 
 	stopChan := make(chan struct{}, 1)
 	go handleSigterm(stopChan)
+
+	if cfg.PrometheusEnabled {
+		metrics.InitMetrics(cfg.MetricsPort)
+	}
 
 	ctrl.Run(stopChan)
 }

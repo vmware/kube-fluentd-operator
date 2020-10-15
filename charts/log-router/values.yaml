@@ -89,6 +89,7 @@ updateStrategy: {}
 #  scheduler.alpha.kubernetes.io/tolerations: '[{"key": "example", "value": "foo"}]'
 
 prometheusEnabled: false
+metricsPort: 9000
 
 ### Disable privileged access and running service as root
 #securityContext:

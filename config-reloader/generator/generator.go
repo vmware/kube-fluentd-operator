@@ -15,6 +15,7 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/metrics"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/processors"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 
@@ -282,6 +283,7 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 }
 
 func (g *Generator) updateStatus(namespace string, status string) {
+	metrics.SetNamespaceConfigStatusMetric(namespace, status == "")
 	g.su.UpdateStatus(namespace, status)
 }
 
@@ -325,6 +327,7 @@ func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]s
 			if err := os.Remove(f); err != nil {
 				logrus.Warnf("Error removing unused file %s: %+v", f, err)
 			}
+			metrics.DeleteNamespaceConfigStatusMetric(ns)
 		}
 	}
 }
