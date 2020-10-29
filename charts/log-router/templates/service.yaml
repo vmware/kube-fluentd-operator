@@ -11,6 +11,7 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+    metrics: fluentd
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "24231"
@@ -23,4 +24,28 @@ spec:
     - port: 24231
       name: prometheus
       targetPort: prometheus
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ template "fluentd-router.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    metrics: reloader
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: {{ .Values.metricsPort | quote }}
+  name: {{ template "fluentd-router.fullname" . }}-reloader
+spec:
+  selector:
+    app: {{ template "fluentd-router.name" . }}
+    release: {{ .Release.Name }}
+  ports:
+    - port: {{ .Values.metricsPort }}
+      name: metrics
+      targetPort: metrics
 {{- end }}

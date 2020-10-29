@@ -45,6 +45,7 @@ type Config struct {
 	KubeletRoot            string
 	Namespaces             []string
 	PrometheusEnabled      bool
+	MetricsPort            int
 	AllowTagExpansion      bool
 	AdminNamespace         string
 	// parsed or processed/cached fields
@@ -68,6 +69,7 @@ var defaultConfig = &Config{
 	IntervalSeconds:      60,
 	ID:                   "default",
 	PrometheusEnabled:    false,
+	MetricsPort:          9000,
 	AdminNamespace:       "kube-system",
 }
 
@@ -206,6 +208,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
 
 	app.Flag("prometheus-enabled", "Prometheus metrics enabled (default: false)").BoolVar(&cfg.PrometheusEnabled)
+	app.Flag("metrics-port", "Expose prometheus metrics on this port (also needs --prometheus-enabled)").Default(strconv.Itoa(defaultConfig.MetricsPort)).IntVar(&cfg.MetricsPort)
 
 	app.Flag("kubelet-root", "Kubelet root dir, configured using --root-dir on the kubelet service").Default(defaultConfig.KubeletRoot).StringVar(&cfg.KubeletRoot)
 	app.Flag("namespaces", "List of namespaces to process. If empty, processes all namespaces").StringsVar(&cfg.Namespaces)

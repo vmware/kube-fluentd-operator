@@ -81,6 +81,11 @@ spec:
         - name: reloader
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.prometheusEnabled }}
+          ports:
+          - name: metrics
+            containerPort: {{ default 9000 .Values.metricsPort }}
+          {{- end }}
           {{- if .Values.reloader.extraEnv }}
           env:
         {{- range $key, $value := .Values.reloader.extraEnv }}
@@ -118,6 +123,7 @@ spec:
           {{- end }}
           {{- if .Values.prometheusEnabled }}
           - --prometheus-enabled
+          - --metrics-port={{ default 9000 .Values.metricsPort }}
           {{- end }}
           {{- if and (eq .Values.datasource "multimap") .Values.labelSelector.matchLabels }}
           - --label-selector={{- range $k, $v := .Values.labelSelector.matchLabels }}{{$k}}={{$v}},
