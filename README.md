@@ -585,7 +585,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
 * fluent-plugin-vmware-loginsight (0.1.7)
-* fluent-plugin-vmware-log-intelligence (2.0.0)
+* fluent-plugin-vmware-log-intelligence (2.0.4)
 * fluentd (1.9.1)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
