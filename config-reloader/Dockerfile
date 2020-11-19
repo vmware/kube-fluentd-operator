@@ -3,14 +3,12 @@
 
 
 # builder image
-FROM golang:1.10 as builder
+FROM golang:1.13 as builder
 
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
-RUN go get -u github.com/golang/dep/cmd/dep
 COPY . .
 
 # Speed up local builds where vendor is populated
-RUN [ -d vendor/github.com ] || make dep; true
 ARG VERSION
 RUN make test
 RUN make build VERSION=$VERSION
