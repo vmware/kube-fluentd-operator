@@ -71,7 +71,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 	args := make([]string, len(v.args))
 	copy(args, v.args)
 
-	args = append(args, "-qq", "--no-supervisor", "-c", tmpfile.Name())
+	args = append(args, "--no-supervisor", "-c", tmpfile.Name())
 
 	out, err := util.ExecAndGetOutput(v.command, args...)
 
