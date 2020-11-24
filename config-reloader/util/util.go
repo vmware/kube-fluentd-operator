@@ -96,7 +96,7 @@ func ExecAndGetOutput(cmd string, args ...string) (string, error) {
 	}()
 
 	select {
-	case <-time.After(10 * time.Second):
+	case <-time.After(30 * time.Second):
 		if err = c.Process.Kill(); err != nil {
 			err = fmt.Errorf("process killed as timeout reached after 10s,but kill failed with err:%s",err.Error())
 		} else {
