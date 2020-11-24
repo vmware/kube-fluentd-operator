@@ -7,11 +7,13 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"sort"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -78,8 +80,31 @@ func SortedKeys(m map[string]string) []string {
 
 func ExecAndGetOutput(cmd string, args ...string) (string, error) {
 	c := exec.Command(cmd, args...)
-	out, err := c.CombinedOutput()
+	var b bytes.Buffer
+	c.Stdout = &b
+	c.Stderr = &b
+	var err error
+	if err = c.Start(); err != nil {
+		out := b.Bytes()
+		return string(out), err
+	}
 
+	// Wait for the process to finish or kill it after a timeout (whichever happens first):
+	done := make(chan error, 1)
+	go func() {
+		done <- c.Wait()
+	}()
+
+	select {
+	case <-time.After(30 * time.Second):
+		if err = c.Process.Kill(); err != nil {
+			err = fmt.Errorf("process killed as timeout reached after 10s,but kill failed with err:%s",err.Error())
+		} else {
+			err = errors.New("process killed as timeout reached after 10s")
+		}
+	case err = <-done:
+	}
+	out := b.Bytes()
 	return string(out), err
 }
 
