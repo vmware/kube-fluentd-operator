@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"sort"
+
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/sirupsen/logrus"
@@ -123,6 +125,7 @@ func (d *kubeInformerConnection) discoverNamespaces() ([]string, error) {
 			namespaces = append(namespaces, ns.ObjectMeta.Name)
 		}
 	}
+	sort.Strings(namespaces)
 	return namespaces, nil
 }
 
