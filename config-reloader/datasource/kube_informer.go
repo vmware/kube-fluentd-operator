@@ -3,9 +3,11 @@ package datasource
 import (
 	"encoding/json"
 	"fmt"
-	"k8s.io/apimachinery/pkg/labels"
 	"os"
+	"sort"
 	"strings"
+
+	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -158,6 +160,7 @@ func (d *kubeInformerConnection) discoverNamespaces() ([]string, error) {
 			namespaces = append(namespaces, ns.ObjectMeta.Name)
 		}
 	}
+	sort.Strings(namespaces)
 	return namespaces, nil
 }
 
@@ -171,7 +174,16 @@ func (d *kubeInformerConnection) fetchConfigMaps(ns string) ([]*core.ConfigMap, 
 		if err != nil {
 			return nil, fmt.Errorf("Failed to list configmaps in namespace '%s': %v", ns, err)
 		}
-		configmaps = append(configmaps, mapslist...)
+		configMapByName := make(map[string]*core.ConfigMap)
+		configMapOrdered := make([]string, 0)
+		for _, cfgm := range mapslist {
+			configMapByName[cfgm.Name] = cfgm
+			configMapOrdered = append(configMapOrdered, cfgm.Name)
+		}
+		sort.Strings(configMapOrdered)
+		for _, name := range configMapOrdered {
+			configmaps = append(configmaps, configMapByName[name])
+		}
 	} else {
 		// Get a configmap with a specific name
 		mapName, err := d.detectConfigMapName(ns)
