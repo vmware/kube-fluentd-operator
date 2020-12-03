@@ -88,7 +88,7 @@ func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
 			return nil, fmt.Errorf("Failed to list configmaps in namespace '%s': %v", ns, err)
 		}
 		cfgmByName := make(map[string]*core.ConfigMap)
-		sortedCfgms := make([]string, 0)
+		sortedCfgms := make([]string, 0, len(mapslist))
 		for _, cfgm := range mapslist {
 			cfgmByName[cfgm.Name] = cfgm
 			sortedCfgms = append(sortedCfgms, cfgm.Name)
