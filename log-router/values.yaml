@@ -6,7 +6,11 @@
 # Declare variables to be passed into your templates.
 
 rbac:
+  # rbac.create -- If `true`, create and use RBAC resources.
   create: false
+  serviceAccount:
+    # rbac.serviceAccount.annotations -- Additional Service Account annotations.
+    annotations: {}
 
 serviceAccountName: "default"
 
