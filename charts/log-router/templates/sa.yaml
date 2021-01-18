@@ -12,6 +12,9 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "fluentd-router.fullname" . }}
+  {{- if .Values.rbac.serviceAccount.annotations }}
+  annotations: {{ toYaml .Values.rbac.serviceAccount.annotations | nindent 4 }}
+  {{- end }}
 {{ if .Values.imagePullSecret }}
 imagePullSecrets:
   - name: {{ .Values.imagePullSecret}}
