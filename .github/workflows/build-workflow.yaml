@@ -14,9 +14,9 @@ jobs:
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
       - name: install-helm
         run: |
-          wget https://storage.googleapis.com/kubernetes-helm/helm-v2.17.0-linux-amd64.tar.gz -O /tmp/helm-v2.17.0-linux-amd64.tar.gz
-          mkdir /tmp/bin -p; tar xzf /tmp/helm-v2.17.0-linux-amd64.tar.gz -C /tmp/bin --strip-components=1;
-          PATH=/tmp/bin:$PATH helm init --client-only
+          wget https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz -O /tmp/helm-v3.5.0-linux-amd64.tar.gz
+          mkdir /tmp/bin -p; tar xzf /tmp/helm-v3.5.0-linux-amd64.tar.gz -C /tmp/bin --strip-components=1;
+          PATH=/tmp/bin:$PATH
       - name: build-base-image
         run: |
           cd base-image && make
@@ -29,4 +29,4 @@ jobs:
       - name: install-log-router
         run: |
           cd charts
-          PATH=$PATH:/tmp/bin helm upgrade --install --set image.tag=vmware/kube-fluentd-operator:v$GITHUB_SHA_SHORT --wait --timeout 60s  log-router ./log-router
+          PATH=$PATH:/tmp/bin helm upgrade --install --set image.tag=v$GITHUB_SHA_SHORT --set rbac.create=true --wait --timeout 60s  log-router ./log-router
