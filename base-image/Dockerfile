@@ -3,11 +3,13 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 ARG RUBY_PATH=/usr/local
-ARG RUBY_VERSION=2.6.5
+ARG RUBY_VERSION=2.7.2
+ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
 FROM photon:3.0 AS rubybuild
 ARG RUBY_PATH
 ARG RUBY_VERSION
+ARG RUBYOPT
 RUN tdnf erase -y toybox && tdnf install -y bzip2 shadow wget which vim less tar gzip util-linux sed gcc build-essential zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel systemd net-tools git
 
 COPY basegems/Gemfile Gemfile
@@ -15,11 +17,12 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     &&  $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
     && gem install -g --file Gemfile \
-    && gem uninstall rake -v 12.3.2 \
-    && gem uninstall bigdecimal -v 1.4.1
+    && gem uninstall rake -v 13.0.3 \
+    && gem uninstall bigdecimal -v 3.0.0
 
 FROM photon:3.0
 ARG RUBY_PATH
+ARG RUBYOPT
 ENV PATH $RUBY_PATH/bin:$PATH
 COPY --from=rubybuild $RUBY_PATH $RUBY_PATH
 # Not sure why this is needed: see https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.4/debian-elasticsearch/Dockerfile
