@@ -40,4 +40,3 @@ list-gems:
 	  $(IMAGE):$(TAG) \
 	  -c 'fluent-gem list' | \
 	  grep '^fluent' | sed 's/^/* /'
-

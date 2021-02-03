@@ -1,0 +1,93 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    async (1.25.1)
+      console (~> 1.0)
+      nio4r (~> 2.3)
+      timers (~> 4.1)
+    async-http (0.50.0)
+      async (~> 1.23)
+      async-io (~> 1.27.0)
+      async-pool (~> 0.2)
+      protocol-http (~> 0.13.0)
+      protocol-http1 (~> 0.10.0)
+      protocol-http2 (~> 0.10.0)
+    async-io (1.27.1)
+      async (~> 1.14)
+    async-pool (0.2.0)
+      async (~> 1.8)
+    bigdecimal (3.0.0)
+    console (1.10.1)
+      fiber-local
+    did_you_mean (1.3.0)
+    e2mmap (0.1.0)
+    ext_monitor (0.1.1)
+    fiber-local (1.0.0)
+    forwardable (1.3.2)
+    logger (1.3.0)
+    matrix (0.1.0)
+    mutex_m (0.1.0)
+    net-telnet (0.2.0)
+    nio4r (2.5.2)
+    ostruct (0.1.0)
+    power_assert (1.1.3)
+    prime (0.1.2)
+      forwardable
+      singleton
+    protocol-hpack (1.4.1)
+    protocol-http (0.13.0)
+    protocol-http1 (0.10.0)
+      protocol-http (~> 0.13)
+    protocol-http2 (0.10.4)
+      protocol-hpack (~> 1.4)
+      protocol-http (~> 0.2)
+    rake (13.0.3)
+    rexml (3.1.9)
+    rss (0.2.7)
+    singleton (0.1.1)
+    sync (0.5.0)
+    test-unit (3.2.9)
+      power_assert
+    thwait (0.2.0)
+      e2mmap
+    timers (4.3.2)
+    unf_ext (0.0.7.7)
+    webrick (1.7.0)
+    xmlrpc (0.3.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  async (= 1.25.1)
+  async-http (= 0.50.0)
+  async-io (= 1.27.1)
+  async-pool (= 0.2.0)
+  bigdecimal
+  bundler (= 2.2.8)
+  did_you_mean (= 1.3.0)
+  ext_monitor (= 0.1.1)
+  logger (= 1.3.0)
+  matrix (= 0.1.0)
+  mutex_m (= 0.1.0)
+  net-telnet (= 0.2.0)
+  nio4r (= 2.5.2)
+  ostruct (= 0.1.0)
+  power_assert (= 1.1.3)
+  prime
+  protocol-hpack (= 1.4.1)
+  protocol-http (= 0.13.0)
+  protocol-http1 (= 0.10.0)
+  protocol-http2 (= 0.10.4)
+  rake (= 13.0.3)
+  rexml (= 3.1.9)
+  rss (= 0.2.7)
+  sync (= 0.5.0)
+  test-unit (= 3.2.9)
+  thwait
+  unf_ext
+  webrick
+  xmlrpc (= 0.3.0)
+
+BUNDLED WITH
+   2.2.8

@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'async', '1.24.1'
+gem 'async', '1.25.1'
 gem 'async-http', '0.50.0'
 gem 'async-io', '1.27.1'
 gem 'async-pool', '0.2.0'
@@ -26,5 +26,6 @@ gem 'test-unit', '3.2.9'
 gem 'thwait'
 gem 'unf_ext'
 gem 'xmlrpc', '0.3.0'
-gem 'bundler', '1.16.2'
-gem 'rake', '13.0.1'
+gem 'webrick'
+gem 'bundler', '2.2.8'
+gem 'rake', '13.0.3'
