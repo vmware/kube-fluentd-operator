@@ -44,5 +44,8 @@ gem 'fluent-plugin-systemd', "1.0.2"
 gem 'fluent-plugin-uri-parser', "0.3.0"
 gem 'fluent-plugin-verticajson', "0.0.6"
 gem 'fluent-plugin-vmware-loginsight', "0.1.10"
+gem 'fluent-plugin-vmware-log-intelligence', "2.0.5"
+# fluent-plugin-mysqlslowquery is dependency for fluent-plugin-vmware-log-intelligence
+gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
 gem 'logfmt', "0.0.9"
