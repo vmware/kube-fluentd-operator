@@ -50,3 +50,5 @@ gem 'fluent-plugin-vmware-log-intelligence', "2.0.5"
 gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
 gem 'logfmt', "0.0.9"
+# net-http-persistent is a dependency for fluent-plugin-splunk-hec
+gem 'net-http-persistent', '4.0.1'
