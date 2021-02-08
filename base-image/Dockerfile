@@ -46,17 +46,11 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
 	&& wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \
 	&& echo 'gem: --no-document' >> /etc/gemrc \
 	&& bundle config silence_root_warning true \
-	# since fluent-plugin-vmware-log-intelligence is not available in rubygems, should be removed once it is published as rubygems
-	&& wget https://github.com/vmware/fluent-plugin-vmware-log-intelligence/releases/download/v2.0.4/fluent-plugin-vmware-log-intelligence-2.0.4.gem \
 	&& bundle install --gemfile=/fluentd/Gemfile \
-	# fluent-plugin-mysqlslowquery is a dependency of fluent-plugin-vmware-log-intelligence
-	&& fluent-gem install fluent-plugin-mysqlslowquery -v 0.0.9 \
-	&& fluent-gem install --local fluent-plugin-vmware-log-intelligence-2.0.4.gem \
 	&& tdnf clean all \
 	&& gem sources --clear-all \
 	&& ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
-	&& tdnf remove -y $buildDeps \
-	&& rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem /fluent-plugin-vmware-log-intelligence-2.0.4.gem
+	&& tdnf remove -y $buildDeps
 
 EXPOSE 24444 5140
 COPY plugins /fluentd/plugins
