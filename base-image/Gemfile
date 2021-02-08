@@ -51,4 +51,4 @@ gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
 gem 'logfmt', "0.0.9"
 # net-http-persistent is a dependency for fluent-plugin-splunk-hec
-gem 'net-http-persistent', '3.1.0'
+gem 'net-http-persistent', '~> 2.9'
