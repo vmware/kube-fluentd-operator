@@ -23,7 +23,6 @@ gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
 gem 'fluent-plugin-kubernetes', "0.3.1"
 gem 'fluent-plugin-logentries', "0.2.10"
 gem 'fluent-plugin-loggly', "0.0.9"
-gem 'fluent-plugin-logzio', "0.0.20"
 gem 'fluent-plugin-mail', "0.3.0"
 gem 'fluent-plugin-mongo', "1.3.0"
 gem 'fluent-plugin-multi-format-parser', "1.0.0"
@@ -50,5 +49,3 @@ gem 'fluent-plugin-vmware-log-intelligence', "2.0.5"
 gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
 gem 'logfmt', "0.0.9"
-# net-http-persistent is a dependency for fluent-plugin-splunk-hec
-gem 'net-http-persistent', '~> 3.1'
