@@ -5,6 +5,7 @@ package fluentd
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,7 @@ func TestValidConfigString(t *testing.T) {
 	</match>
 	`
 
-	validator := NewValidator(validateCommand)
+	validator := NewValidator(validateCommand, 30*time.Second)
 
 	err := validator.EnsureUsable()
 	assert.Nil(t, err, "Must succeed but failed with: %+v", err)
@@ -28,7 +29,7 @@ func TestValidConfigString(t *testing.T) {
 }
 
 func TestUnusable(t *testing.T) {
-	validator := NewValidator("./no-such command")
+	validator := NewValidator("./no-such command", 30*time.Second)
 
 	err := validator.EnsureUsable()
 	assert.NotNil(t, err, "Must have failed")
@@ -42,7 +43,7 @@ func TestBadConfigString(t *testing.T) {
 	</match>
 	`
 
-	validator := NewValidator(validateCommand)
+	validator := NewValidator(validateCommand, 30*time.Second)
 
 	err := validator.EnsureUsable()
 	assert.Nil(t, err, "Must succeed but failed with: %+v", err)

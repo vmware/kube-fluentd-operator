@@ -52,6 +52,7 @@ type Config struct {
 	level               logrus.Level
 	ParsedMetaValues    map[string]string
 	ParsedLabelSelector labels.Set
+	ExecTimeoutSeconds  int
 }
 
 var defaultConfig = &Config{
@@ -71,6 +72,7 @@ var defaultConfig = &Config{
 	PrometheusEnabled:    false,
 	MetricsPort:          9000,
 	AdminNamespace:       "kube-system",
+	ExecTimeoutSeconds:   30,
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -85,6 +87,10 @@ func (cfg *Config) Validate() error {
 	if cfg.IntervalSeconds < 0 {
 		// better normalize then fail
 		cfg.IntervalSeconds = 60
+	}
+
+	if cfg.ExecTimeoutSeconds < 0 {
+		cfg.IntervalSeconds = 30
 	}
 
 	ll, err := logrus.ParseLevel(cfg.LogLevel)
@@ -226,6 +232,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("allow-tag-expansion", "Allow specifying tags in the format 'k.{a,b}.** k.c.**' (default: false)").BoolVar(&cfg.AllowTagExpansion)
 
 	app.Flag("admin-namespace", "Configurations defined in this namespace are copied as is, without further processing. Virtual plugins can also be defined in this namespace").Default(defaultConfig.AdminNamespace).StringVar(&cfg.AdminNamespace)
+
+	app.Flag("exec-timeout", "Timeout duration (in seconds) for exec command during validation").Default(strconv.Itoa(defaultConfig.ExecTimeoutSeconds)).IntVar(&cfg.ExecTimeoutSeconds)
 	_, err := app.Parse(args)
 
 	if err != nil {

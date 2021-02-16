@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -76,9 +77,34 @@ func SortedKeys(m map[string]string) []string {
 	return keys
 }
 
-func ExecAndGetOutput(cmd string, args ...string) (string, error) {
+//ExecAndGetOutput exec and returns ouput of the command if timeout then kills the process and returns error
+func ExecAndGetOutput(cmd string, timeout time.Duration, args ...string) (string, error) {
 	c := exec.Command(cmd, args...)
-	out, err := c.CombinedOutput()
+	var b bytes.Buffer
+	c.Stdout = &b
+	c.Stderr = &b
+	var err error
+	if err = c.Start(); err != nil {
+		out := b.Bytes()
+		return string(out), err
+	}
+
+	// Wait for the process to finish or kill it after a timeout (whichever happens first):
+	done := make(chan error, 1)
+	go func() {
+		done <- c.Wait()
+	}()
+
+	select {
+	case <-time.After(timeout):
+		if err = c.Process.Kill(); err != nil {
+			err = fmt.Errorf("process killed as timeout reached after %s, but kill failed with err: %s", timeout, err.Error())
+		} else {
+			err = fmt.Errorf("process killed as timeout reached after %s", timeout)
+		}
+	case err = <-done:
+	}
+	out := b.Bytes()
 
 	return string(out), err
 }

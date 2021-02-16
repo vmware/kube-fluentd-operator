@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
@@ -377,7 +378,7 @@ func New(cfg *config.Config) *Generator {
 	var validator fluentd.Validator
 
 	if cfg.FluentdValidateCommand != "" {
-		validator = fluentd.NewValidator(cfg.FluentdValidateCommand)
+		validator = fluentd.NewValidator(cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
 	}
 
 	return &Generator{

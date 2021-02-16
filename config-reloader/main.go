@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/controller"
@@ -31,7 +32,7 @@ func main() {
 	}
 
 	if cfg.FluentdValidateCommand != "" {
-		validator := fluentd.NewValidator(cfg.FluentdValidateCommand)
+		validator := fluentd.NewValidator(cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
 		if err := validator.EnsureUsable(); err != nil {
 			logrus.Fatalf("Bad validate command used: '%s', either use correct one or none at all: %+v",
 				cfg.FluentdValidateCommand, err)
