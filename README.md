@@ -102,12 +102,13 @@ cd charts/log-router && make
 
 # build the daemon
 cd config-reloader
-# get vendor/ deps, you need to have "dep" tool installed
-make dep
 make install
 
 # run with mock data (loaded from the examples/ folder)
-make run-local-fs
+make run-once-fs
+
+# run with mock data in a loop (may need to ctrl+z to exit)
+make run-loop-fs
 
 # inspect what is generated from the above command
 ls -l tmp/
@@ -351,7 +352,7 @@ admin-ns.conf:
 </plugin>
 ```
 
-In the above example for the admin configuration, the `match` directive is first defined to direct where to send logs for the `systemd`, `docker`, `kube-system`, and kubernetes control plane components. Below the `match` directive we have defined the `plugin` directives which define the log sinks that can be reused by namespace configurations. 
+In the above example for the admin configuration, the `match` directive is first defined to direct where to send logs for the `systemd`, `docker`, `kube-system`, and kubernetes control plane components. Below the `match` directive we have defined the `plugin` directives which define the log sinks that can be reused by namespace configurations.
 
 A namespace can refer to the `staging` and `test` plugins oblivious to the fact where exactly the logs end up:
 

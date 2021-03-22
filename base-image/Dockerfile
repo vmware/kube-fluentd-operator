@@ -10,7 +10,30 @@ FROM photon:3.0 AS rubybuild
 ARG RUBY_PATH
 ARG RUBY_VERSION
 ARG RUBYOPT
-RUN tdnf erase -y toybox && tdnf install -y bzip2 shadow wget which vim less tar gzip util-linux sed gcc build-essential zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel systemd net-tools git
+RUN tdnf upgrade -y && \
+    tdnf erase -y toybox && \
+    tdnf install -y \
+         bzip2 \
+         shadow \
+         wget \
+         which \
+         vim \
+         less \
+         tar \
+         gzip \
+         util-linux \
+         sed \
+         gcc \
+         build-essential \
+         zlib-devel \
+         libedit \
+         libedit-devel \
+         gdbm \
+         gdbm-devel \
+         openssl-devel \
+         systemd \
+         net-tools \
+         git
 
 COPY basegems/Gemfile Gemfile
 RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-build \

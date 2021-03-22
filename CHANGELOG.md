@@ -1,5 +1,57 @@
 # CHANGELOG
 
+## [v1.14.0-beta.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0-beta.2)
+
+#### Core:
+  - Migrate to go modules (#152) (@viveksyngh)
+  - Add timeout and log for validation (#180) (@viveksyngh)
+
+#### CI:
+  - Update kind github action to fix ci (#152) (@viveksyngh)
+  - Remove travis ci config (#169) (@viveksyngh)
+
+#### Helm:
+  - Fix helm chart deprecated endpoints (#168) (@slimm609)
+  - Update helm to helm3 in ci (#170) (@viveksyngh)
+  - Adds support for SA annotations (#167) (@kkapoor1987)
+
+#### Plugins:
+  - Update ruby, fluentd, and gem plugins (#173) (@Cryptophobia)
+      - Update fluentd gem to 1.11.2
+      - Update ruby version to 2.7.2 (webrick CVE)
+      - **DEPRECATION**: removing fluent-plugin-scribe as no longer maintained
+  - Get vmware-log-intelligence from rubygems (#174) (@Cryptophobia)
+      - Update fluent-plugin-vmware-log-intelligence to 2.0.5
+  - Feat(splunk-hec): add plugin & fix dependencies (#179) (@jliao2011)
+      - fluent-plugin-splunk-hec is added
+
+## [1.14.0-beta.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0-beta.1)
+
+* Core: Expose config-reloader prometheus metrics (#147) (@tommasopozzetti )
+* CI: Update github action to include kind test (#148) (@viveksyngh)
+* Plugin: Update log intelligence plugin to 2.0.4 (#150) (@viveksyngh)
+
+## [1.13.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.13.0)
+
+* Core: Introduce 'crd' datasource (#111) (@tommasopozzetti )
+* Helm: improve Helm chart and bump version to 0.3.4 (#130) (@dimalbaby )
+* Core: Make the admin namespace configurable (#118 )(@tommasopozzetti )
+* Helm: PriorityClassName and add ServiceMonitor in helm chart (#102)(@evilrussian )
+* Image: Reduce image size (@dimalbaby )
+* Core: Update CI github workflows (#129) (@tsunny )
+* Plugin: Upgrade fluent-plugin-azure-loganalytics plugin (#136) (@floriankoch )
+
+## [1.13.0-beta.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.13.0-beta.2)
+
+* Helm: improve Helm chart and bump version to 0.3.4 (#130) (@dimalbaby )
+
+## [1.13.0-beta.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.13.0-beta.1)
+
+* Core: Introduce 'crd' datasource (#111) (@tommasopozzetti )
+* Core: Make the admin namespace configurable (#118 )(@tommasopozzetti )
+* Helm: PriorityClassName and add ServiceMonitor in helm chart (#102)(@evilrussian)
+* Image: Reduce image size
+
 ## [1.12.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.12.0)
 
 * Build kube-fluentd-operator on photon (#115) (@dimalbaby)
