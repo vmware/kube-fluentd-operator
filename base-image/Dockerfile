@@ -6,7 +6,7 @@ ARG RUBY_PATH=/usr/local
 ARG RUBY_VERSION=2.7.2
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
-FROM photon:3.0 AS rubybuild
+FROM photon:4.0 AS rubybuild
 ARG RUBY_PATH
 ARG RUBY_VERSION
 ARG RUBYOPT
@@ -43,7 +43,7 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal -v 3.0.0
 
-FROM photon:3.0
+FROM photon:4.0
 ARG RUBY_PATH
 ARG RUBYOPT
 ENV PATH $RUBY_PATH/bin:$PATH
