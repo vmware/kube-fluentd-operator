@@ -46,6 +46,13 @@ func main() {
 		logrus.Fatalf("Cannot start control loop %+v", err)
 	}
 
+	// Add this for a timeout between 0-120 seconds (default: 30 (ExecTimeoutSeconds))
+	// This is for golang/fluentd race condition when KFO starts/restarts:
+	if cfg.ExecTimeoutSeconds > 0 && cfg.ExecTimeoutSeconds <= 120 {
+		logrus.Infof("Sleeping for %v seconds in order for fluentd to be ready.", cfg.ExecTimeoutSeconds)
+		time.Sleep(time.Second * time.Duration(cfg.ExecTimeoutSeconds))
+	}
+
 	if cfg.IntervalSeconds == 0 {
 		ctrl.RunOnce()
 		return
