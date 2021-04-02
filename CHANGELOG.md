@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [v1.14.0-beta.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0-beta.3)
+
+#### Core:
+  - Move to graceful reload endpoint and error (#189) (@slimm609)
+  - fix(config-reloader): add timeout seconds on startup (#190) (@Cryptophobia)
+  - chore(base-image): upgrade to use photon:4.0 (#186) (@Cryptophobia)
+  
+#### Plugins:
+  - chore: upgrade vmware-log-intelligence to 2.0.6 (#187) (@Cryptophobia)
+
 ## [v1.14.0-beta.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0-beta.2)
 
 #### Core:
