@@ -1,0 +1,212 @@
+---
+# Source: log-router/templates/sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: log-router
+    release: log-router
+  name: log-router-log-router
+---
+# Source: log-router/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    app: log-router
+    release: log-router
+  name: log-router-log-router
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - namespaces
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs:
+      - patch
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - create
+      - get
+      - watch
+      - list
+  - apiGroups: ["logs.vdp.vmware.com"]
+    resources:
+      - fluentdconfigs
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: log-router/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: log-router
+    release: log-router
+  name: log-router-log-router
+subjects:
+  - kind: ServiceAccount
+    name: log-router-log-router
+    namespace: infra-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: log-router-log-router
+---
+# Source: log-router/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: log-router
+    release: log-router
+    metrics: fluentd
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "24231"
+  name: log-router-log-router
+spec:
+  selector:
+    app: log-router
+    release: log-router
+  ports:
+    - port: 24231
+      name: prometheus
+      targetPort: prometheus
+---
+# Source: log-router/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: log-router
+    release: log-router
+    metrics: reloader
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9000"
+  name: log-router-log-router-reloader
+spec:
+  selector:
+    app: log-router
+    release: log-router
+  ports:
+    - port: 9000
+      name: metrics
+      targetPort: metrics
+---
+# Source: log-router/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-router-log-router
+  labels:
+    app: log-router
+    chart: log-router-0.3.6
+    release: log-router
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: log-router
+      release: log-router
+  template:
+    metadata:
+      labels:
+        app: log-router
+        release: log-router
+    spec:
+      serviceAccountName: log-router-log-router
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 0
+      containers:
+        - name: fluentd
+          image: "vmware/kube-fluentd-operator:<INSERT_TAG_HERE>"
+          env:
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: prometheus
+            containerPort: 24231
+          volumeMounts:
+          - name: fluentconf
+            mountPath: /fluentd/etc
+          - name: varlog
+            mountPath: /var/log
+          - name: kubeletroot
+            mountPath: "/var/lib/kubelet"
+            readOnly: true
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
+          - mountPath: /var/ossec
+            name: ossec
+            readOnly: true
+          resources:
+            limits:
+              memory: 2048Mi
+            requests:
+              memory: 2048Mi
+        - name: reloader
+          image: "vmware/kube-fluentd-operator:<INSERT_TAG_HERE>"
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: metrics
+            containerPort: 9000
+          command:
+          -  /bin/config-reloader
+          - --datasource=crd
+          - --default-configmap=fluentd-config
+          - --interval=90
+          - --log-level=info
+          - --output-dir=/fluentd/etc
+          - --templates-dir=/templates
+          - --id=log-router-log-router
+          - --fluentd-binary
+          - /usr/local/bundle/bin/fluentd -p /fluentd/plugins --log-rotate-age 5 --log-rotate-size 1048576000
+          - --kubelet-root
+          - "/var/lib/kubelet"
+          - --prometheus-enabled
+          - --metrics-port=9000
+          - --admin-namespace=kube-system
+          volumeMounts:
+          - name: fluentconf
+            mountPath: /fluentd/etc
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 512Mi
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+      volumes:
+      - name: fluentconf
+        emptyDir: {}
+      - name: kubeletroot
+        hostPath:
+          path: "/var/lib/kubelet"
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+  updateStrategy:
+    type: RollingUpdate

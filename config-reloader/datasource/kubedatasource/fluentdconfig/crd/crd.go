@@ -24,7 +24,7 @@ type manager interface {
 
 // CheckAndInstallCRDs checks whether the CRD is already defined in the cluster
 // and, if not, install it and waits for it to be available
-// It will automatically install either the legacy v1beta1 CRD or the neq v1 CRD
+// It will automatically install either the legacy v1beta1 CRD or the new v1 CRD
 // based on the available APIs in the Kubernetes cluster
 func CheckAndInstallCRD(config *rest.Config) error {
 	clientset, err := clientset.NewForConfig(config)
