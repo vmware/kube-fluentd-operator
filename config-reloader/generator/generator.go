@@ -199,7 +199,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			err = g.validator.ValidateConfigExtremely(renderedConfig+"\n# validation  trailer:\n"+validationTrailer, nsConf.Name)
 
 			if err != nil {
-				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd", nsConf.Name)
+				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd validator", nsConf.Name)
 				if nsConf.PreviousConfigHash != configHash {
 					// only update status if error caused by different input
 					g.updateStatus(nsConf.Name, err.Error())
