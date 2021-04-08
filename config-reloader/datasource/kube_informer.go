@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
 	"k8s.io/apimachinery/pkg/labels"
@@ -123,6 +124,7 @@ func (d *kubeInformerConnection) discoverNamespaces() ([]string, error) {
 			namespaces = append(namespaces, ns.ObjectMeta.Name)
 		}
 	}
+	sort.Strings(namespaces)
 	return namespaces, nil
 }
 

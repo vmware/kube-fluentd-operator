@@ -1,11 +1,13 @@
 package kubedatasource
 
 import (
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
+	kfo "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/apis/logs.vdp.vmware.com/v1beta1"
 	kfoClient "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/clientset/versioned"
 	kfoInformers "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/informers/externalversions"
 	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
@@ -72,9 +74,18 @@ func (f *FluentdConfigDS) GetFluentdConfig(namespace string) (string, error) {
 		return "", err
 	}
 
+	fcByName := make(map[string]*kfo.FluentdConfig)
+	sortedFluentdConfigs := make([]string, 0, len(fluentdConfigs))
+	for _, fc := range fluentdConfigs {
+		fcByName[fc.Name] = fc
+		sortedFluentdConfigs = append(sortedFluentdConfigs, fc.Name)
+	}
+	sort.Strings(sortedFluentdConfigs)
+
 	// Extract fluentd
-	configData := make([]string, 0, len(fluentdConfigs))
-	for _, fd := range fluentdConfigs {
+	configData := make([]string, 0, len(sortedFluentdConfigs))
+	for _, name := range sortedFluentdConfigs {
+		fd := fcByName[name]
 		logrus.Debugf("loaded config data from fluentdconfig: %s/%s", fd.ObjectMeta.Namespace, fd.ObjectMeta.Name)
 		configData = append(configData, fd.Spec.FluentConf)
 	}

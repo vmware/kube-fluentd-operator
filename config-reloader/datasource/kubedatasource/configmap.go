@@ -2,6 +2,7 @@ package kubedatasource
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -86,7 +87,16 @@ func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Failed to list configmaps in namespace '%s': %v", ns, err)
 		}
-		configmaps = append(configmaps, mapslist...)
+		confMapByName := make(map[string]*core.ConfigMap)
+		sortedConfMaps := make([]string, 0, len(mapslist))
+		for _, cfgm := range mapslist {
+			confMapByName[cfgm.Name] = cfgm
+			sortedConfMaps = append(sortedConfMaps, cfgm.Name)
+		}
+		sort.Strings(sortedConfMaps)
+		for _, name := range sortedConfMaps {
+			configmaps = append(configmaps, confMapByName[name])
+		}
 	} else {
 		// Get a configmap with a specific name
 		mapName, err := c.detectConfigMapName(ns)
