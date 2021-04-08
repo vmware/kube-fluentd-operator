@@ -63,7 +63,7 @@ COPY Gemfile /fluentd
 RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
 	&& tdnf erase -y toybox \
 	&& buildDeps="\
-	gmp-devel libffi-devel bzip2 shadow wget which vim less tar gzip sed gcc build-essential zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel" \
+	gmp-devel libffi-devel bzip2 shadow wget which vim git less tar gzip sed gcc build-essential zlib-devel libedit libedit-devel gdbm gdbm-devel openssl-devel" \
 	&& tdnf install -y $buildDeps util-linux systemd net-tools\
 	&& wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_kubernetes.rb -P /fluentd/plugins \
 	&& wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \

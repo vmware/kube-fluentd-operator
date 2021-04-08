@@ -77,7 +77,7 @@ func SortedKeys(m map[string]string) []string {
 	return keys
 }
 
-//ExecAndGetOutput exec and returns ouput of the command if timeout then kills the process and returns error
+// ExecAndGetOutput exec and returns ouput of the command if timeout then kills the process and returns error
 func ExecAndGetOutput(cmd string, timeout time.Duration, args ...string) (string, error) {
 	c := exec.Command(cmd, args...)
 	var b bytes.Buffer

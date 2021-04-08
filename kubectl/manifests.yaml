@@ -113,9 +113,7 @@ metadata:
   name: log-router-log-router
   labels:
     app: log-router
-    chart: log-router-0.3.6
     release: log-router
-    heritage: Helm
 spec:
   selector:
     matchLabels:

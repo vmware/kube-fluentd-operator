@@ -76,7 +76,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 	args := make([]string, len(v.args))
 	copy(args, v.args)
 
-	args = append(args, "-qq", "--no-supervisor", "-c", tmpfile.Name())
+	args = append(args, "-q", "--no-supervisor", "-c", tmpfile.Name())
 
 	out, err := util.ExecAndGetOutput(v.command, v.timeout, args...)
 
@@ -87,7 +87,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 
 	logrus.Debugf("Checked config for namespace %s with fluentd and got: %s", namespace, out)
 	if err != nil {
-		logrus.Errorf("error running command: %s", err.Error())
+		logrus.Errorf("error running validation command: %s", err.Error())
 		return errors.New(out)
 	}
 
