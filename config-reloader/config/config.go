@@ -29,6 +29,7 @@ type Config struct {
 	TemplatesDir           string
 	OutputDir              string
 	LogLevel               string
+	FluentdLogLevel        string
 	AnnotConfigmapName     string
 	AnnotStatus            string
 	DefaultConfigmapName   string
@@ -63,6 +64,7 @@ var defaultConfig = &Config{
 	OutputDir:            "/fluentd/etc",
 	Datasource:           "default",
 	LogLevel:             logrus.InfoLevel.String(),
+	FluentdLogLevel:      "info",
 	AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
 	AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
 	DefaultConfigmapName: "fluentd-config",
@@ -98,6 +100,12 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("failed to parse log level: %+v", err)
 	}
 	cfg.level = ll
+
+	fll, err := cfg.ParseFluentdLogLevel()
+	if err != nil {
+		return fmt.Errorf("failed to parse fluentd log level: %+v", err)
+	}
+	cfg.FluentdLogLevel = fll
 
 	if !reValidID.MatchString(cfg.ID) {
 		return fmt.Errorf("ID must be a valid hostname")
@@ -155,6 +163,7 @@ func (cfg *Config) Validate() error {
 		if len(cfg.ParsedMetaValues) == 0 {
 			return errors.New("using --meta-key requires --meta-values too")
 		}
+
 	}
 
 	if cfg.Datasource == "multimap" {
@@ -208,7 +217,9 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("id", "The id of this deployment. It is used internally so that two deployments don't overwrite each other's data").Default(defaultConfig.ID).StringVar(&cfg.ID)
 
 	app.Flag("fluentd-rpc-port", "RPC port of Fluentd").Default(strconv.Itoa(defaultConfig.FluentdRPCPort)).IntVar(&cfg.FluentdRPCPort)
-	app.Flag("log-level", "Control verbosity of log").Default(defaultConfig.LogLevel).StringVar(&cfg.LogLevel)
+	app.Flag("log-level", "Control verbosity of log level for reloader").Default(defaultConfig.LogLevel).StringVar(&cfg.LogLevel)
+	app.Flag("fluentd-loglevel", "Control verbosity of log level for fluentd").Default(defaultConfig.FluentdLogLevel).StringVar(&cfg.FluentdLogLevel)
+
 	app.Flag("annotation", "Which annotation on the namespace stores the configmap name?").Default(defaultConfig.AnnotConfigmapName).StringVar(&cfg.AnnotConfigmapName)
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
@@ -241,4 +252,24 @@ func (cfg *Config) ParseFlags(args []string) error {
 	}
 
 	return nil
+}
+
+// ParseFluentdLogLevel takes a string level and returns the Fluentd log level constant.
+func (cfg *Config) ParseFluentdLogLevel() (string, error) {
+	switch strings.ToLower(cfg.FluentdLogLevel) {
+	case "fatal":
+		return "fatal", nil
+	case "error":
+		return "error", nil
+	case "warn", "warning":
+		return "warn", nil
+	case "info":
+		return "info", nil
+	case "debug":
+		return "debug", nil
+	case "trace":
+		return "trace", nil
+	}
+
+	return "", fmt.Errorf("not a valid Fluentd log Level: %q", cfg.FluentdLogLevel)
 }
