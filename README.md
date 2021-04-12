@@ -618,7 +618,8 @@ Flags:
   --id="default"                The id of this deployment. It is used internally so that two
                                 deployments don't overwrite each other's data
   --fluentd-rpc-port=24444      RPC port of Fluentd
-  --log-level="info"            Control verbosity of log
+  --log-level="info"            Control verbosity of config-reloader logs
+  --fluentd-loglevel="info"     Control verbosity of fluentd logs
   --annotation="logging.csp.vmware.com/fluentd-configmap"
                                 Which annotation on the namespace stores the configmap name?
   --default-configmap="fluentd-config"
@@ -654,7 +655,8 @@ Flags:
 | `image.tag`                              | Image tag                | `latest`                          |
 | `image.pullPolicy`                       | Pull policy                 | `Always`                             |
 | `image.pullSecret`                       | Optional pull secret name                 | `""`                                |
-| `logLevel`                               | Default log level                 | `info`                               |
+| `logLevel`                               | Default log level for config-reloader                | `info`                               |
+| `fluentdLogLevel`                        | Default log level for fluentd               | `info`                               |
 | `kubeletRoot`                            | The home dir of the kubelet, usually set using `--root-dir` on the kubelet           | `/var/lib/kubelet`                               |
 | `namespaces`                             | List of namespaces to operate on. Empty means all namespaces                 | `[]`                               |
 | `interval`                               | How often to check for config changes (seconds)                 | `45`          |
