@@ -102,6 +102,7 @@ run-once-fs: install
 	config-reloader \
 	  --interval 0 \
 	  --log-level=debug \
+	  --fluentd-loglevel=debug \
 	  --output-dir=tmp \
 	  --meta-key=prefix2 \
 	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
@@ -115,6 +116,7 @@ run-once: install
 	config-reloader \
 	  --interval 0 \
 	  --log-level=debug \
+	  --fluentd-loglevel=debug \
 	  --output-dir=tmp \
 	  --templates-dir=templates \
 	  --meta-key=run-once \
@@ -126,6 +128,7 @@ run-loop: install
 	config-reloader \
 	  --interval 5 \
 	  --log-level=debug \
+	  --fluentd-loglevel=debug \
 	  --output-dir=tmp \
 	  --meta-key=prefix3 \
 	  --meta-values=aws_region=us-west-2,csp_cluster=mon \

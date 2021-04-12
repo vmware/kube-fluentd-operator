@@ -111,12 +111,17 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		Namespaces              []string
 		MetaKey                 string
 		MetaValue               string
+		FluentdLogLevel         string
 		PreprocessingDirectives []string
 	}{}
 
 	if g.cfg.MetaKey != "" {
 		model.MetaKey = g.cfg.MetaKey
 		model.MetaValue = util.ToRubyMapLiteral(g.cfg.ParsedMetaValues)
+	}
+
+	if g.cfg.FluentdLogLevel != "" {
+		model.FluentdLogLevel = g.cfg.FluentdLogLevel
 	}
 
 	genCtx := &processors.GenerationContext{
