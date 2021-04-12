@@ -32,7 +32,7 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 				return fmt.Errorf("retag plugin requires each rule to have a tag parameter")
 			}
 
-			if strings.Index(tagParam, "${tag_parts[") >= 0 || strings.Index(tagParam, "__TAG_PARTS[") >= 0 {
+			if strings.Contains(tagParam, "${tag_parts[") || strings.Contains(tagParam, "__TAG_PARTS[") {
 				return fmt.Errorf("retag plugin does not yet support the ${tag_parts[n]} and __TAG_PARTS[n]__ placeholders")
 			}
 

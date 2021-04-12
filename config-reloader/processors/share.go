@@ -15,7 +15,7 @@ import (
 
 const (
 	macroFrom = "$from"
-	typeShare = "share"
+	// typeShare = "share"
 )
 
 var rewriteSharedTag = template.Must(template.New("name").Parse(`

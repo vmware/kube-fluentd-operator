@@ -45,13 +45,14 @@ func New(cfg *config.Config) (*Controller, error) {
 	var err error
 	var reloader *fluentd.Reloader
 
-	if cfg.Datasource == "fake" {
+	switch cfg.Datasource {
+	case "fake":
 		ds = datasource.NewFakeDatasource()
 		up = NewFixedTimeUpdater(cfg.IntervalSeconds)
-	} else if cfg.Datasource == "fs" {
+	case "fs":
 		ds = datasource.NewFileSystemDatasource(cfg.FsDatasourceDir, cfg.OutputDir)
 		up = NewFixedTimeUpdater(cfg.IntervalSeconds)
-	} else {
+	default:
 		updateChan := make(chan time.Time, 1)
 		ds, err = datasource.NewKubernetesInformerDatasource(cfg, updateChan)
 		if err != nil {

@@ -14,13 +14,13 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 )
 
-var reComment = regexp.MustCompile("^\\s*#.*$")
+var reComment = regexp.MustCompile(`^\s*#.*$`)
 
-var reStartDirective = regexp.MustCompile("^<([^/\\s]+)(\\s+(.*))?>\\s*")
+var reStartDirective = regexp.MustCompile(`^<([^/\s]+)(\s+(.*))?>\s*`)
 
-var reEndDirective = regexp.MustCompile("^</(.*)>\\s*")
+var reEndDirective = regexp.MustCompile(`^</(.*)>\s*`)
 
-var reParam = regexp.MustCompile("^([^<\\s]+)(\\s+(.+))?")
+var reParam = regexp.MustCompile(`^([^<\s]+)(\s+(.+))?`)
 
 type Fragment []*Directive
 
@@ -231,6 +231,7 @@ func topDir(s *Stack) *Directive {
 }
 
 // ParseString produces a fragment of fluentd config part
+// nolint:gocognit
 func ParseString(s string) (Fragment, error) {
 	res := []*Directive{}
 

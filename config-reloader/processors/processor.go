@@ -16,7 +16,7 @@ const (
 )
 
 // GenerationContext holds state for one loop of the controller.
-// It is shared accross all processors and all encountered namespaces.
+// It is shared across all processors and all encountered namespaces.
 // Different processorts can share state using this class.
 // Use this class sparingly.
 type GenerationContext struct {
@@ -34,7 +34,7 @@ func (g *GenerationContext) augmentTag(d *fluentd.Directive) {
 	d.Tag = augmentTag(orig)
 }
 
-// ProcessorContext is how a processor gets an environemnt to operate in.
+// ProcessorContext is how a processor gets an environment to operate in.
 // It is both the model and the workspace of a processor.
 type ProcessorContext struct {
 	Namepsace         string

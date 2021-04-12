@@ -20,6 +20,9 @@ jobs:
       - name: build-base-image
         run: |
           cd base-image && make
+      - name: lint-test-config-reloader
+        run: |
+          cd config-reloader && make test
       - name: build-config-reloader
         run: |
           cd config-reloader && make build-image TAG=v$GITHUB_SHA_SHORT

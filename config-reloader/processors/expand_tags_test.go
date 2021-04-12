@@ -45,8 +45,8 @@ func TestTagsExpandOk(t *testing.T) {
 		app3 := fragment[2]
 		assert.Equal(t, "kube.monitoring.app3.**", app3.Tag)
 
-		assert.True(t, strings.Index(fragment.String(), "{") < 0)
-		assert.True(t, strings.Index(fragment.String(), "}") < 0)
+		assert.True(t, !strings.Contains(fragment.String(), "{"))
+		assert.True(t, !strings.Contains(fragment.String(), "}"))
 	}
 }
 
@@ -89,8 +89,8 @@ func TestNestedTagsExpandOk(t *testing.T) {
 	app3 := fragment[1].Nested[2]
 	assert.Equal(t, "kube.monitoring.app3.**", app3.Tag)
 
-	assert.True(t, strings.Index(fragment.String(), "{") < 0)
-	assert.True(t, strings.Index(fragment.String(), "}") < 0)
+	assert.True(t, !strings.Contains(fragment.String(), "{"))
+	assert.True(t, !strings.Contains(fragment.String(), "}"))
 }
 
 func TestTagsExpandBadConfig(t *testing.T) {

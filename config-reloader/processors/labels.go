@@ -25,7 +25,7 @@ type expandLabelsMacroState struct {
 	BaseProcessorState
 }
 
-var reSafe = regexp.MustCompile("[.-]|^$")
+var reSafe = regexp.MustCompile(`[.-]|^$`)
 
 // got this value from running kubectl with bad args
 // error: invalid label value: "test=-asdf": a valid label must be an empty string
@@ -33,8 +33,8 @@ var reSafe = regexp.MustCompile("[.-]|^$")
 // an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is
 // '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?'
 
-var reValidLabelName = regexp.MustCompile("^([A-Za-z0-9][-A-Za-z0-9\\/_.]*)?[A-Za-z0-9]$")
-var reValidLabelValue = regexp.MustCompile("^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$")
+var reValidLabelName = regexp.MustCompile(`^([A-Za-z0-9][-A-Za-z0-9\/_.]*)?[A-Za-z0-9]$`)
+var reValidLabelValue = regexp.MustCompile(`^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$`)
 
 var fns = template.FuncMap{
 	"last": func(x int, a interface{}) bool {
@@ -51,7 +51,7 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
     kubernetes_pod_label_values {{range $i, $e := .Labels -}}${record.dig('kubernetes','labels','{{$e}}')&.gsub(/[.-]/, '_') || '_'}{{if last $i $.Labels }}{{else}}.{{end}}{{- end}}
   </record>
 </filter>
-  
+
 <match {{.Pattern}}>
   @type rewrite_tag_filter
   <rule>

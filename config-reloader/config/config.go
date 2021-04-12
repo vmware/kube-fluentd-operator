@@ -83,6 +83,7 @@ func (cfg *Config) GetLogLevel() logrus.Level {
 }
 
 // Validate performs validation on the Config object
+// nolint:gocognit
 func (cfg *Config) Validate() error {
 	if cfg.IntervalSeconds < 0 {
 		// better normalize then fail
@@ -121,11 +122,14 @@ func (cfg *Config) Validate() error {
 	}
 
 	isValid := func(s string) bool {
+
 		if len(s) == 0 {
 			return false
-		} else if strings.IndexRune(s, '\'') >= 0 {
+		}
+		if strings.ContainsRune(s, '\'') {
 			return false
-		} else if strings.IndexRune(s, '.') >= 0 {
+		}
+		if strings.ContainsRune(s, '.') {
 			return false
 		}
 		return true

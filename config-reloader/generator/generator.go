@@ -96,6 +96,7 @@ func extractPrepConfig(ns string, prepareConfigs map[string]interface{}) (string
 	return "", nil
 }
 
+// nolint:gocognit
 func (g *Generator) renderMainFile(mainFile string, outputDir string, dest string) (map[string]string, error) {
 	tmpl, err := template.New(filepath.Base(mainFile)).ParseFiles(mainFile)
 	if err != nil {
@@ -232,6 +233,9 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 	model.Namespaces = newFiles
 	buf := &bytes.Buffer{}
 	err = tmpl.Execute(buf, model)
+	if err != nil {
+		return nil, err
+	}
 
 	err = util.WriteStringToFile(dest, buf.String())
 	if err != nil {

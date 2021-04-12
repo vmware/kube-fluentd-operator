@@ -21,9 +21,9 @@ type expandTagsState struct {
 func (p *expandTagsState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	if p.Context.AllowTagExpansion {
 		return p.ProcessExpandingTags(input)
-	} else {
-		return p.ProcessNotExpandingTags(input)
 	}
+
+	return p.ProcessNotExpandingTags(input)
 }
 
 func (p *expandTagsState) ProcessExpandingTags(input fluentd.Fragment) (fluentd.Fragment, error) {
@@ -135,7 +135,7 @@ func (p *expandTagsState) ProcessNotExpandingTags(input fluentd.Fragment) (fluen
 			return nil
 		}
 
-		if strings.Index(d.Tag, "{") >= 0 {
+		if strings.Contains(d.Tag, "{") {
 			return fmt.Errorf("Processing of {...} pattern in tags is disabled")
 		}
 

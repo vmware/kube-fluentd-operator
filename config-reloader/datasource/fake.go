@@ -4,7 +4,6 @@
 package datasource
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -20,7 +19,7 @@ var template = `
   buffer_type    file
   buffer_path    /var/log/logzio-$my_ns.buffer
   flush_interval 10s
-  buffer_chunk_limit 1m 
+  buffer_chunk_limit 1m
 </match>
 `
 
@@ -30,8 +29,8 @@ type fakeDatasource struct {
 
 func makeFakeConfig(namespace string) string {
 	contents := template
-	contents = strings.Replace(contents, "$ns$", namespace, -1)
-	contents = strings.Replace(contents, "$ts$", fmt.Sprintf("%s", time.Now()), -1)
+	contents = strings.ReplaceAll(contents, "$ns$", namespace)
+	contents = strings.ReplaceAll(contents, "$ts$", time.Now().String())
 
 	return contents
 }

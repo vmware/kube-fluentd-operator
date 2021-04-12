@@ -14,7 +14,7 @@ func ExtractPlugins(g *GenerationContext, input fluentd.Fragment) fluentd.Fragme
 	plugins := map[string]*fluentd.Directive{}
 	res := fluentd.Fragment{}
 
-	//process only top-level plugin directives
+	// process only top-level plugin directives
 	for _, dir := range input {
 		if dir.Name == dirPlugin {
 			plugins[dir.Tag] = dir

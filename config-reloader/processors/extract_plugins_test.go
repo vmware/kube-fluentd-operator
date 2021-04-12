@@ -70,7 +70,7 @@ func TestExpandPlugins(t *testing.T) {
   # param is copied
   param1 value1
 
-  # param is overriden
+  # param is overridden
   buffer_size 5m
 </match>
 
@@ -98,13 +98,13 @@ func TestExpandPlugins(t *testing.T) {
 	matchDir := processed[1]
 	assert.Equal(t, "es", matchDir.Type())
 
-	// param that's not overriden
+	// param that's not overridden
 	assert.Equal(t, "/hello/world", matchDir.Param("buffer_path"))
 
 	// param that's defined at the call site
 	assert.Equal(t, "value1", matchDir.Param("param1"))
 
-	// param that's overriden
+	// param that's overridden
 	assert.Equal(t, "5m", matchDir.Param("buffer_size"))
 
 	// nested content is present
@@ -132,7 +132,7 @@ func TestNothingToExpand(t *testing.T) {
   # param is copied
   param1 value1
 
-  # param is overriden
+  # param is overridden
   buffer_size 5m
 </match>
 
@@ -207,7 +207,7 @@ func TestExpandPluginsInCopyStore(t *testing.T) {
     # param is copied
     param1 value1
 
-    # param is overriden
+    # param is overridden
     buffer_size 5m
   </store>
   <store>
@@ -246,13 +246,13 @@ func TestExpandPluginsInCopyStore(t *testing.T) {
 	matchStore := matchDir.Nested[0]
 	assert.Equal(t, "es", matchStore.Type())
 
-	// param that's not overriden
+	// param that's not overridden
 	assert.Equal(t, "/hello/world", matchStore.Param("buffer_path"))
 
 	// param that's defined at the call site
 	assert.Equal(t, "value1", matchStore.Param("param1"))
 
-	// param that's overriden
+	// param that's overridden
 	assert.Equal(t, "5m", matchStore.Param("buffer_size"))
 
 	// nested content is present

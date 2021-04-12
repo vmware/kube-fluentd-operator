@@ -59,6 +59,9 @@ func (d *kubeInformerConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 		// Create a compact representation of the pods running in the namespace
 		// under consideration
 		pods, err := d.podlist.Pods(ns).List(labels.NewSelector())
+		if err != nil {
+			return nil, err
+		}
 		podsCopy := make([]core.Pod, len(pods))
 		for i, pod := range pods {
 			podsCopy[i] = *pod.DeepCopy()
@@ -176,10 +179,10 @@ func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Ti
 	}
 
 	factory.Start(nil)
-	if cache.WaitForCacheSync(nil,
+	if !cache.WaitForCacheSync(nil,
 		factory.Core().V1().Namespaces().Informer().HasSynced,
 		factory.Core().V1().Pods().Informer().HasSynced,
-		kubeds.IsReady) == false {
+		kubeds.IsReady) {
 		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
