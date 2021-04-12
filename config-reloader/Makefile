@@ -1,24 +1,62 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-IMAGE          ?= vmware/kube-fluentd-operator
-TAG            ?= latest
+IMAGE            ?= vmware/kube-fluentd-operator
+TAG              ?= latest
 
-VERSION       ?= $(shell git describe --tags --always --dirty)
-BUILD_FLAGS   := -v
-LDFLAGS       := -X github.com/vmware/kube-fluentd-operator/config-reloader/config.Version=$(VERSION) -w -s
+VERSION          ?= $(shell git describe --tags --always --dirty)
+BUILD_FLAGS      := -v
+LDFLAGS          := -X github.com/vmware/kube-fluentd-operator/config-reloader/config.Version=$(VERSION) -w -s
 
--include vmware.mk
-.DEFAULT_GOAL := build-image
+SHELL             = bash
+PKG               = vmware/kube-fluentd-operator
+
+GO_OPTS           = GO111MODULE=on GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(GOBIN)
+GO                = $(GO_OPTS) go
+
+CURRENT_DIR       = $(shell pwd)
+DEV_ENV_IMAGE    := vmwaresaas.jfrog.io/vdp-public/go-dev:latest
+DEV_ENV_WORK_DIR := /go/src/${PKG}
+DEV_ENV_CMD      := docker run --rm -v ${CURRENT_DIR}:${DEV_ENV_WORK_DIR} -w ${DEV_ENV_WORK_DIR} ${DEV_ENV_IMAGE}
+
+.DEFAULT_GOAL    := build-image
+
+all: test build
+
+dev:
+	${DEV_ENV_CMD} bash
+
+vendor:
+	${GO} mod vendor
 
 install:
-	go install -v .
+	${GO} install -v .
+
+tidy:
+	${GO} mod tidy -v
+
+test: lint test-unit
+
+lint: vendor
+	${DEV_ENV_CMD} lint
+
+test-unit: vendor
+	${DEV_ENV_CMD} go test --cover --race -v ./...
+
+in-docker-test:
+	go test --cover --race -v ./...
+
+test-cover: vendor
+	${DEV_ENV_CMD} test-cover.sh
+
+report-cover: test-cover
+	${DEV_ENV_CMD} report-cover.sh
+
+test-clean:
+	rm -rf coverage.*
 
 build:
-	CGO_ENABLED=0 go build $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" .
-
-test:
-	go test -v ./...
+	${GO} build $(BUILD_FLAGS) -ldflags "$(LDFLAGS)" .
 
 dep:
 	which dep > /dev/null || (echo "Install dep first: go get -u github.com/golang/dep/cmd/dep" && exit 1)

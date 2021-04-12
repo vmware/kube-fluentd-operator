@@ -5,7 +5,7 @@ package util
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -21,7 +21,7 @@ const (
 )
 
 func Trim(s string) string {
-	return strings.TrimFunc(s, unicode.IsSpace)
+	return strings.TrimSpace(s)
 }
 
 func MakeFluentdSafeName(s string) string {
@@ -54,14 +54,14 @@ func ToRubyMapLiteral(labels map[string]string) string {
 }
 
 func Hash(owner string, value string) string {
-	h := sha1.New()
+	h := sha256.New()
 
 	h.Write([]byte(owner))
 	h.Write([]byte(":"))
 	h.Write([]byte(value))
 
 	b := h.Sum(nil)
-	return hex.EncodeToString(b[:])
+	return hex.EncodeToString(b[0:20])
 }
 
 func SortedKeys(m map[string]string) []string {
@@ -77,7 +77,7 @@ func SortedKeys(m map[string]string) []string {
 	return keys
 }
 
-// ExecAndGetOutput exec and returns ouput of the command if timeout then kills the process and returns error
+// ExecAndGetOutput exec and returns output of the command if timeout then kills the process and returns error
 func ExecAndGetOutput(cmd string, timeout time.Duration, args ...string) (string, error) {
 	c := exec.Command(cmd, args...)
 	var b bytes.Buffer

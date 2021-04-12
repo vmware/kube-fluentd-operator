@@ -102,8 +102,8 @@ func convertPodToMinis(resp *core.PodList) []*MiniContainer {
 				ContainerID: cid,
 			}
 
-			for _, vm := range cont.VolumeMounts {
-				m := makeVolume(pod.Spec.Volumes, &vm)
+			for i := range cont.VolumeMounts {
+				m := makeVolume(pod.Spec.Volumes, &cont.VolumeMounts[i])
 				if m != nil {
 					mini.HostMounts = append(mini.HostMounts, m)
 				}

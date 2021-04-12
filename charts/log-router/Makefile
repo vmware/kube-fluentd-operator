@@ -4,7 +4,6 @@
 HELM_PACKAGE := log-router
 
 .DEFAULT_GOAL := helm-package
--include vmware.mk
 
 helm-package: clean
 	helm lint .

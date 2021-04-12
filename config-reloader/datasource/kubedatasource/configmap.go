@@ -104,9 +104,8 @@ func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
 			switch err.(type) {
 			case *namespaceNotConfigured:
 				logrus.Debugf("Could not find a named configmap for namespace: %v", err)
-				break
 			default:
-				logrus.Errorln("Unexpected error occured while getting configmap name")
+				logrus.Errorln("Unexpected error occurred while getting configmap name")
 				return nil, err
 			}
 		}

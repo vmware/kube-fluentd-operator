@@ -111,9 +111,7 @@ func monitorCRDAvailability(crdManager manager) error {
 	}
 }
 
-//////////////////////////////////////////////////
-///////////////// v1 CRD Manager /////////////////
-//////////////////////////////////////////////////
+// ////////////// v1 CRD Manager /////////////////
 
 var fluentdConfigCRD = v1.CustomResourceDefinition{
 	ObjectMeta: metav1.ObjectMeta{
@@ -127,7 +125,7 @@ var fluentdConfigCRD = v1.CustomResourceDefinition{
 		},
 		Scope: v1.NamespaceScoped,
 		Versions: []v1.CustomResourceDefinitionVersion{
-			v1.CustomResourceDefinitionVersion{
+			{
 				Name:    "v1beta1",
 				Served:  true,
 				Storage: true,
@@ -135,10 +133,10 @@ var fluentdConfigCRD = v1.CustomResourceDefinition{
 					OpenAPIV3Schema: &v1.JSONSchemaProps{
 						Type: "object",
 						Properties: map[string]v1.JSONSchemaProps{
-							"spec": v1.JSONSchemaProps{
+							"spec": {
 								Type: "object",
 								Properties: map[string]v1.JSONSchemaProps{
-									"fluentconf": v1.JSONSchemaProps{
+									"fluentconf": {
 										Type: "string",
 									},
 								},
@@ -181,9 +179,7 @@ func (m *v1Manager) GetCRDName() string {
 	return fluentdConfigCRD.ObjectMeta.Name
 }
 
-///////////////////////////////////////////////////
-/////////////// v1beta1 CRD Manager ///////////////
-///////////////////////////////////////////////////
+// ////////////// v1beta1 CRD Manager ///////////////
 
 var legacyFluentdConfigCRD = v1beta1.CustomResourceDefinition{
 	ObjectMeta: metav1.ObjectMeta{
@@ -199,10 +195,10 @@ var legacyFluentdConfigCRD = v1beta1.CustomResourceDefinition{
 			OpenAPIV3Schema: &v1beta1.JSONSchemaProps{
 				Type: "object",
 				Properties: map[string]v1beta1.JSONSchemaProps{
-					"spec": v1beta1.JSONSchemaProps{
+					"spec": {
 						Type: "object",
 						Properties: map[string]v1beta1.JSONSchemaProps{
-							"fluentconf": v1beta1.JSONSchemaProps{
+							"fluentconf": {
 								Type: "string",
 							},
 						},
@@ -212,7 +208,7 @@ var legacyFluentdConfigCRD = v1beta1.CustomResourceDefinition{
 		},
 		Scope: v1beta1.NamespaceScoped,
 		Versions: []v1beta1.CustomResourceDefinitionVersion{
-			v1beta1.CustomResourceDefinitionVersion{
+			{
 				Name:    "v1beta1",
 				Served:  true,
 				Storage: true,
