@@ -1,12 +1,30 @@
 # CHANGELOG
 
+## [v1.14.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0)
+
+#### Core:
+  - Make fluentd log level configurable (#196) (@kkapoor1987)
+  - feat(kubectl): add manifests for kubectl install (#192) (@Cryptophobia)
+  - feat(fluentd): upgrade fluentd to v1.12.2 (#193) (@Cryptophobia)
+  - feat(reloader): sorts configs so they are ordered (#194) (@Cryptophobia)
+  - chore(base-image): upgrade gems and bundler (#195) (@Cryptophobia)
+       - upgrade ruby to 2.7.3
+       - upgrade bundler to 2.2.15
+  - chore(go): upgrade to go1.16 and add linting (#197) (@Cryptophobia)
+
+#### CI:
+  - chore(go): upgrade to go1.16 and add linting (#197) (@Cryptophobia)
+
+#### Helm:
+  - Make fluentd log level configurable (#196) (@kkapoor1987)
+
 ## [v1.14.0-beta.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0-beta.3)
 
 #### Core:
   - Move to graceful reload endpoint and error (#189) (@slimm609)
   - fix(config-reloader): add timeout seconds on startup (#190) (@Cryptophobia)
   - chore(base-image): upgrade to use photon:4.0 (#186) (@Cryptophobia)
-  
+
 #### Plugins:
   - chore: upgrade vmware-log-intelligence to 2.0.6 (#187) (@Cryptophobia)
 

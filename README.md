@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.13.0 \
+  --set image.tag=v1.14.0 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.13.0/log-router-0.3.4.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.14.0/log-router-0.3.7.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.13.0 \
+  --set image.tag=v1.14.0 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -498,7 +498,7 @@ All logs originating from a file look exactly as all other Kubernetes logs. Howe
 }
 ```
 
-### Custom resource definiton(CRD) support (since v1.13.0)
+### Custom resource definition(CRD) support (since v1.13.0)
 Custom resources are introduced from v1.13.0 release onwards. It allows to have a dedicated resource for fluentd configurations, which enables to manage them in a more consistent way and move away from the generic ConfigMaps.
 It is possible to create configs for a new application simply by attaching a FluentdConfig resource to the application manifests, rather than using a more generic ConfigMap with specific names and/or labels.
 
@@ -538,56 +538,57 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.2.6                      | 1.8.0                   |
 | 1.5.2                      | 1.10.0                  |
 | 1.9.1                      | 1.12.0                  |
+| 1.12.2                     | 1.14.0                  |
 
-## Plugins in latest release (1.13.0)
+## Plugins in latest release (1.14.0)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
-* fluent-plugin-amqp (0.13.0)
+* fluent-plugin-amqp (0.14.0)
 * fluent-plugin-azure-loganalytics (0.7.0)
-* fluent-plugin-cloudwatch-logs (0.8.0)
+* fluent-plugin-cloudwatch-logs (0.13.4)
 * fluent-plugin-concat (2.4.0)
-* fluent-plugin-datadog (0.12.0)
+* fluent-plugin-datadog (0.12.1)
 * fluent-plugin-detect-exceptions (0.0.13)
 * fluent-plugin-elasticsearch (4.0.5)
 * fluent-plugin-gelf-hs (1.0.8)
-* fluent-plugin-google-cloud (0.4.10)
+* fluent-plugin-google-cloud (0.10.9)
 * fluent-plugin-grafana-loki (1.2.11)
 * fluent-plugin-grok-parser (2.6.1)
 * fluent-plugin-json-in-json-2 (1.0.2)
 * fluent-plugin-kafka (0.12.4)
 * fluent-plugin-kinesis (3.2.1)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.4.2)
+* fluent-plugin-kubernetes_metadata_filter (2.6.0)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
-* fluent-plugin-loggly (0.0.9)
-* fluent-plugin-logzio (0.0.20)
+* fluent-plugin-loggly (0.1.0.pre)
+* fluent-plugin-logzio (0.0.21)
 * fluent-plugin-mail (0.3.0)
 * fluent-plugin-mongo (1.3.0)
 * fluent-plugin-multi-format-parser (1.0.0)
 * fluent-plugin-out-http (1.3.3)
 * fluent-plugin-papertrail (0.2.8)
-* fluent-plugin-prometheus (1.7.3)
+* fluent-plugin-prometheus (1.8.5)
 * fluent-plugin-record-modifier (2.1.0)
 * fluent-plugin-record-reformer (0.9.1)
 * fluent-plugin-redis (0.3.4)
 * fluent-plugin-remote_syslog (1.0.0)
 * fluent-plugin-rewrite-tag-filter (2.2.0)
 * fluent-plugin-route (1.0.0)
-* fluent-plugin-s3 (1.3.0)
-* fluent-plugin-scribe (1.0.0)
+* fluent-plugin-s3 (1.5.0)
 * fluent-plugin-secure-forward (0.4.5)
+* fluent-plugin-splunk-hec (1.2.4)
 * fluent-plugin-splunkhec (2.0)
 * fluent-plugin-sumologic_output (1.6.1)
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
 * fluent-plugin-vmware-loginsight (0.1.7)
-* fluent-plugin-vmware-log-intelligence (2.0.4)
-* fluentd (1.9.1)
+* fluent-plugin-vmware-log-intelligence (2.0.6)
+* fluentd (1.12.2)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
@@ -924,12 +925,12 @@ Use `<label>` as usual, the daemon ensures that label names are unique cluster-w
 ```xml
 <match $labels(app=foo)>
   @type relabel
-  @label blackhole
+  @label @blackhole
 </match>
 
 <match $labels(app=bar)>
   @type relabel
-  @label blackhole
+  @label @blackhole
 </match>
 
 <label @blackhole>
