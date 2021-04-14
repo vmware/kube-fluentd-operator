@@ -88,21 +88,22 @@ To see kube-fluentd-operator in action you need a cloud log collector like logz.
 
 ## Build
 
-Get the code using `go get`:
+Get the code using `go get` or git clone this repo:
 
 ```bash
 go get -u github.com/vmware/kube-fluentd-operator/config-reloader
 cd $GOPATH/src/github.com/vmware/kube-fluentd-operator
 
 # build a base-image
-cd base-image && make
+cd base-image && make build-image
 
 # build helm chart
-cd charts/log-router && make
+cd charts/log-router && make helm-package
 
 # build the daemon
 cd config-reloader
 make install
+make build-image
 
 # run with mock data (loaded from the examples/ folder)
 make run-once-fs
