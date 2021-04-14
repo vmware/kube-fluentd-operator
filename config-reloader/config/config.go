@@ -137,9 +137,6 @@ func (cfg *Config) Validate() error {
 		if strings.ContainsRune(s, '\'') {
 			return false
 		}
-		if strings.ContainsRune(s, '.') {
-			return false
-		}
 		return true
 	}
 
