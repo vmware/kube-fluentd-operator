@@ -36,7 +36,7 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 				return fmt.Errorf("retag plugin does not yet support the ${tag_parts[n]} and __TAG_PARTS[n]__ placeholders")
 			}
 
-			targetTag := p.createUniqueTag(tagParam, ctx.Namepsace)
+			targetTag := p.createUniqueTag(tagParam, ctx.Namespace)
 
 			rule.SetParam("tag", targetTag)
 		}
@@ -62,7 +62,7 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 
 		targetTag := d.Tag[len(macroUniqueTag)+1 : len(d.Tag)-1]
 
-		d.Tag = p.createUniqueTag(targetTag, ctx.Namepsace)
+		d.Tag = p.createUniqueTag(targetTag, ctx.Namespace)
 		ctx.GenerationContext.augmentTag(d)
 
 		return nil

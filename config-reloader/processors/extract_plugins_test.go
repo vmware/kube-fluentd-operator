@@ -84,7 +84,7 @@ func TestExpandPlugins(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		GenerationContext: g,
-		Namepsace:         "unit-test",
+		Namespace:         "unit-test",
 		DeploymentID:      "whatever",
 	}
 
@@ -146,7 +146,7 @@ func TestNothingToExpand(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		GenerationContext: g,
-		Namepsace:         "unit-test",
+		Namespace:         "unit-test",
 		DeploymentID:      "whatever",
 	}
 
@@ -228,7 +228,7 @@ func TestExpandPluginsInCopyStore(t *testing.T) {
 
 	ctx := &ProcessorContext{
 		GenerationContext: g,
-		Namepsace:         "unit-test",
+		Namespace:         "unit-test",
 		DeploymentID:      "whatever",
 	}
 

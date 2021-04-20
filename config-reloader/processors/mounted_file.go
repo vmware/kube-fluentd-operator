@@ -118,7 +118,7 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 
 				hostPath := state.makeHostPath(cf, hm, mc)
 				pos := util.Hash(state.Context.DeploymentID, fmt.Sprintf("%s-%s-%s", mc.PodID, mc.Name, hostPath))
-				tag := fmt.Sprintf("kube.%s.%s.%s-%s", state.Context.Namepsace, mc.PodName, mc.Name, pos)
+				tag := fmt.Sprintf("kube.%s.%s.%s-%s", state.Context.Namespace, mc.PodName, mc.Name, pos)
 				dir.SetParam("path", hostPath)
 				dir.SetParam("read_from_head", "true")
 				dir.SetParam("tag", tag)
@@ -164,7 +164,7 @@ func (state *mountedFileState) makeAttachK8sMetadataDirective(tag string, mc *da
 	fmt.Fprintf(buf, "record['kubernetes']=%s; ", util.ToRubyMapLiteral(map[string]string{
 		"container_name":  mc.Name,
 		"container_image": mc.Image,
-		"namespace_name":  state.Context.Namepsace,
+		"namespace_name":  state.Context.Namespace,
 		"pod_name":        mc.PodName,
 		"pod_id":          mc.PodID,
 		"host":            mc.NodeName,

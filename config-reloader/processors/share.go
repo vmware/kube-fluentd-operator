@@ -83,7 +83,7 @@ func (p *shareLogsState) Prepare(input fluentd.Fragment) (fluentd.Fragment, erro
 			return nil
 		}
 
-		bridge := makeBridgeName(sourceNs, p.Context.Namepsace)
+		bridge := makeBridgeName(sourceNs, p.Context.Namespace)
 		p.Context.GenerationContext.ReferencedBridges[bridge] = true
 		return nil
 	}
@@ -122,7 +122,7 @@ func (p *shareLogsState) Process(input fluentd.Fragment) (fluentd.Fragment, erro
 			if destNs == "" {
 				return fmt.Errorf("@type share required a with_namespace parameter")
 			}
-			bridge := makeBridgeName(p.Context.Namepsace, destNs)
+			bridge := makeBridgeName(p.Context.Namespace, destNs)
 
 			// only retain @relabel stores when the bridges are being referenced
 			if _, ok := p.Context.GenerationContext.ReferencedBridges[bridge]; ok {
@@ -155,10 +155,10 @@ func (p *shareLogsState) Process(input fluentd.Fragment) (fluentd.Fragment, erro
 			return nil
 		}
 
-		bridge := makeBridgeName(sourceNs, p.Context.Namepsace)
+		bridge := makeBridgeName(sourceNs, p.Context.Namespace)
 		d.Tag = bridge
 
-		fragment, err := makeRewriteTagFragment(sourceNs, p.Context.Namepsace)
+		fragment, err := makeRewriteTagFragment(sourceNs, p.Context.Namespace)
 		if err != nil {
 			// or just panic??
 			return err
@@ -182,7 +182,7 @@ func (p *shareLogsState) GetValidationTrailer(directives fluentd.Fragment) fluen
 	res := fluentd.Fragment{}
 
 	for k := range p.Context.GenerationContext.ReferencedBridges {
-		if strings.HasPrefix(k, fmt.Sprintf("@bridge-%s__", p.Context.Namepsace)) {
+		if strings.HasPrefix(k, fmt.Sprintf("@bridge-%s__", p.Context.Namespace)) {
 			dir := &fluentd.Directive{
 				Name: "label",
 				Tag:  k,

@@ -54,7 +54,7 @@ func TestThisnsExpandOk(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace:         "monitoring",
+		Namespace:         "monitoring",
 		GenerationContext: &GenerationContext{},
 	}
 	fragment, err = Process(fragment, ctx, &expandThisnsMacroState{})
@@ -76,7 +76,7 @@ func TestThisnsExpandOk(t *testing.T) {
 func TestThisnsExpandBadConfig(t *testing.T) {
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 	}
 
 	list := []string{

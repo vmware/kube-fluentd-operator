@@ -81,7 +81,7 @@ func TestLabelNoLabels(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -114,7 +114,7 @@ func TestLabelWithLabels(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -190,7 +190,7 @@ func TestLabelWithLabelsAndElse(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -224,7 +224,7 @@ func TestLabelWithLabelsAndContainer(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},

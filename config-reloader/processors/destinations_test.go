@@ -49,7 +49,7 @@ func TestDestinationsRewriteBufferPath(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 	}
 	fragment, err = Process(fragment, ctx, &fixDestinations{})
 	assert.Nil(t, err)
@@ -67,7 +67,7 @@ func TestDestinationsRewriteBufferPath(t *testing.T) {
 
 func TestExpandBadConfig(t *testing.T) {
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 	}
 
 	list := []string{

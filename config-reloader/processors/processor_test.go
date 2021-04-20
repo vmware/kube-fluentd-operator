@@ -38,7 +38,7 @@ func Test_callForEveryDirective(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "test",
+		Namespace: "test",
 	}
 	count := 0
 	inc := func(*fluentd.Directive, *ProcessorContext) error {

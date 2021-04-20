@@ -27,7 +27,7 @@ func TestTagsExpandOk(t *testing.T) {
 		fmt.Printf("Original:\n%s", fragment)
 
 		ctx := &ProcessorContext{
-			Namepsace:         "monitoring",
+			Namespace:         "monitoring",
 			GenerationContext: &GenerationContext{},
 			AllowTagExpansion: true,
 		}
@@ -70,7 +70,7 @@ func TestNestedTagsExpandOk(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace:         "monitoring",
+		Namespace:         "monitoring",
 		GenerationContext: &GenerationContext{},
 		AllowTagExpansion: true,
 	}
@@ -96,7 +96,7 @@ func TestNestedTagsExpandOk(t *testing.T) {
 func TestTagsExpandBadConfig(t *testing.T) {
 
 	ctx := &ProcessorContext{
-		Namepsace:         "monitoring",
+		Namespace:         "monitoring",
 		AllowTagExpansion: true,
 	}
 

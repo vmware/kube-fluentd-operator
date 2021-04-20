@@ -37,7 +37,7 @@ func (g *GenerationContext) augmentTag(d *fluentd.Directive) {
 // ProcessorContext is how a processor gets an environment to operate in.
 // It is both the model and the workspace of a processor.
 type ProcessorContext struct {
-	Namepsace         string
+	Namespace         string
 	NamespaceLabels   map[string]string
 	AllowFile         bool
 	DeploymentID      string

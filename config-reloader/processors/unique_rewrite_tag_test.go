@@ -45,7 +45,7 @@ func TestTagsRewrittenOk(t *testing.T) {
 	fmt.Printf("Original:\n%s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace:         "monitoring",
+		Namespace:         "monitoring",
 		GenerationContext: &GenerationContext{},
 	}
 	fragment, err = Process(fragment, ctx, &uniqueRewriteTagState{})
@@ -77,7 +77,7 @@ func TestTagsRewrittenOk(t *testing.T) {
 func TestRewriteTagsBadConfig(t *testing.T) {
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
