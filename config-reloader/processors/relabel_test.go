@@ -34,7 +34,7 @@ func TestParseConfigWithBadLabels(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace: "demo",
+		Namespace: "demo",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -58,7 +58,7 @@ func TestParseConfigWithGoodLabels(t *testing.T) {
 		`
 
 	ctx := &ProcessorContext{
-		Namepsace: "demo",
+		Namespace: "demo",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -94,7 +94,7 @@ func TestLabelsAreRewritten(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -151,7 +151,7 @@ func TestCopyPluginLabelsAreRewritten(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -201,7 +201,7 @@ func TestLabelWithLabelsAndRelabelsAndElse(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "demo",
+		Namespace: "demo",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},
@@ -237,7 +237,7 @@ func TestNastyRegex(t *testing.T) {
 	fmt.Printf("Original:\n%s\n", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "demo",
+		Namespace: "demo",
 		GenerationContext: &GenerationContext{
 			ReferencedBridges: map[string]bool{},
 		},

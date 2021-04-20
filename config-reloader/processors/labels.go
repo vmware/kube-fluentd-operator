@@ -199,7 +199,7 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		d.Tag = makeTagFromFilter(ctx.Namepsace, sortedLabelNames, labelNames)
+		d.Tag = makeTagFromFilter(ctx.Namespace, sortedLabelNames, labelNames)
 		ctx.GenerationContext.augmentTag(d)
 		return nil
 	}
@@ -210,7 +210,7 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 		Pattern string
 		Labels  []string
 	}{
-		fmt.Sprintf("kube.%s.*.*", p.Context.Namepsace),
+		fmt.Sprintf("kube.%s.*.*", p.Context.Namespace),
 		sortedLabelNames,
 	}
 	writer := &bytes.Buffer{}

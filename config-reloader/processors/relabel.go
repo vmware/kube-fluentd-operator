@@ -23,7 +23,7 @@ func normalizeLabelName(ctx *ProcessorContext, label string) string {
 
 	return fmt.Sprintf("@%s-%s",
 		util.MakeFluentdSafeName(label),
-		util.Hash(ctx.Namepsace, label))
+		util.Hash(ctx.Namespace, label))
 }
 
 func (p *rewriteLabelsState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {

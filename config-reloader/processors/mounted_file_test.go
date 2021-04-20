@@ -33,7 +33,7 @@ func TestMountedFileRemovedAfterProcessing(t *testing.T) {
 	fmt.Printf("Original: %s", fragment)
 
 	ctx := &ProcessorContext{
-		Namepsace: "monitoring",
+		Namespace: "monitoring",
 	}
 
 	processor := &mountedFileState{}
@@ -202,7 +202,7 @@ func TestConvertToFragment(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace:   "monitoring",
+		Namespace:   "monitoring",
 		KubeletRoot: "/kubelet-root",
 		MiniContainers: []*datasource.MiniContainer{
 			c1,
@@ -318,7 +318,7 @@ func TestProcessMountedFile(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace:   "monitoring",
+		Namespace:   "monitoring",
 		KubeletRoot: "/kubelet-root",
 		MiniContainers: []*datasource.MiniContainer{
 			c1,

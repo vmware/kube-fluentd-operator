@@ -88,7 +88,7 @@ func TestProcessShareDirectiveFromReceivingNs(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace:         "dest-ns",
+		Namespace:         "dest-ns",
 		GenerationContext: gen,
 	}
 
@@ -134,7 +134,7 @@ func TestProcessShareDirectiveFromPublishigNs(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace:         "source-ns",
+		Namespace:         "source-ns",
 		GenerationContext: gen,
 	}
 
@@ -174,7 +174,7 @@ func TestProcessShareDirectiveCollectBridges(t *testing.T) {
 	}
 
 	ctx := &ProcessorContext{
-		Namepsace:         "dest-ns",
+		Namespace:         "dest-ns",
 		GenerationContext: gen,
 	}
 

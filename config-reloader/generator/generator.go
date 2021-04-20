@@ -280,7 +280,7 @@ func (g *Generator) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx
 
 func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) *processors.ProcessorContext {
 	ctx := &processors.ProcessorContext{
-		Namepsace:         ns.Name,
+		Namespace:         ns.Name,
 		NamespaceLabels:   ns.Labels,
 		AllowFile:         g.cfg.AllowFile,
 		DeploymentID:      g.cfg.ID,

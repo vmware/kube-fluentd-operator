@@ -20,7 +20,7 @@ type expandThisnsMacroState struct {
 
 func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	f := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-		namespace := ctx.Namepsace
+		namespace := ctx.Namespace
 
 		if d.Name != "match" &&
 			d.Name != "filter" {
