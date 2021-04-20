@@ -44,7 +44,7 @@ gem 'fluent-plugin-sumologic_output', "1.6.1"
 gem 'fluent-plugin-systemd', "1.0.2"
 gem 'fluent-plugin-uri-parser', "0.3.0"
 gem 'fluent-plugin-verticajson', "0.0.6"
-#gem 'fluent-plugin-vmware-loginsight', :git => "https://github.com/Cryptophobia/fluent-plugin-vmware-loginsight.git"
+gem 'fluent-plugin-vmware-loginsight', "1.0.0"
 gem 'fluent-plugin-vmware-log-intelligence', "2.0.6"
 # fluent-plugin-mysqlslowquery is dependency for fluent-plugin-vmware-log-intelligence
 gem 'fluent-plugin-mysqlslowquery', "0.0.9"

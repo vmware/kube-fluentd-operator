@@ -95,12 +95,7 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && gem build fluent-plugin-google-cloud.gemspec \
   && gem install fluent-plugin-google-cloud-*.gem \
   && cd /fluentd \
-  && git clone https://github.com/Cryptophobia/fluent-plugin-vmware-loginsight.git fluent-plugin-vmware-loginsight \
-  && cd fluent-plugin-vmware-loginsight \
-  && gem build fluent-plugin-vmware-loginsight.gemspec \
-  && gem install fluent-plugin-vmware-loginsight-*.gem \
   && rm -rf /fluentd/fluent-plugin-google-cloud \
-  && rm -rf /fluentd/fluent-plugin-vmware-loginsight \
   && tdnf clean all \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
