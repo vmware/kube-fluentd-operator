@@ -112,6 +112,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		MetaKey                 string
 		MetaValue               string
 		FluentdLogLevel         string
+		BufferMountFolder       string
 		PreprocessingDirectives []string
 	}{}
 
@@ -122,6 +123,10 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 	if g.cfg.FluentdLogLevel != "" {
 		model.FluentdLogLevel = g.cfg.FluentdLogLevel
+	}
+
+	if g.cfg.BufferMountFolder != "" {
+		model.BufferMountFolder = g.cfg.BufferMountFolder
 	}
 
 	genCtx := &processors.GenerationContext{
@@ -286,6 +291,7 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 		DeploymentID:      g.cfg.ID,
 		MiniContainers:    ns.MiniContainers,
 		KubeletRoot:       g.cfg.KubeletRoot,
+		BufferMountFolder: g.cfg.BufferMountFolder,
 		GenerationContext: genCtx,
 		AllowTagExpansion: g.cfg.AllowTagExpansion,
 	}

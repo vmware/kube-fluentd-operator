@@ -43,6 +43,7 @@ type ProcessorContext struct {
 	DeploymentID      string
 	MiniContainers    []*datasource.MiniContainer
 	KubeletRoot       string
+	BufferMountFolder string
 	GenerationContext *GenerationContext
 	AllowTagExpansion bool
 }

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/sirupsen/logrus"
@@ -30,6 +31,7 @@ type Config struct {
 	OutputDir              string
 	LogLevel               string
 	FluentdLogLevel        string
+	BufferMountFolder      string
 	AnnotConfigmapName     string
 	AnnotStatus            string
 	DefaultConfigmapName   string
@@ -65,6 +67,7 @@ var defaultConfig = &Config{
 	Datasource:           "default",
 	LogLevel:             logrus.InfoLevel.String(),
 	FluentdLogLevel:      "info",
+	BufferMountFolder:    "",
 	AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
 	AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
 	DefaultConfigmapName: "fluentd-config",
@@ -114,6 +117,10 @@ func (cfg *Config) Validate() error {
 
 	if cfg.AnnotConfigmapName == "" || !reValidAnnotationName.MatchString(cfg.AnnotConfigmapName) {
 		return fmt.Errorf("invalid annotation name: '%s'", cfg.AnnotConfigmapName)
+	}
+
+	if cfg.BufferMountFolder != "" && cfg.hasValidBufferMountFolder() {
+		return fmt.Errorf("invalid fluentd buffer mount folder: '%s%s'", "/var/log/", cfg.BufferMountFolder)
 	}
 
 	// this can be empty
@@ -221,6 +228,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("log-level", "Control verbosity of log level for reloader").Default(defaultConfig.LogLevel).StringVar(&cfg.LogLevel)
 	app.Flag("fluentd-loglevel", "Control verbosity of log level for fluentd").Default(defaultConfig.FluentdLogLevel).StringVar(&cfg.FluentdLogLevel)
 
+	app.Flag("buffer-mount-folder", "Folder in /var/log/{} where to create all fluentd buffers").Default(defaultConfig.BufferMountFolder).StringVar(&cfg.BufferMountFolder)
+
 	app.Flag("annotation", "Which annotation on the namespace stores the configmap name?").Default(defaultConfig.AnnotConfigmapName).StringVar(&cfg.AnnotConfigmapName)
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
@@ -273,4 +282,16 @@ func (cfg *Config) ParseFluentdLogLevel() (string, error) {
 	}
 
 	return "", fmt.Errorf("not a valid Fluentd log Level: %q", cfg.FluentdLogLevel)
+}
+
+// isValidFolderName takes a folder name and checks if there are any dangerous characters:
+func (cfg *Config) hasValidBufferMountFolder() bool {
+	for _, r := range cfg.BufferMountFolder {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
+			continue
+		} else {
+			return false
+		}
+	}
+	return true
 }
