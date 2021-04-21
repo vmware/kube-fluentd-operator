@@ -31,7 +31,7 @@ image:
 
 
 logLevel: debug
-fluentdLoglevel: debug
+fluentdLogLevel: debug
 interval: 45
 kubeletRoot: /var/lib/kubelet
 
