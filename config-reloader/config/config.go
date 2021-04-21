@@ -119,7 +119,7 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("invalid annotation name: '%s'", cfg.AnnotConfigmapName)
 	}
 
-	if cfg.BufferMountFolder != "" && cfg.hasValidBufferMountFolder() {
+	if cfg.BufferMountFolder != "" && !cfg.hasValidBufferMountFolder() {
 		return fmt.Errorf("invalid fluentd buffer mount folder: '%s%s'", "/var/log/", cfg.BufferMountFolder)
 	}
 
@@ -288,9 +288,9 @@ func (cfg *Config) ParseFluentdLogLevel() (string, error) {
 func (cfg *Config) hasValidBufferMountFolder() bool {
 	for _, r := range cfg.BufferMountFolder {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
-			continue
-		} else {
 			return false
+		} else {
+			continue
 		}
 	}
 	return true
