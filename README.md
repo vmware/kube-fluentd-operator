@@ -622,6 +622,7 @@ Flags:
   --fluentd-rpc-port=24444      RPC port of Fluentd
   --log-level="info"            Control verbosity of config-reloader logs
   --fluentd-loglevel="info"     Control verbosity of fluentd logs
+  --buffer-mount-folder=""      Folder in /var/log/{} where to create all fluentd buffers
   --annotation="logging.csp.vmware.com/fluentd-configmap"
                                 Which annotation on the namespace stores the configmap name?
   --default-configmap="fluentd-config"
@@ -659,6 +660,7 @@ Flags:
 | `image.pullSecret`                       | Optional pull secret name                 | `""`                                |
 | `logLevel`                               | Default log level for config-reloader                | `info`                               |
 | `fluentdLogLevel`                        | Default log level for fluentd               | `info`                               |
+| `bufferMountFolder`                      | Folder in /var/log/{} where to create all fluentd buffers               | `""`                               |
 | `kubeletRoot`                            | The home dir of the kubelet, usually set using `--root-dir` on the kubelet           | `/var/lib/kubelet`                               |
 | `namespaces`                             | List of namespaces to operate on. Empty means all namespaces                 | `[]`                               |
 | `interval`                               | How often to check for config changes (seconds)                 | `45`          |

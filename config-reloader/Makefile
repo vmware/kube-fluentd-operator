@@ -87,74 +87,77 @@ delete-test-ns:
 run-loop-fs: install
 	rm -fr tmp
 	config-reloader \
-	  --interval 5 \
-	  --log-level=debug \
-	  --output-dir=tmp \
-	  --meta-key=prefix \
-	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
-	  --templates-dir=templates \
-	  --datasource=fs \
-	  --fs-dir=examples \
-	  --fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
+		--interval 5 \
+		--log-level=debug \
+		--output-dir=tmp \
+		--meta-key=prefix \
+		--meta-values=aws_region=us-west-2,csp_cluster=mon \
+		--templates-dir=templates \
+		--datasource=fs \
+		--fs-dir=examples \
+		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
 run-once-fs: install
 	rm -fr tmp
 	config-reloader \
-	  --interval 0 \
-	  --log-level=debug \
-	  --fluentd-loglevel=debug \
-	  --output-dir=tmp \
-	  --meta-key=prefix2 \
-	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
-	  --templates-dir=templates \
-	  --datasource=fs \
-	  --fs-dir=examples \
-	  --fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
+		--interval 0 \
+		--log-level=debug \
+		--fluentd-loglevel=debug \
+		--buffer-mount-folder="" \
+		--output-dir=tmp \
+		--meta-key=prefix2 \
+		--meta-values=aws_region=us-west-2,csp_cluster=mon \
+		--templates-dir=templates \
+		--datasource=fs \
+		--fs-dir=examples \
+		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
 run-once: install
 	rm -fr tmp
 	config-reloader \
-	  --interval 0 \
-	  --log-level=debug \
-	  --fluentd-loglevel=debug \
-	  --output-dir=tmp \
-	  --templates-dir=templates \
-	  --meta-key=run-once \
-	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
-	  --fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
+		--interval 0 \
+		--log-level=debug \
+		--fluentd-loglevel=debug \
+		--buffer-mount-folder="" \
+		--output-dir=tmp \
+		--templates-dir=templates \
+		--meta-key=run-once \
+		--meta-values=aws_region=us-west-2,csp_cluster=mon \
+		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
 run-loop: install
 	rm -fr tmp
 	config-reloader \
-	  --interval 5 \
-	  --log-level=debug \
-	  --fluentd-loglevel=debug \
-	  --output-dir=tmp \
-	  --meta-key=prefix3 \
-	  --meta-values=aws_region=us-west-2,csp_cluster=mon \
-	  --templates-dir=templates
+		--interval 5 \
+		--log-level=debug \
+		--fluentd-loglevel=debug \
+		--buffer-mount-folder="" \
+		--output-dir=tmp \
+		--meta-key=prefix3 \
+		--meta-values=aws_region=us-west-2,csp_cluster=mon \
+		--templates-dir=templates
 
 run-fluentd:
 	docker run --entrypoint=fluentd \
-	  -ti --rm -v `pwd`:/workspace --net=host \
-	  $(IMAGE):$(TAG) \
-	  -p /fluentd/plugins -v -c /workspace/local-fluent.conf
+		-ti --rm -v `pwd`:/workspace --net=host \
+		$(IMAGE):$(TAG) \
+		-p /fluentd/plugins -v -c /workspace/local-fluent.conf
 
 dep-graph:
 	godepgraph -s \
-	  -l 4 \
-	  -p github.com/alecthomas/units,github.com/alecthomas/template,github.com/spf13,github.com/jackc,k8s.io/kubernetes,k8s.io/apimachinery,github.com/palantir,github.com/sirupsen,github.com/prometheus,golang.org,gopkg.in \
-	  github.com/vmware/kube-fluentd-operator/config-reloader \
-	  | sed 's|github.com/vmware/kube-fluentd-operator/config-reloader/||g'\
-	  | dot -Tpng -o godepgraph.png
+		-l 4 \
+		-p github.com/alecthomas/units,github.com/alecthomas/template,github.com/spf13,github.com/jackc,k8s.io/kubernetes,k8s.io/apimachinery,github.com/palantir,github.com/sirupsen,github.com/prometheus,golang.org,gopkg.in \
+		github.com/vmware/kube-fluentd-operator/config-reloader \
+		| sed 's|github.com/vmware/kube-fluentd-operator/config-reloader/||g'\
+		| dot -Tpng -o godepgraph.png
 
 validate-config:
 	docker run --entrypoint=fluentd \
-	  -ti --rm -v `pwd`:/workspace --net=host \
-	  $(IMAGE):$(TAG) \
-	  --dry-run -p /fluentd/plugins -v -c /workspace/tmp/fluent.conf
+		-ti --rm -v `pwd`:/workspace --net=host \
+		$(IMAGE):$(TAG) \
+		--dry-run -p /fluentd/plugins -v -c /workspace/tmp/fluent.conf
 
 shell:
 	docker run --entrypoint=/bin/bash \
-	  -ti --rm -v `pwd`:/workspace --net=host \
-	  $(IMAGE):$(TAG)
+		-ti --rm -v `pwd`:/workspace --net=host \
+		$(IMAGE):$(TAG)

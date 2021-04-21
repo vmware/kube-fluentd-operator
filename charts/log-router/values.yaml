@@ -29,11 +29,12 @@ image:
   tag: latest
   pullSecret: ""
 
-
 logLevel: debug
 fluentdLogLevel: debug
 interval: 45
 kubeletRoot: /var/lib/kubelet
+# bufferMountFolder -- a folder inside /var/log to write all fluentd buffers to
+bufferMountFolder: ""
 
 # fullnameOverride -- String to fully override `fluentd-router.fullname` template.
 fullnameOverride: ""
@@ -121,7 +122,7 @@ serviceMonitor:
 
     # Scrape interval. If not set, the Prometheus default scrape interval is used.
     interval: ""
-    
+
 allowTagExpansion: false
 
 # Change the following value to define a different namespace that is treated as admin
