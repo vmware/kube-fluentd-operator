@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [v1.14.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.1)
+
+#### Core:
+  - chore(docs): add better build instructions #200 (@Cryptophobia)
+  - fix(reloader): matadata/labels key can have a period . #201 (@Cryptophobia)
+  - fix(base-image): add findutils for validate script #202 (@Cryptophobia)
+  - fix(reloader): fix ctx.Namespace typo #204 (@Cryptophobia)
+  - feat(reloader): add custom --buffer-mount-folder option #206 (@Cryptophobia)
+  - fix(config.go): fix buffer path name check #207 (@Cryptophobia)
+  - feat(fluentd): upgrade fluentd to v1.12.3 #208 (@Cryptophobia)
+
+#### CI:
+  - None
+
+#### Helm:
+  - Fix typo in values.yaml #205 (@Revellski)
+
+#### Plugins:
+  - chore(plugins): use loginsight gem 1.0.0 #203 (@Cryptophobia)
+
 ## [v1.14.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.0)
 
 #### Core:
