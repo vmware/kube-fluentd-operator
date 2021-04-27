@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install --name kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.14.0 \
+  --set image.tag=v1.14.1 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.14.0/log-router-0.3.7.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.14.1/log-router-0.3.8.tgz'
 
 helm install --name kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.14.0 \
+  --set image.tag=v1.14.1 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -540,8 +540,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.5.2                      | 1.10.0                  |
 | 1.9.1                      | 1.12.0                  |
 | 1.12.2                     | 1.14.0                  |
+| 1.12.3                     | 1.14.1                  |
 
-## Plugins in latest release (1.14.0)
+## Plugins in latest release (1.14.1)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -555,7 +556,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-detect-exceptions (0.0.13)
 * fluent-plugin-elasticsearch (4.0.5)
 * fluent-plugin-gelf-hs (1.0.8)
-* fluent-plugin-google-cloud (0.10.9)
+* fluent-plugin-google-cloud (0.11.0)
 * fluent-plugin-grafana-loki (1.2.11)
 * fluent-plugin-grok-parser (2.6.1)
 * fluent-plugin-json-in-json-2 (1.0.2)
@@ -587,9 +588,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-systemd (1.0.2)
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
-* fluent-plugin-vmware-loginsight (0.1.7)
+* fluent-plugin-vmware-loginsight (1.0.0)
 * fluent-plugin-vmware-log-intelligence (2.0.6)
-* fluentd (1.12.2)
+* fluentd (1.12.3)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
