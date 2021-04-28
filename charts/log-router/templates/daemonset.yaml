@@ -108,8 +108,6 @@ spec:
           - --fluentd-loglevel={{ .Values.fluentdLogLevel }}
           {{- if not (empty .Values.bufferMountFolder) }}
           - --buffer-mount-folder={{ .Values.bufferMountFolder }}
-          {{ else }}
-          - --buffer-mount-folder=""
           {{- end }}
           - --output-dir=/fluentd/etc
           - --templates-dir=/templates
