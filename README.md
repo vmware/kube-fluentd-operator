@@ -20,7 +20,7 @@ The easiest way to get started is using the Helm chart. Official images are not 
 
 ```bash
 git clone git@github.com:vmware/kube-fluentd-operator.git
-helm install --name kfo ./kube-fluentd-operator/charts/log-router \
+helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
   --set image.tag=v1.14.1 \
   --set image.repository=vmware/kube-fluentd-operator
@@ -31,7 +31,7 @@ Alternatively, deploy the Helm chart from a Github release:
 ```bash
 CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.14.1/log-router-0.3.8.tgz'
 
-helm install --name kfo ${CHART_URL} \
+helm install kfo ${CHART_URL} \
   --set rbac.create=true \
   --set image.tag=v1.14.1 \
   --set image.repository=vmware/kube-fluentd-operator

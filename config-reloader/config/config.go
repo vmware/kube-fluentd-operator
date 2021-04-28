@@ -120,7 +120,7 @@ func (cfg *Config) Validate() error {
 	}
 
 	if cfg.BufferMountFolder != "" && !cfg.hasValidBufferMountFolder() {
-		return fmt.Errorf("invalid fluentd buffer mount folder: '%s%s'", "/var/log/", cfg.BufferMountFolder)
+		return fmt.Errorf("invalid fluentd buffer mount folder: %v%v", "/var/log/", cfg.BufferMountFolder)
 	}
 
 	// this can be empty

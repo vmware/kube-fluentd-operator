@@ -18,6 +18,8 @@ func TestBadConfigs(t *testing.T) {
 		{"--fluentd-loglevel", "hobbit"},
 		{"--buffer-mount-folder", "../"},
 		{"--buffer-mount-folder", "   "},
+		{"--buffer-mount-folder", "\""},
+		{"--buffer-mount-folder", "\"\""},
 		{"--annotation", "|kl"},
 		{"--status-annotation", "/hello"},
 		{"--meta-key=test"},
