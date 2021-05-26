@@ -35,11 +35,17 @@ RUN tdnf upgrade -y && \
          net-tools \
          git
 
+# Copy Gemfile.lock to pin versions further:
 COPY basegems/Gemfile Gemfile
+COPY basegems/Gemfile.lock Gemfile.lock
+
+# Install the gems with bundler is better practice:
 RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-build \
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
-    && gem install -g --file Gemfile \
+    && gem update --system \
+    && gem install bundler -v '>= 2.2.18' --default \
+    && bundler install \
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal
 
