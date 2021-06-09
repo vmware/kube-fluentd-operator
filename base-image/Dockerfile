@@ -44,7 +44,7 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
     && gem update --system \
-    && gem install bundler -v '>= 2.2.18' --default \
+    && gem install bundler -v '>= 2.2.19' --default \
     && bundler install \
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal
@@ -64,8 +64,9 @@ COPY entrypoint.sh /fluentd/entrypoint.sh
 USER root
 
 ENTRYPOINT ["/fluentd/entrypoint.sh"]
-# list gems here
-COPY Gemfile /fluentd
+# Pin all fluentd plugin gem versions with Gemfile.lock here:
+COPY Gemfile /fluentd/Gemfile
+COPY Gemfile.lock /fluentd/Gemfile.lock
 RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && tdnf erase -y toybox \
   && buildDeps="\
@@ -94,7 +95,8 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \
   && echo 'gem: --no-document' >> /etc/gemrc \
   && bundle config silence_root_warning true \
-  && bundle install --gemfile=/fluentd/Gemfile \
+  && cd /fluentd \
+  && bundle install \
   && cd /fluentd \
   && git clone https://github.com/Cryptophobia/fluent-plugin-google-cloud.git fluent-plugin-google-cloud \
   && cd fluent-plugin-google-cloud \

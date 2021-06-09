@@ -59,7 +59,7 @@ type FragmentProcessor interface {
 	SetContext(*ProcessorContext)
 
 	// Prepare may define directives that are applied to the main fluentd file
-	// The results of all registered processors are concatenated ans included in fluentd.conf
+	// The results of all registered processors are concatenated and included in fluentd.conf
 	Prepare(fluentd.Fragment) (fluentd.Fragment, error)
 
 	// Process defines directives that are put in their own ns-{namespace}.conf file
