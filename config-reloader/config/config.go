@@ -289,9 +289,8 @@ func (cfg *Config) hasValidBufferMountFolder() bool {
 	for _, r := range cfg.BufferMountFolder {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '-' && r != '_' {
 			return false
-		} else {
-			continue
 		}
+		continue
 	}
 	return true
 }

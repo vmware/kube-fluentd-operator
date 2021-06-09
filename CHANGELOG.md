@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [v1.15.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.0)
+
+#### Core:
+  - docs(readme): update changelogs for v1.14.1 #210 (@Cryptophobia)
+  - chore(deps): Bump rexml from 3.1.9 to 3.2.5 in /base-image/basegems #212 (@dependabot)
+  - chore(fluentd): upgrade fluentd to v1.12.4 and bundler to >= 2.2.18 #215 (@Cryptophobia)
+  - chore(fluentd): upgrade fluentd v1.13.0 and gems #216 (@Cryptophobia)
+
+#### CI:
+  - None
+
+#### Helm:
+  - None
+
+#### Plugins:
+  - chore(fluentd): upgrade fluentd v1.13.0 and gems #216 (@Cryptophobia)
+
 ## [v1.14.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.14.1)
 
 #### Core:
