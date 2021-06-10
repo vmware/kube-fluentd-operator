@@ -7,6 +7,8 @@
   - chore(deps): Bump rexml from 3.1.9 to 3.2.5 in /base-image/basegems #212 (@dependabot)
   - chore(fluentd): upgrade fluentd to v1.12.4 and bundler to >= 2.2.18 #215 (@Cryptophobia)
   - chore(fluentd): upgrade fluentd v1.13.0 and gems #216 (@Cryptophobia)
+  - docs(readme): update changelogs for v1.15.0 #217 (@Cryptophobia)
+  - fix(gems): peg kubeclient version in Gemfile #218 (@Cryptophobia)
 
 #### CI:
   - None
