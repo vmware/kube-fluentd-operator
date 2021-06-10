@@ -234,15 +234,17 @@ GEM
     gelf (3.1.0)
       json
     google-protobuf (3.17.3-universal-darwin)
-    http (5.0.0)
+    http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
       http-form_data (~> 2.2)
-      llhttp-ffi (~> 0.0.1)
+      http-parser (~> 1.2.0)
     http-accept (1.7.0)
     http-cookie (1.0.4)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
+    http-parser (1.2.3)
+      ffi-compiler (>= 1.0, < 2.0)
     http_parser.rb (0.6.0)
     httpclient (2.8.3)
     i18n (1.8.10)
@@ -253,14 +255,13 @@ GEM
       activesupport (>= 4.2)
       aes_key_wrap
       bindata
-    kubeclient (1.0.0)
-      activesupport
-      json
-      recursive-open-struct (= 1.0.0)
-      rest-client
-    llhttp-ffi (0.0.1)
-      ffi-compiler (~> 1.0)
-      rake (~> 13.0)
+    jsonpath (1.1.0)
+      multi_json
+    kubeclient (4.9.2)
+      http (>= 3.0, < 5.0)
+      jsonpath (~> 1.0)
+      recursive-open-struct (~> 1.1, >= 1.1.1)
+      rest-client (~> 2.0)
     logfmt (0.0.9)
     lru_redux (1.1.0)
     ltsv (0.1.2)
@@ -304,7 +305,7 @@ GEM
       rack (>= 2.1.0)
     rake (13.0.3)
     rbtree (0.4.4)
-    recursive-open-struct (1.0.0)
+    recursive-open-struct (1.1.3)
     redis (3.3.5)
     remote_syslog_sender (1.2.1)
       syslog_protocol
@@ -403,6 +404,7 @@ DEPENDENCIES
   fluent-plugin-vmware-loginsight (= 1.0.0)
   fluentd (~> 1.13.0)
   gelf (= 3.1.0)
+  kubeclient (~> 4.9.0, < 5.0.0)
   logfmt (= 0.0.9)
 
 BUNDLED WITH
