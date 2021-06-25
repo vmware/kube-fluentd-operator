@@ -44,10 +44,12 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
     && gem update --system \
-    && gem install bundler -v '>= 2.2.19' --default \
+    && gem install bundler -v '>= 2.2.21' --default \
+    && gem install rexml -v '>= 3.2.5' --default \
     && bundler install \
     && gem uninstall rake -v 13.0.3 \
-    && gem uninstall bigdecimal
+    && gem uninstall bigdecimal \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec
 
 FROM photon:4.0
 ARG RUBY_PATH
@@ -102,12 +104,22 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && cd fluent-plugin-google-cloud \
   && gem build fluent-plugin-google-cloud.gemspec \
   && gem install fluent-plugin-google-cloud-*.gem \
+  && wget https://github.com/jemalloc/jemalloc/releases/download/3.6.0/jemalloc-3.6.0.tar.bz2 -P /tmp \
+  && tar -C /tmp/ -xjvf /tmp/jemalloc-3.6.0.tar.bz2 \
+  && cd /tmp/jemalloc-3.6.0 \
+  && ./configure && make \
+  && mv -v lib/libjemalloc.so* /usr/lib \
+  && rm -rf /tmp/jemalloc-3.6.0 \
   && cd /fluentd \
   && rm -rf /fluentd/fluent-plugin-google-cloud \
   && tdnf clean all \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
   && tdnf remove -y $buildDeps
+
+# Make sure fluentd picks jemalloc 3.6.0 lib as default
+ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
+ENV RUBYLIB="/usr/local/lib/ruby/gems/2.7.0/gems/resolv-0.2.1/lib"
 
 EXPOSE 24444 5140
 COPY plugins /fluentd/plugins

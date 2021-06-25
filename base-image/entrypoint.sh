@@ -16,7 +16,7 @@ function main() {
   DEFAULT_FLUENT_CONF=/fluentd/etc/${FLUENTD_CONF:-fluent.conf}
   echo "Using configuration: ${DEFAULT_FLUENT_CONF}"
 
-  local retries=${RETRIES:-30}
+  local retries=${RETRIES:-60}
   for attempt in $( seq 1 $retries ); do
     if [ -f ${DEFAULT_FLUENT_CONF} ]; then
       local ready=true
