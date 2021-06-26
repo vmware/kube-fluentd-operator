@@ -17,7 +17,7 @@ GEM
     async-pool (0.2.0)
       async (~> 1.8)
     bigdecimal (3.0.2)
-    console (1.12.0)
+    console (1.13.1)
       fiber-local
     did_you_mean (1.3.0)
     e2mmap (0.1.0)
@@ -44,11 +44,12 @@ GEM
       protocol-hpack (~> 1.4)
       protocol-http (~> 0.18)
     rake (13.0.3)
+    resolv (0.2.1)
     rexml (3.2.5)
     rss (0.2.7)
     singleton (0.1.1)
     sync (0.5.0)
-    test-unit (3.2.9)
+    test-unit (3.4.4)
       power_assert
     thwait (0.2.0)
       e2mmap
@@ -66,7 +67,7 @@ DEPENDENCIES
   async-io (= 1.28.0)
   async-pool (= 0.2.0)
   bigdecimal
-  bundler (>= 2.2.19)
+  bundler (>= 2.2.21)
   did_you_mean (= 1.3.0)
   ext_monitor (= 0.1.2)
   json (= 2.4.1)
@@ -84,14 +85,15 @@ DEPENDENCIES
   protocol-http1 (= 0.13.0)
   protocol-http2 (= 0.14.0)
   rake (= 13.0.3)
+  resolv (= 0.2.1)
   rexml (= 3.2.5)
   rss (= 0.2.7)
   sync (= 0.5.0)
-  test-unit (= 3.2.9)
+  test-unit (>= 3.4.4)
   thwait
   unf_ext
   webrick
   xmlrpc (= 0.3.0)
 
 BUNDLED WITH
-   2.2.19
+   2.2.21

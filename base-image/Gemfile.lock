@@ -15,11 +15,11 @@ GEM
     amq-protocol (2.3.2)
     attr_required (1.0.1)
     aws-eventstream (1.1.1)
-    aws-partitions (1.466.0)
+    aws-partitions (1.470.0)
     aws-sdk-cloudwatchlogs (1.41.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-core (3.114.2)
+    aws-sdk-core (3.115.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -30,10 +30,10 @@ GEM
     aws-sdk-kinesis (1.32.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kms (1.43.0)
+    aws-sdk-kms (1.44.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.96.0)
+    aws-sdk-s3 (1.96.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -408,4 +408,4 @@ DEPENDENCIES
   logfmt (= 0.0.9)
 
 BUNDLED WITH
-   2.2.19
+   2.2.21
