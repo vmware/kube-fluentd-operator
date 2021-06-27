@@ -46,10 +46,12 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && gem update --system \
     && gem install bundler -v '>= 2.2.21' --default \
     && gem install rexml -v '>= 3.2.5' --default \
+    && gem install rdoc -v '>= 6.3.1' --default \
     && bundler install \
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.gemspec
 
 FROM photon:4.0
 ARG RUBY_PATH

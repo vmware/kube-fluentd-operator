@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "~> 1.13.0"
+gem "fluentd", "~> 1.13.1"
 
 gem 'ffi', "1.15.1"
 gem 'fluent-plugin-amqp', "0.14.0"
