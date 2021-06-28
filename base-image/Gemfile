@@ -22,7 +22,8 @@ gem 'fluent-plugin-kubernetes_metadata_filter', "2.7.1"
 gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
 gem 'fluent-plugin-kubernetes', "0.3.1"
 gem 'fluent-plugin-logentries', "0.2.10"
-gem 'fluent-plugin-loggly', '0.1.0.pre'
+#DEPRECATION: If the fix does not work, time for this gem to be deprecated:
+#gem 'fluent-plugin-loggly', '0.1.0.pre', :git => "https://github.com/Cryptophobia/fluent-plugin-loggly.git"
 gem 'fluent-plugin-logzio', "0.0.21"
 gem 'fluent-plugin-mail', "0.3.0"
 gem 'fluent-plugin-mongo', "1.5.0"
