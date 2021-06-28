@@ -71,12 +71,18 @@ func (d *kubeInformerConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 		}
 		minis := convertPodToMinis(podList)
 
+		// If the AnnotStatus is not present on ns then set IsKnownFromBefore to false
+		annotStatusExists := false
+		if _, ok := nsobj.Annotations[d.cfg.AnnotStatus]; ok {
+			annotStatusExists = true
+		}
+
 		// Create a new NamespaceConfig from the data we've processed up to now
 		nsconfigs = append(nsconfigs, &NamespaceConfig{
 			Name:               ns,
 			FluentdConfig:      configdata,
 			PreviousConfigHash: d.hashes[ns],
-			IsKnownFromBefore:  true,
+			IsKnownFromBefore:  annotStatusExists,
 			Labels:             nsobj.Labels,
 			MiniContainers:     minis,
 		})
