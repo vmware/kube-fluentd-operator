@@ -10,7 +10,8 @@ FROM photon:4.0 AS rubybuild
 ARG RUBY_PATH
 ARG RUBY_VERSION
 ARG RUBYOPT
-RUN tdnf upgrade -y && \
+RUN tdnf clean all && \
+    tdnf upgrade -y && \
     tdnf erase -y toybox && \
     tdnf install -y \
          bzip2 \
@@ -33,7 +34,8 @@ RUN tdnf upgrade -y && \
          openssl-devel \
          systemd \
          net-tools \
-         git
+         git && \
+    tdnf clean all
 
 # Copy Gemfile.lock to pin versions further:
 COPY basegems/Gemfile Gemfile
@@ -123,7 +125,8 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && tdnf clean all \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
-  && tdnf remove -y $buildDeps
+  && tdnf remove -y $buildDeps \
+  && tdnf clean all
 
 # Make sure fluentd picks jemalloc 3.6.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
