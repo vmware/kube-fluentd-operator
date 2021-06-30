@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [v1.15.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.1)
+
+#### Core:
+  - docs(readme): update changelogs for v1.15.0 #219 (@Cryptophobia)
+  - fix(kubernetes.conf): set read_from_head to false #220 (@Cryptophobia)
+  - Revert "fix(kubernetes.conf): set read_from_head to false" #223 (@Cryptophobia)
+  - chore(deps): various updates and add jemalloc lib #224 (@Cryptophobia)
+  - fix(generator): fix status annot on unused ns #227 (@Cryptophobia)
+  - fix(Dockerfile): add tdnf clean commands #228 (@Cryptophobia)
+
+#### CI:
+  - None
+
+#### Helm:
+  - None
+
+#### Plugins:
+  - chore(fluentd): upgrade fluentd v1.13.1 and gems #225 (@Cryptophobia)
+  - fix(plugins): fix for fluent-plugin-loggly gem #226 (@Cryptophobia)
+
 ## [v1.15.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.0)
 
 #### Core:
