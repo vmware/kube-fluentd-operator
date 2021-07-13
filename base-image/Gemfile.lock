@@ -9,7 +9,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aes_key_wrap (1.1.0)
     amq-protocol (2.3.2)
@@ -231,6 +231,7 @@ GEM
     gelf (3.1.0)
       json
     google-protobuf (3.17.3-universal-darwin)
+    google-protobuf (3.17.3-x86_64-linux)
     http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -354,6 +355,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-20
+  x86_64-linux
 
 DEPENDENCIES
   ffi (= 1.15.1)
