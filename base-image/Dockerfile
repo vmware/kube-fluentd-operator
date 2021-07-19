@@ -45,10 +45,10 @@ COPY basegems/Gemfile.lock Gemfile.lock
 RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-build \
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
-    && gem update --system \
-    && gem install bundler -v '>= 2.2.21' --default \
-    && gem install rexml -v '>= 3.2.5' --default \
-    && gem install rdoc -v '>= 6.3.1' --default \
+    && gem update --system --no-document \
+    && gem install bundler -v '>= 2.2.24' --default --no-document \
+    && gem install rexml -v '>= 3.2.5' --default --no-document \
+    && gem install rdoc -v '>= 6.3.1' --default --no-document \
     && bundler install \
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal \
@@ -60,7 +60,7 @@ ARG RUBY_PATH
 ARG RUBYOPT
 ENV PATH $RUBY_PATH/bin:$PATH
 COPY --from=rubybuild $RUBY_PATH $RUBY_PATH
-# Not sure why this is needed: see https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.4/debian-elasticsearch/Dockerfile
+# Not sure why this is needed: see https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.13/debian-elasticsearch7/Dockerfile
 ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
 # start with a valid empty file
 COPY failsafe.conf /fluentd/failsafe.conf
@@ -97,8 +97,8 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
      gdbm-devel \
      openssl-devel" \
   && tdnf install -y $buildDeps util-linux systemd net-tools findutils \
-  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_kubernetes.rb -P /fluentd/plugins \
-  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.4/debian-elasticsearch/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \
+  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.13/debian-elasticsearch7/plugins/parser_kubernetes.rb -P /fluentd/plugins \
+  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.13/debian-elasticsearch7/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \
   && echo 'gem: --no-document' >> /etc/gemrc \
   && bundle config silence_root_warning true \
   && cd /fluentd \
