@@ -109,7 +109,7 @@ func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
 	}
 
 	body, _ := json.Marshal(&patch)
-	_, err := d.client.CoreV1().Namespaces().Patch(namespace, types.StrategicMergePatchType, body)
+	_, err := d.client.CoreV1().Namespaces().Patch(namespace, types.MergePatchType, body)
 
 	logrus.Debugf("Saving status: %+v, %+v", patch, err)
 	if err != nil {
