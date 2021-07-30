@@ -48,7 +48,7 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && gem update --system --no-document \
     && gem install bundler -v '>= 2.2.24' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
-    && gem install rdoc -v '>= 6.3.1' --default --no-document \
+    && gem install rdoc -v '>= 6.3.2' --default --no-document \
     && bundler install \
     && gem uninstall rake -v 13.0.3 \
     && gem uninstall bigdecimal \

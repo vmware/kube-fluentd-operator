@@ -543,6 +543,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.12.3                     | 1.14.1                  |
 | 1.13.0                     | 1.15.0                  |
 | 1.13.1                     | 1.15.1                  |
+| 1.13.3                     | 1.15.2 (TBA)            |
 
 ## Plugins in latest release (1.15.1)
 
