@@ -40,7 +40,6 @@ type NamespaceConfig struct {
 	Name               string
 	FluentdConfig      string
 	PreviousConfigHash string
-	IsKnownFromBefore  bool
 	MiniContainers     []*MiniContainer
 	Labels             map[string]string
 }
