@@ -1,7 +1,6 @@
 package datasource
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -15,7 +14,6 @@ import (
 
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	listerv1 "k8s.io/client-go/listers/core/v1"
@@ -36,7 +34,6 @@ type kubeInformerConnection struct {
 // It uses options from the configuration to determine which namespaces to inspect and which resources
 // within those namespaces contain fluentd configuration.
 func (d *kubeInformerConnection) GetNamespaces() ([]*NamespaceConfig, error) {
-
 	// Get a list of the namespaces which may contain fluentd configuration
 	nses, err := d.discoverNamespaces()
 	if err != nil {
@@ -96,24 +93,44 @@ func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash s
 	d.hashes[namespace] = hash
 }
 
-// UpdateStatus patches a namespace to update the status annotation with the latest result
+// UpdateStatus updates a namespace's status annotation with the latest result
 // from the config generator.
 func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
-	patch := &core.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-			Annotations: map[string]string{
-				d.cfg.AnnotStatus: status,
-			},
-		},
+	ns, err := d.client.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
+	if err != nil {
+		logrus.Infof("Cannot find namespace to update status for: %v", namespace)
 	}
 
-	body, _ := json.Marshal(&patch)
-	_, err := d.client.CoreV1().Namespaces().Patch(namespace, types.MergePatchType, body)
+	// update annotations
+	annotations := ns.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
 
-	logrus.Debugf("Saving status: %+v, %+v", patch, err)
+	statusAnnotationExists := false
+	if _, ok := annotations[d.cfg.AnnotStatus]; ok {
+		statusAnnotationExists = true
+	}
+
+	// check the annotation status key and add if status not blank
+	if !statusAnnotationExists && status != "" {
+		// not found add it.
+		// only add status if the status key is not ""
+		annotations[d.cfg.AnnotStatus] = status
+	}
+
+	// check if annotation status key exists and remove if status blank
+	if statusAnnotationExists && status == "" {
+		delete(annotations, d.cfg.AnnotStatus)
+	}
+
+	ns.SetAnnotations(annotations)
+
+	_, err = d.client.CoreV1().Namespaces().Update(ns)
+
+	logrus.Debugf("Saving status annotation to namespace %s: %+v", namespace, err)
 	if err != nil {
-		logrus.Infof("Cannot set error status of %s: %v", namespace, err)
+		logrus.Infof("Cannot set error status on namespace %s: %+v", namespace, err)
 	}
 }
 
