@@ -190,7 +190,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 		// namespace is not configured
 		if renderedConfig == "" {
 			fileHashesByNs[nsConf.Name] = configHash
-			if nsConf.PreviousConfigHash != configHash && nsConf.IsKnownFromBefore {
+			if nsConf.PreviousConfigHash != configHash {
 				// empty config is a valid input, clear error status
 				g.updateStatus(nsConf.Name, "")
 			}
