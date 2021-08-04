@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/sirupsen/logrus"
@@ -122,7 +123,9 @@ func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
 	_, err = d.client.CoreV1().Namespaces().Update(ns)
 
 	logrus.Debugf("Saving status annotation to namespace %s: %+v", namespace, err)
-	if err != nil {
+	// errors.IsConflict is safe to ignore since multiple log-routers try update at same time
+	// (only 1 router can update this unique ResourceVersion, no need to retry, each router is a retry process):
+	if err != nil && !errors.IsConflict(err) {
 		logrus.Infof("Cannot set error status on namespace %s: %+v", namespace, err)
 	}
 }
