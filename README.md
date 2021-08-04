@@ -1055,7 +1055,7 @@ If you don't like this default name or happen to use this configmap for other pu
 
 Use `--annotation=acme.com/fancy-config` to use acme.com/fancy-config as annotation name. However, you'd also need to customize the Helm chart. Patches are welcome!
 
-## Known issues
+## Known Issues
 
 Currently space-delimited tags are not supported. For example, instead of `<filter a b>`, you need to use `<filter a>` and `<filter b>`.
 This limitation will be addressed in a later version.
