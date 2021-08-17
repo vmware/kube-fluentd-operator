@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.15.1 \
+  --set image.tag=v1.15.2 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.15.1/log-router-0.3.8.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.15.2/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.15.1 \
+  --set image.tag=v1.15.2 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -543,9 +543,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.12.3                     | 1.14.1                  |
 | 1.13.0                     | 1.15.0                  |
 | 1.13.1                     | 1.15.1                  |
-| 1.13.3                     | 1.15.2 (TBA)            |
+| 1.13.3                     | 1.15.2                  |
 
-## Plugins in latest release (1.15.1)
+## Plugins in latest release (1.15.2)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -594,7 +594,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-verticajson (0.0.6)
 * fluent-plugin-vmware-log-intelligence (2.0.6)
 * fluent-plugin-vmware-loginsight (1.0.0)
-* fluentd (1.13.1)
+* fluentd (1.13.3)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
