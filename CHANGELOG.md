@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## [v1.15.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.2)
+
+#### Core:
+  - docs(readme): update changelogs for v1.15.1 #229 (@Cryptophobia)
+  - fix(reloader): use update for status annotation #234 (@Cryptophobia)
+  - fix(reloader): remove the IsKnowFromBefore logic #235 (@Cryptophobia)
+  - fix(kube): ignore errors.IsConflict on update call #237 (@Cryptophobia)
+
+#### CI:
+  - None
+
+#### Helm:
+  - feat(charts): add update on ns role and template for rbac api #238 (@Cryptophobia)
+  - feat(charts): bump up chart version to 0.4.0 #240 (@Cryptophobia)
+
+#### Plugins:
+
+  - chore(deps): Bump addressable from 2.7.0 to 2.8.0 in /base-image #230 (@dependabot)
+  - chore(fluentd): upgrade fluentd v1.13.2 and gems #231 (@Cryptophobia)
+  - chore(fluentd): upgrade fluentd v1.13.3 and gems #236 (@Cryptophobia)
+
 ## [v1.15.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.1)
 
 #### Core:
