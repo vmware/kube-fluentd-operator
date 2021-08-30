@@ -53,7 +53,7 @@ kubectl create configmap fluentd-config --namespace demo --from-file=fluent.conf
 
 
 # The following step is optional: the fluentd-config is the default configmap name.
-# kubectl annotate demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
+# kubectl annotate namespace demo logging.csp.vmware.com/fluentd-configmap=fluentd-config
 
 ```
 
