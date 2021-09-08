@@ -60,7 +60,6 @@ func TestLabelsParseNotOk(t *testing.T) {
 	for _, tag := range inputs {
 		res, err := parseTagToLabels(tag)
 		assert.NotNil(t, err, "Got this instead for %s: %+v", tag, res)
-
 	}
 }
 
