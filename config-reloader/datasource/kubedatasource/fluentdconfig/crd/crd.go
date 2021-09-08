@@ -154,7 +154,7 @@ type v1Manager struct {
 }
 
 func (m *v1Manager) ApplyCRD() error {
-	if _, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Create(&fluentdConfigCRD); err != nil && !errors.IsAlreadyExists(err) {
+	if _, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Create(context.TODO(), &fluentdConfigCRD, metav1.CreateOptions{}); err != nil && !errors.IsAlreadyExists(err) {
 		return err
 	}
 
@@ -162,7 +162,7 @@ func (m *v1Manager) ApplyCRD() error {
 }
 
 func (m *v1Manager) CheckCRD() (bool, error) {
-	crd, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(m.GetCRDName(), metav1.GetOptions{})
+	crd, err := m.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(context.TODO(), m.GetCRDName(), metav1.GetOptions{})
 	if err != nil {
 		return false, err
 	}
@@ -222,7 +222,7 @@ type v1beta1Manager struct {
 }
 
 func (m *v1beta1Manager) ApplyCRD() error {
-	if _, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(&legacyFluentdConfigCRD); err != nil && !errors.IsAlreadyExists(err) {
+	if _, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(context.TODO(), &legacyFluentdConfigCRD, metav1.CreateOptions{}); err != nil && !errors.IsAlreadyExists(err) {
 		return err
 	}
 
@@ -230,7 +230,7 @@ func (m *v1beta1Manager) ApplyCRD() error {
 }
 
 func (m *v1beta1Manager) CheckCRD() (bool, error) {
-	crd, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(m.GetCRDName(), metav1.GetOptions{})
+	crd, err := m.clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(context.TODO(), m.GetCRDName(), metav1.GetOptions{})
 	if err != nil {
 		return false, err
 	}

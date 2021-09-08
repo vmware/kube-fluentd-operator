@@ -193,7 +193,7 @@ func (c *ConfigMapDS) handleCMChange(obj interface{}) {
 
 	if c.cfg.Datasource == "multimap" {
 		cmLabels := object.GetLabels()
-		if len(cmLabels) == 0 || !labels.AreLabelsInWhiteList(c.cfg.ParsedLabelSelector, labels.Set(cmLabels)) {
+		if len(cmLabels) == 0 || !areLabelsInAllowList(c.cfg.ParsedLabelSelector, labels.Set(cmLabels)) {
 			return
 		}
 	} else {
@@ -209,4 +209,23 @@ func (c *ConfigMapDS) handleCMChange(obj interface{}) {
 		// There is already one pending notification. Useless to send another one since, when
 		// the pending one will be processed all new changes will be reloaded.
 	}
+}
+
+// areLabelsInAllowList verifies if the provided label list
+// is in the provided allowlist and returns true, otherwise false.
+func areLabelsInAllowList(labels, allowlist labels.Set) bool {
+	if len(allowlist) == 0 {
+		return true
+	}
+
+	for k, v := range labels {
+		value, ok := allowlist[k]
+		if !ok {
+			return false
+		}
+		if value != v {
+			return false
+		}
+	}
+	return true
 }

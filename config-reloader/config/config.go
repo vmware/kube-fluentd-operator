@@ -135,7 +135,6 @@ func (cfg *Config) Validate() error {
 	if cfg.MetaKey != "" && cfg.MetaValues == "" {
 		return errors.New("using --meta-key requires --meta-values too")
 	}
-
 	isValid := func(s string) bool {
 
 		if len(s) == 0 {
@@ -171,11 +170,9 @@ func (cfg *Config) Validate() error {
 		if len(cfg.ParsedMetaValues) == 0 {
 			return errors.New("using --meta-key requires --meta-values too")
 		}
-
 	}
 
 	if cfg.Datasource == "multimap" {
-
 		if cfg.LabelSelector == "" {
 			return errors.New("using --datasource=multimap requires --label-selector too")
 		}

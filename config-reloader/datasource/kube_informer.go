@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sort"
@@ -90,7 +91,7 @@ func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash s
 // UpdateStatus updates a namespace's status annotation with the latest result
 // from the config generator.
 func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
-	ns, err := d.client.CoreV1().Namespaces().Get(namespace, metav1.GetOptions{})
+	ns, err := d.client.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if err != nil {
 		logrus.Infof("Cannot find namespace to update status for: %v", namespace)
 	}
@@ -120,7 +121,7 @@ func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
 
 	ns.SetAnnotations(annotations)
 
-	_, err = d.client.CoreV1().Namespaces().Update(ns)
+	_, err = d.client.CoreV1().Namespaces().Update(context.TODO(), ns, metav1.UpdateOptions{})
 
 	logrus.Debugf("Saving status annotation to namespace %s: %+v", namespace, err)
 	// errors.IsConflict is safe to ignore since multiple log-routers try update at same time

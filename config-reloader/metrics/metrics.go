@@ -22,7 +22,7 @@ var namespaceConfigStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 
 // SetNamespaceConfigStatusMetric sets the current metric value for a given namespace
 func SetNamespaceConfigStatusMetric(namespace string, valid bool) {
-	var value float64 = 0
+	var value float64
 	if valid {
 		value = 1
 	}
