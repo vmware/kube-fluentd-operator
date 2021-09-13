@@ -46,14 +46,18 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
     && gem update --system --no-document \
-    && gem install bundler -v '>= 2.2.24' --default --no-document \
+    && gem install bundler -v '>= 2.2.27' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
     && gem install rdoc -v '>= 6.3.2' --default --no-document \
+    && gem install json -v '>= 2.5.1' --default --no-document \
+    && gem install webrick -v '>= 1.7.0' --default --no-document \
     && bundler install \
-    && gem uninstall rake -v 13.0.3 \
+    && gem uninstall rake -v 13.0.6 \
     && gem uninstall bigdecimal \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.gemspec
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.gemspec \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.3.0.gemspec \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/webrick-1.6.1.gemspec
 
 FROM photon:4.0
 ARG RUBY_PATH

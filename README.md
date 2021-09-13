@@ -544,8 +544,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.13.0                     | 1.15.0                  |
 | 1.13.1                     | 1.15.1                  |
 | 1.13.3                     | 1.15.2                  |
+| 1.14.0                     | 1.15.3 (TBA)            |
 
-## Plugins in latest release (1.15.2)
+## Plugins in latest release (1.15.3)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -559,14 +560,14 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-detect-exceptions (0.0.13)
 * fluent-plugin-elasticsearch (5.0.4)
 * fluent-plugin-gelf-hs (1.0.8)
-* fluent-plugin-google-cloud (0.11.1)
+* fluent-plugin-google-cloud (0.13.0) - forked to allow fluentd v1.14.x
 * fluent-plugin-grafana-loki (1.2.16)
 * fluent-plugin-grok-parser (2.6.2)
 * fluent-plugin-json-in-json-2 (1.0.2)
 * fluent-plugin-kafka (0.16.3)
 * fluent-plugin-kinesis (3.4.0)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.7.1)
+* fluent-plugin-kubernetes_metadata_filter (2.8.0)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (1.0.0)
@@ -594,7 +595,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-verticajson (0.0.6)
 * fluent-plugin-vmware-log-intelligence (2.0.6)
 * fluent-plugin-vmware-loginsight (1.0.0)
-* fluentd (1.13.3)
+* fluentd (1.14.0)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 
