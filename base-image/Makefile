@@ -7,7 +7,7 @@ TAG ?= latest
 .PHONY: test
 
 build-image:
-	docker build -t $(IMAGE):$(TAG) .
+	DOCKER_BUILDKIT=1 docker build -t $(IMAGE):$(TAG) .
 
 shell:
 	docker run --entrypoint=/bin/bash \

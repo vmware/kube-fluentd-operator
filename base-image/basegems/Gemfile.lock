@@ -42,15 +42,13 @@ GEM
     protocol-http2 (0.14.0)
       protocol-hpack (~> 1.4)
       protocol-http (~> 0.18)
-    rake (13.0.3)
+    rake (13.0.6)
     rdoc (6.3.2)
     resolv (0.2.1)
     rexml (3.2.5)
     rss (0.2.7)
     singleton (0.1.1)
     sync (0.5.0)
-    test-unit (3.4.4)
-      power_assert
     thwait (0.2.0)
       e2mmap
     timers (4.3.3)
@@ -67,7 +65,7 @@ DEPENDENCIES
   async-io (= 1.28.0)
   async-pool (= 0.2.0)
   bigdecimal
-  bundler (>= 2.2.24)
+  bundler (>= 2.2.27)
   did_you_mean (= 1.3.0)
   ext_monitor (= 0.1.2)
   json (= 2.4.1)
@@ -83,17 +81,16 @@ DEPENDENCIES
   protocol-http (= 0.21.0)
   protocol-http1 (= 0.13.0)
   protocol-http2 (= 0.14.0)
-  rake (= 13.0.3)
-  rdoc (= 6.3.2)
+  rake (= 13.0.6)
+  rdoc (>= 6.3.2)
   resolv (= 0.2.1)
   rexml (= 3.2.5)
   rss (= 0.2.7)
   sync (= 0.5.0)
-  test-unit (>= 3.4.4)
   thwait
   unf_ext
   webrick
   xmlrpc (= 0.3.0)
 
 BUNDLED WITH
-   2.2.24
+   2.2.27
