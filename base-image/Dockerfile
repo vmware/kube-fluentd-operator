@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 ARG RUBY_PATH=/usr/local
-ARG RUBY_VERSION=2.7.3
+ARG RUBY_VERSION=2.7.4
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
 FROM photon:4.0 AS rubybuild
