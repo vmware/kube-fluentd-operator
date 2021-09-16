@@ -1,6 +1,7 @@
 package kubedatasource
 
 import (
+	"context"
 	"sort"
 	"strings"
 	"time"
@@ -26,7 +27,7 @@ type FluentdConfigDS struct {
 	updateChan chan time.Time
 }
 
-func NewFluentdConfigDS(cfg *config.Config, kubeCfg *rest.Config, updateChan chan time.Time) (*FluentdConfigDS, error) {
+func NewFluentdConfigDS(ctx context.Context, cfg *config.Config, kubeCfg *rest.Config, updateChan chan time.Time) (*FluentdConfigDS, error) {
 	kfocli, err := kfoClient.NewForConfig(kubeCfg)
 	if err != nil {
 		return nil, err
@@ -51,7 +52,7 @@ func NewFluentdConfigDS(cfg *config.Config, kubeCfg *rest.Config, updateChan cha
 	})
 
 	// Verify CRD availability
-	if err := crd.CheckAndInstallCRD(kubeCfg); err != nil {
+	if err := crd.CheckAndInstallCRD(ctx, kubeCfg); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +68,7 @@ func (f *FluentdConfigDS) IsReady() bool {
 
 // GetFluentdConfig returns the fluentd configs for the given ns extracted
 // by the configured FluentdConfigs k8s resources
-func (f *FluentdConfigDS) GetFluentdConfig(namespace string) (string, error) {
+func (f *FluentdConfigDS) GetFluentdConfig(ctx context.Context, namespace string) (string, error) {
 	// Grab all FluentdConfigs k8s resources in the given ns
 	fluentdConfigs, err := f.fdlist.FluentdConfigs(namespace).List(labels.Everything())
 	if err != nil {

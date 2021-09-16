@@ -74,7 +74,6 @@ func TestThisnsExpandOk(t *testing.T) {
 }
 
 func TestThisnsExpandBadConfig(t *testing.T) {
-
 	ctx := &ProcessorContext{
 		Namespace: "monitoring",
 	}

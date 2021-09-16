@@ -4,6 +4,7 @@
 package datasource
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -35,7 +36,7 @@ func makeFakeConfig(namespace string) string {
 	return contents
 }
 
-func (d *fakeDatasource) GetNamespaces() ([]*NamespaceConfig, error) {
+func (d *fakeDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, error) {
 	res := []*NamespaceConfig{}
 
 	for _, ns := range []string{"kube-system", "monitoring", "csp-main"} {
@@ -61,12 +62,12 @@ func (d *fakeDatasource) WriteCurrentConfigHash(namespace string, hash string) {
 	d.hashes[namespace] = hash
 }
 
-func (d *fakeDatasource) UpdateStatus(namespace string, status string) {
+func (d *fakeDatasource) UpdateStatus(ctx context.Context, namespace string, status string) {
 	logrus.Infof("Setting status of namespace %s to %s", namespace, status)
 }
 
 // NewFakeDatasource returns a predefined set of namespaces + configs
-func NewFakeDatasource() Datasource {
+func NewFakeDatasource(ctx context.Context) Datasource {
 	return &fakeDatasource{
 		hashes: make(map[string]string),
 	}

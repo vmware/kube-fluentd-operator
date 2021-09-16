@@ -4,6 +4,7 @@
 package fluentd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -16,7 +17,7 @@ type Reloader struct {
 }
 
 // NewReloader will notify on the given rpc port
-func NewReloader(port int) *Reloader {
+func NewReloader(ctx context.Context, port int) *Reloader {
 	return &Reloader{
 		port: port,
 	}

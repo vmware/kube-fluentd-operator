@@ -1,6 +1,7 @@
 package kubedatasource
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
@@ -30,6 +31,7 @@ func (e *namespaceNotConfigured) Error() string {
 }
 
 type ConfigMapDS struct {
+	ctx        *context.Context
 	cfg        *config.Config
 	cfglist    listerv1.ConfigMapLister
 	cfgready   func() bool
@@ -37,11 +39,12 @@ type ConfigMapDS struct {
 	updateChan chan time.Time
 }
 
-func NewConfigMapDS(cfg *config.Config, factory informers.SharedInformerFactory, updateChan chan time.Time) (*ConfigMapDS, error) {
+func NewConfigMapDS(ctx context.Context, cfg *config.Config, factory informers.SharedInformerFactory, updateChan chan time.Time) (*ConfigMapDS, error) {
 	configMapLister := factory.Core().V1().ConfigMaps().Lister()
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
 
 	cmDS := &ConfigMapDS{
+		ctx:        &ctx,
 		cfg:        cfg,
 		cfglist:    configMapLister,
 		cfgready:   factory.Core().V1().ConfigMaps().Informer().HasSynced,
@@ -50,11 +53,15 @@ func NewConfigMapDS(cfg *config.Config, factory informers.SharedInformerFactory,
 	}
 
 	factory.Core().V1().ConfigMaps().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: cmDS.handleCMChange,
-		UpdateFunc: func(old, new interface{}) {
-			cmDS.handleCMChange(new)
+		AddFunc: func(new interface{}) {
+			cmDS.handleCMChange(ctx, new)
 		},
-		DeleteFunc: cmDS.handleCMChange,
+		UpdateFunc: func(old, new interface{}) {
+			cmDS.handleCMChange(ctx, new)
+		},
+		DeleteFunc: func(new interface{}) {
+			cmDS.handleCMChange(ctx, new)
+		},
 	})
 
 	return cmDS, nil
@@ -67,17 +74,17 @@ func (c *ConfigMapDS) IsReady() bool {
 
 // GetFluentdConfig returns the fluentd configs for the given ns extracted
 // by the configured ConfigMaps
-func (c *ConfigMapDS) GetFluentdConfig(namespace string) (string, error) {
+func (c *ConfigMapDS) GetFluentdConfig(ctx context.Context, namespace string) (string, error) {
 	// Detect the configmaps in the namespace which we expect to contain
 	// fluentd configuration, then read their contents into a buffer
-	configmaps, err := c.fetchConfigMaps(namespace)
+	configmaps, err := c.fetchConfigMaps(ctx, namespace)
 	if err != nil {
 		return "", err
 	}
 	return c.readConfig(configmaps), nil
 }
 
-func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
+func (c *ConfigMapDS) fetchConfigMaps(ctx context.Context, ns string) ([]*core.ConfigMap, error) {
 	configmaps := make([]*core.ConfigMap, 0)
 	nsmaps := c.cfglist.ConfigMaps(ns)
 
@@ -99,7 +106,7 @@ func (c *ConfigMapDS) fetchConfigMaps(ns string) ([]*core.ConfigMap, error) {
 		}
 	} else {
 		// Get a configmap with a specific name
-		mapName, err := c.detectConfigMapName(ns)
+		mapName, err := c.detectConfigMapName(ctx, ns)
 		if err != nil {
 			switch err.(type) {
 			case *namespaceNotConfigured:
@@ -142,7 +149,7 @@ func (c *ConfigMapDS) readConfig(configmaps []*core.ConfigMap) string {
 // annotation, the configuration is consulted for a default name. If no name can
 // be found, a custom error type is returned indicating that the namespace should
 // be excluded from further processing.
-func (c *ConfigMapDS) detectConfigMapName(ns string) (string, error) {
+func (c *ConfigMapDS) detectConfigMapName(ctx context.Context, ns string) (string, error) {
 	namespace, err := c.nslist.Get(ns)
 	if err != nil {
 		return "", fmt.Errorf("Could not get the details of namespace '%s': %v", ns, err)
@@ -162,7 +169,7 @@ func (c *ConfigMapDS) detectConfigMapName(ns string) (string, error) {
 	return configMapName, nil
 }
 
-func (c *ConfigMapDS) handleCMChange(obj interface{}) {
+func (c *ConfigMapDS) handleCMChange(ctx context.Context, obj interface{}) {
 	var object metav1.Object
 	var ok bool
 	if object, ok = obj.(metav1.Object); !ok {
@@ -197,7 +204,7 @@ func (c *ConfigMapDS) handleCMChange(obj interface{}) {
 			return
 		}
 	} else {
-		mapName, err := c.detectConfigMapName(object.GetNamespace())
+		mapName, err := c.detectConfigMapName(ctx, object.GetNamespace())
 		if err != nil || object.GetName() != mapName {
 			return
 		}

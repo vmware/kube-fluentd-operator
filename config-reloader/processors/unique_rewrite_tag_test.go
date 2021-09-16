@@ -75,7 +75,6 @@ func TestTagsRewrittenOk(t *testing.T) {
 }
 
 func TestRewriteTagsBadConfig(t *testing.T) {
-
 	ctx := &ProcessorContext{
 		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{

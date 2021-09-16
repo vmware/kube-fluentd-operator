@@ -136,7 +136,6 @@ func (cfg *Config) Validate() error {
 		return errors.New("using --meta-key requires --meta-values too")
 	}
 	isValid := func(s string) bool {
-
 		if len(s) == 0 {
 			return false
 		}

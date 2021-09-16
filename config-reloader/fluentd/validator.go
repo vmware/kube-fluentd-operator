@@ -4,6 +4,7 @@
 package fluentd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -138,7 +139,7 @@ func (v *validatorState) ValidateConfig(config string, namespace string) error {
 }
 
 // NewValidator creates a Validator using the given command
-func NewValidator(command string, timeout time.Duration) Validator {
+func NewValidator(ctx context.Context, command string, timeout time.Duration) Validator {
 	parts := strings.Split(util.Trim(command), " ")
 
 	return &validatorState{

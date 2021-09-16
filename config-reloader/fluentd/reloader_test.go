@@ -4,6 +4,7 @@
 package fluentd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -17,6 +18,7 @@ func TestNullReloader(t *testing.T) {
 	r.ReloadConfiguration()
 }
 func TestReloaderCalls(t *testing.T) {
+	ctx := context.Background()
 	port := 11543
 
 	counter := 0
@@ -36,7 +38,7 @@ func TestReloaderCalls(t *testing.T) {
 	go server.ListenAndServe()
 	defer server.Close()
 
-	r := NewReloader(port)
+	r := NewReloader(ctx, port)
 
 	var err error
 	for i := 10; i >= 0; i-- {

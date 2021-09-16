@@ -5,6 +5,7 @@ package generator
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -97,7 +98,7 @@ func extractPrepConfig(ns string, prepareConfigs map[string]interface{}) (string
 }
 
 // nolint:gocognit
-func (g *Generator) renderMainFile(mainFile string, outputDir string, dest string) (map[string]string, error) {
+func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputDir string, dest string) (map[string]string, error) {
 	tmpl, err := template.New(filepath.Base(mainFile)).ParseFiles(mainFile)
 	if err != nil {
 		return nil, err
@@ -181,7 +182,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			configHash = util.Hash("ERROR", err.Error())
 			logrus.Infof("Configuration for namespace %s cannot be validated: %+v", nsConf.Name, err)
 			if nsConf.PreviousConfigHash != configHash {
-				g.updateStatus(nsConf.Name, err.Error())
+				g.updateStatus(ctx, nsConf.Name, err.Error())
 			}
 			fileHashesByNs[nsConf.Name] = configHash
 			continue
@@ -192,7 +193,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 			fileHashesByNs[nsConf.Name] = configHash
 			if nsConf.PreviousConfigHash != configHash {
 				// empty config is a valid input, clear error status
-				g.updateStatus(nsConf.Name, "")
+				g.updateStatus(ctx, nsConf.Name, "")
 			}
 			// If a config file had been created, remove it
 			unusedFile := filepath.Join(outputDir, fmt.Sprintf("ns-%s.conf", nsConf.Name))
@@ -213,7 +214,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 				logrus.Infof("Configuration for namespace %s cannot be validated with fluentd validator", nsConf.Name)
 				if nsConf.PreviousConfigHash != configHash {
 					// only update status if error caused by different input
-					g.updateStatus(nsConf.Name, err.Error())
+					g.updateStatus(ctx, nsConf.Name, err.Error())
 				}
 				fileHashesByNs[nsConf.Name] = configHash
 				continue
@@ -236,7 +237,7 @@ func (g *Generator) renderMainFile(mainFile string, outputDir string, dest strin
 
 		if nsConf.PreviousConfigHash != configHash {
 			// clear error
-			g.updateStatus(nsConf.Name, "")
+			g.updateStatus(ctx, nsConf.Name, "")
 		}
 	}
 
@@ -298,9 +299,9 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 	return ctx
 }
 
-func (g *Generator) updateStatus(namespace string, status string) {
+func (g *Generator) updateStatus(ctx context.Context, namespace string, status string) {
 	metrics.SetNamespaceConfigStatusMetric(namespace, status == "")
-	g.su.UpdateStatus(namespace, status)
+	g.su.UpdateStatus(ctx, namespace, status)
 }
 
 func (g *Generator) renderIncludableFile(templateFile string, dest string) {
@@ -349,7 +350,7 @@ func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]s
 }
 
 // RenderToDisk write only valid configurations to disk
-func (g *Generator) RenderToDisk(outputDir string) (map[string]string, error) {
+func (g *Generator) RenderToDisk(ctx context.Context, outputDir string) (map[string]string, error) {
 	ensureDirExists(outputDir)
 	outputDir, _ = filepath.Abs(outputDir)
 	res := map[string]string{}
@@ -366,7 +367,7 @@ func (g *Generator) RenderToDisk(outputDir string) (map[string]string, error) {
 		if base != mainConfigFile {
 			g.renderIncludableFile(f, targetDest)
 		} else {
-			res, err = g.renderMainFile(f, outputDir, targetDest)
+			res, err = g.renderMainFile(ctx, f, outputDir, targetDest)
 			if err != nil {
 				logrus.Warnf("Cannot write main file %s: %+v", f, err)
 				return nil, err
@@ -383,17 +384,17 @@ func (g *Generator) SetModel(model []*datasource.NamespaceConfig) {
 }
 
 // SetStatusUpdater configures a statusUpdater for later. nil updater is fine
-func (g *Generator) SetStatusUpdater(su datasource.StatusUpdater) {
+func (g *Generator) SetStatusUpdater(ctx context.Context, su datasource.StatusUpdater) {
 	g.su = su
 }
 
 // New creates a default impl
-func New(cfg *config.Config) *Generator {
+func New(ctx context.Context, cfg *config.Config) *Generator {
 	templatesDir, _ := filepath.Abs(cfg.TemplatesDir)
 	var validator fluentd.Validator
 
 	if cfg.FluentdValidateCommand != "" {
-		validator = fluentd.NewValidator(cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
+		validator = fluentd.NewValidator(ctx, cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
 	}
 
 	return &Generator{

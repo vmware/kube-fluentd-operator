@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"time"
 )
 
@@ -14,7 +15,7 @@ type FixedTimeUpdater struct {
 	interval time.Duration
 }
 
-func NewFixedTimeUpdater(seconds int) *FixedTimeUpdater {
+func NewFixedTimeUpdater(ctx context.Context, seconds int) *FixedTimeUpdater {
 	return &FixedTimeUpdater{interval: time.Duration(seconds) * time.Second}
 }
 
@@ -27,7 +28,7 @@ type OnDemandUpdater struct {
 	channel chan time.Time
 }
 
-func NewOnDemandUpdater(channel chan time.Time) *OnDemandUpdater {
+func NewOnDemandUpdater(ctx context.Context, channel chan time.Time) *OnDemandUpdater {
 	return &OnDemandUpdater{channel: channel}
 }
 

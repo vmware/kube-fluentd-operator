@@ -4,6 +4,7 @@
 package datasource
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -20,7 +21,7 @@ type fsDatasource struct {
 	statusOutputDir string
 }
 
-func (d *fsDatasource) GetNamespaces() ([]*NamespaceConfig, error) {
+func (d *fsDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, error) {
 	res := []*NamespaceConfig{}
 
 	files, err := filepath.Glob(fmt.Sprintf("%s/*.conf", d.rootDir))
@@ -54,7 +55,7 @@ func (d *fsDatasource) WriteCurrentConfigHash(namespace string, hash string) {
 	d.hashes[namespace] = hash
 }
 
-func (d *fsDatasource) UpdateStatus(namespace string, status string) {
+func (d *fsDatasource) UpdateStatus(ctx context.Context, namespace string, status string) {
 	fname := filepath.Join(d.statusOutputDir, fmt.Sprintf("ns-%s.status", namespace))
 	if status != "" {
 		util.WriteStringToFile(fname, status)
@@ -64,7 +65,7 @@ func (d *fsDatasource) UpdateStatus(namespace string, status string) {
 }
 
 // NewFileSystemDatasource turns all files matching *.conf patter in the given dir into namespace configs
-func NewFileSystemDatasource(rootDir string, statusOutputDir string) Datasource {
+func NewFileSystemDatasource(ctx context.Context, rootDir string, statusOutputDir string) Datasource {
 	return &fsDatasource{
 		hashes:          make(map[string]string),
 		rootDir:         rootDir,
