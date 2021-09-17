@@ -17,7 +17,6 @@ type uniqueRewriteTagState struct {
 
 func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragment, error) {
 	adaptUniqueRewriteTagPlugin := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-
 		if d.Name != "match" || d.Type() != "retag" {
 			return nil
 		}
@@ -47,7 +46,6 @@ func (p *uniqueRewriteTagState) Process(input fluentd.Fragment) (fluentd.Fragmen
 	}
 
 	rewriteTagMacro := func(d *fluentd.Directive, ctx *ProcessorContext) error {
-
 		if d.Name != "match" && d.Name != "filter" {
 			return nil
 		}

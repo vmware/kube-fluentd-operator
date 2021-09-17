@@ -35,9 +35,9 @@ type kubeInformerConnection struct {
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
 // It uses options from the configuration to determine which namespaces to inspect and which resources
 // within those namespaces contain fluentd configuration.
-func (d *kubeInformerConnection) GetNamespaces() ([]*NamespaceConfig, error) {
+func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, error) {
 	// Get a list of the namespaces which may contain fluentd configuration
-	nses, err := d.discoverNamespaces()
+	nses, err := d.discoverNamespaces(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (d *kubeInformerConnection) GetNamespaces() ([]*NamespaceConfig, error) {
 			return nil, err
 		}
 
-		configdata, err := d.kubeds.GetFluentdConfig(ns)
+		configdata, err := d.kubeds.GetFluentdConfig(ctx, ns)
 		if err != nil {
 			return nil, err
 		}
@@ -90,8 +90,8 @@ func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash s
 
 // UpdateStatus updates a namespace's status annotation with the latest result
 // from the config generator.
-func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
-	ns, err := d.client.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
+func (d *kubeInformerConnection) UpdateStatus(ctx context.Context, namespace string, status string) {
+	ns, err := d.client.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
 	if err != nil {
 		logrus.Infof("Cannot find namespace to update status for: %v", namespace)
 	}
@@ -121,7 +121,7 @@ func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
 
 	ns.SetAnnotations(annotations)
 
-	_, err = d.client.CoreV1().Namespaces().Update(context.TODO(), ns, metav1.UpdateOptions{})
+	_, err = d.client.CoreV1().Namespaces().Update(ctx, ns, metav1.UpdateOptions{})
 
 	logrus.Debugf("Saving status annotation to namespace %s: %+v", namespace, err)
 	// errors.IsConflict is safe to ignore since multiple log-routers try update at same time
@@ -133,7 +133,7 @@ func (d *kubeInformerConnection) UpdateStatus(namespace string, status string) {
 
 // discoverNamespaces constructs a list of namespaces to inspect for fluentd
 // configuration, using the configured list if provided, otherwise all namespaces are inspected
-func (d *kubeInformerConnection) discoverNamespaces() ([]string, error) {
+func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]string, error) {
 	var namespaces []string
 	if len(d.cfg.Namespaces) != 0 {
 		namespaces = d.cfg.Namespaces
@@ -154,7 +154,7 @@ func (d *kubeInformerConnection) discoverNamespaces() ([]string, error) {
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
 // The returned Datasource uses Informers to efficiently track objects in the kubernetes
 // API by watching for updates to a known state.
-func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
+func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
 	kubeConfig := cfg.KubeConfig
 	if cfg.KubeConfig == "" {
 		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
@@ -180,18 +180,18 @@ func NewKubernetesInformerDatasource(cfg *config.Config, updateChan chan time.Ti
 
 	var kubeds kubedatasource.KubeDS
 	if cfg.Datasource == "crd" {
-		kubeds, err = kubedatasource.NewFluentdConfigDS(cfg, kubeCfg, updateChan)
+		kubeds, err = kubedatasource.NewFluentdConfigDS(ctx, cfg, kubeCfg, updateChan)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		if cfg.CRDMigrationMode {
-			kubeds, err = kubedatasource.NewMigrationModeDS(cfg, kubeCfg, factory, updateChan)
+			kubeds, err = kubedatasource.NewMigrationModeDS(ctx, cfg, kubeCfg, factory, updateChan)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			kubeds, err = kubedatasource.NewConfigMapDS(cfg, factory, updateChan)
+			kubeds, err = kubedatasource.NewConfigMapDS(ctx, cfg, factory, updateChan)
 			if err != nil {
 				return nil, err
 			}

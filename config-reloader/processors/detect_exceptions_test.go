@@ -53,7 +53,6 @@ func TestRewrite(t *testing.T) {
 }
 
 func TestWithoutExceptions(t *testing.T) {
-
 	ctx := &ProcessorContext{
 		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{
@@ -91,7 +90,6 @@ func TestWithoutExceptions(t *testing.T) {
 }
 
 func TestWithExceptions(t *testing.T) {
-
 	ctx := &ProcessorContext{
 		Namespace: "monitoring",
 		GenerationContext: &GenerationContext{

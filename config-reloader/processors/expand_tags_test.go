@@ -94,7 +94,6 @@ func TestNestedTagsExpandOk(t *testing.T) {
 }
 
 func TestTagsExpandBadConfig(t *testing.T) {
-
 	ctx := &ProcessorContext{
 		Namespace:         "monitoring",
 		AllowTagExpansion: true,

@@ -68,7 +68,6 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
 `))
 
 func parseTagToLabels(tag string) (map[string]string, error) {
-
 	if !strings.HasPrefix(tag, macroLabels+"(") &&
 		!strings.HasSuffix(tag, ")") {
 		return nil, fmt.Errorf("bad $labels macro use: %s", tag)

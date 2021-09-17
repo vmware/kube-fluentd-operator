@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,6 +19,7 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	cfg := &config.Config{}
 
 	if err := cfg.ParseFlags(os.Args[1:]); err != nil {
@@ -32,7 +34,7 @@ func main() {
 	}
 
 	if cfg.FluentdValidateCommand != "" {
-		validator := fluentd.NewValidator(cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
+		validator := fluentd.NewValidator(ctx, cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
 		if err := validator.EnsureUsable(); err != nil {
 			logrus.Fatalf("Bad validate command used: '%s', either use correct one or none at all: %+v",
 				cfg.FluentdValidateCommand, err)
@@ -41,7 +43,7 @@ func main() {
 
 	logrus.SetLevel(cfg.GetLogLevel())
 
-	ctrl, err := controller.New(cfg)
+	ctrl, err := controller.New(ctx, cfg)
 	if err != nil {
 		logrus.Fatalf("Cannot start control loop %+v", err)
 	}
@@ -54,7 +56,7 @@ func main() {
 	}
 
 	if cfg.IntervalSeconds == 0 {
-		ctrl.RunOnce()
+		ctrl.RunOnce(ctx)
 		return
 	}
 
@@ -65,7 +67,7 @@ func main() {
 		metrics.InitMetrics(cfg.MetricsPort)
 	}
 
-	ctrl.Run(stopChan)
+	ctrl.Run(ctx, stopChan)
 }
 
 func handleSigterm(stopChan chan struct{}) {
