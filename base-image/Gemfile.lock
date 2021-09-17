@@ -15,7 +15,7 @@ GEM
     amq-protocol (2.3.2)
     attr_required (1.0.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.501.0)
+    aws-partitions (1.503.0)
     aws-sdk-cloudwatchlogs (1.45.0)
       aws-sdk-core (~> 3, >= 3.120.0)
       aws-sigv4 (~> 1.1)
@@ -33,7 +33,7 @@ GEM
     aws-sdk-kms (1.48.0)
       aws-sdk-core (~> 3, >= 3.120.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.102.0)
+    aws-sdk-s3 (1.103.0)
       aws-sdk-core (~> 3, >= 3.120.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
@@ -140,9 +140,9 @@ GEM
     fluent-plugin-kubernetes (0.3.1)
       docker-api
       fluentd
-    fluent-plugin-kubernetes_metadata_filter (2.8.0)
+    fluent-plugin-kubernetes_metadata_filter (2.9.0)
       fluentd (>= 0.14.0, < 1.15)
-      kubeclient (< 5)
+      kubeclient (>= 4.0.0, < 5.0.0)
       lru_redux
     fluent-plugin-kubernetes_sumologic (2.4.2)
       fluentd (>= 0.14.12)
@@ -236,7 +236,7 @@ GEM
       yajl-ruby (~> 1.0)
     gelf (3.1.0)
       json
-    google-protobuf (3.17.3-universal-darwin)
+    google-protobuf (3.18.0-universal-darwin)
     http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -341,7 +341,7 @@ GEM
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.7)
+    unf_ext (0.0.8)
     uuidtools (2.2.0)
     validate_email (0.1.6)
       activemodel (>= 3.0)
@@ -376,7 +376,7 @@ DEPENDENCIES
   fluent-plugin-kafka (= 0.17.0)
   fluent-plugin-kinesis (= 3.4.0)
   fluent-plugin-kubernetes (= 0.3.1)
-  fluent-plugin-kubernetes_metadata_filter (= 2.8.0)
+  fluent-plugin-kubernetes_metadata_filter (= 2.9.0)
   fluent-plugin-kubernetes_sumologic (= 2.4.2)
   fluent-plugin-logentries (= 0.2.10)
   fluent-plugin-logzio (= 0.0.21)

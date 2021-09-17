@@ -567,7 +567,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-kafka (0.17.0)
 * fluent-plugin-kinesis (3.4.0)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.8.0)
+* fluent-plugin-kubernetes_metadata_filter (2.9.0)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (1.0.0)
