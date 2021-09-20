@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## [v1.15.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.3)
+
+#### Core:
+  -  chore(fluentd): upgrade fluentd v1.14.0 and gems #250 (@Cryptophobia)
+  -  chore(go.mod): upgrade k8s.io packages to v0.21.4 #248 (@Cryptophobia)
+  -  chore(ruby): upgrade to ruby version 2.7.4 #251 (@Cryptophobia)
+  -  docs(readme): update changelogs for v1.15.2 #242 (@Cryptophobia)
+  -  docs(repo): missing namespace in annotate cmd #244 (@brunowego)
+  -  chore(gems): upgrade json to 2.5.1 #254 (@Cryptophobia)
+  -  feat(context): propagate context from main func #256 (@Cryptophobia)
+
+#### Plugins:
+  -  chore(plugins): upgrade fluentd plugin gems #252 (@Cryptophobia)
+  -  chore(conf): upgrade systemd fluentd configs #257 (@Cryptophobia)
+  -  chore(plugins): upgrade kubernetes metadata plugin #258 (@Cryptophobia)
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.15.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.2)
 
 #### Core:
