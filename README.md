@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.15.2 \
+  --set image.tag=v1.15.3 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.15.2/log-router-0.4.0.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.15.3/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.15.2 \
+  --set image.tag=v1.15.3 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -544,7 +544,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.13.0                     | 1.15.0                  |
 | 1.13.1                     | 1.15.1                  |
 | 1.13.3                     | 1.15.2                  |
-| 1.14.0                     | 1.15.3 (TBA)            |
+| 1.14.0                     | 1.15.3                  |
 
 ## Plugins in latest release (1.15.3)
 
