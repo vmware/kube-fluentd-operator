@@ -2,9 +2,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 IMAGE            ?= vmware/kube-fluentd-operator
-TAG              ?= latest
 
 VERSION          ?= $(shell git describe --tags --always --dirty)
+
+IMG_ARCH         ?= amd64
+IMG_OS           ?= linux
+WIN_TAG          ?= 
+TAG              ?= $(IMG_ARCH)-$(IMG_OS)$(shell v='$(WIN_TAG)'; echo "$${v:+-}$${v:-}")-$(VERSION)
 BUILD_FLAGS      := -v
 LDFLAGS          := -X github.com/vmware/kube-fluentd-operator/config-reloader/config.Version=$(VERSION) -w -s
 
@@ -20,6 +24,9 @@ DEV_ENV_WORK_DIR := /go/src/${PKG}
 DEV_ENV_CMD      := docker run --rm -v ${CURRENT_DIR}:${DEV_ENV_WORK_DIR} -w ${DEV_ENV_WORK_DIR} ${DEV_ENV_IMAGE}
 
 .DEFAULT_GOAL    := build-image
+
+PUSHED_TAGS      := $(shell curl -s https://hub.docker.com/v2/repositories/$(IMAGE)/tags | jq -r '.results[].name | select(. | endswith("-$(VERSION)"))')
+PUSHED_IMAGES    := $(foreach tag,$(PUSHED_TAGS),$(IMAGE):$(tag))
 
 all: test build
 
@@ -69,10 +76,28 @@ clean:
 	rm -fr config-reloader pkg > /dev/null
 
 build-image:
-	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
+	docker build --build-arg VERSION=$(VERSION) --build-arg ARCH=$(IMG_ARCH) --build-arg OS=$(IMG_OS) -t $(IMAGE):$(TAG) .
+
+build-windows-image:
+	@echo Building $(IMAGE):$(TAG)
+	docker build -f Dockerfile.windows --build-arg VERSION=$(VERSION) --build-arg WIN_TAG=$(WIN_TAG) --build-arg ARCH=$(IMG_ARCH) --build-arg OS=$(IMG_OS) -t $(IMAGE):$(TAG) .
 
 push-image: build-image
 	docker push $(IMAGE):$(TAG)
+
+push-windows-image: build-windows-image
+	docker push $(IMAGE):$(TAG)
+
+pushed-images:
+	@echo $(PUSHED_IMAGES)
+
+docker-manifest:
+	@echo Creating manifest $(IMAGE):$(VERSION) with images [$(PUSHED_IMAGES)]
+	docker manifest create --amend $(IMAGE):$(VERSION) $(PUSHED_IMAGES)
+
+docker-latest-manifest:
+	@echo Creating manifest $(IMAGE):latest with images [$(PUSHED_IMAGES)]
+	docker manifest create --amend $(IMAGE):latest $(PUSHED_IMAGES)
 
 push-latest:
 	docker tag $(IMAGE):$(TAG) $(IMAGE):latest

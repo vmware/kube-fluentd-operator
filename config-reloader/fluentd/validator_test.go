@@ -7,11 +7,16 @@ import (
 	"context"
 	"testing"
 	"time"
-
+	"fmt"
+	"runtime"
 	"github.com/stretchr/testify/assert"
 )
 
-const validateCommand = "./fake-fluentd.sh -p plugins"
+var validateCommand = fmt.Sprintf("%s -p plugins", 
+	map[string]string{
+		"windows" : "fake-fluentd.cmd",
+		"linux" : "./fake-fluentd.sh",
+	}[runtime.GOOS])
 
 func TestValidConfigString(t *testing.T) {
 	ctx := context.Background()

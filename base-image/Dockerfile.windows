@@ -1,0 +1,89 @@
+############ escape=`
+
+ARG WIN_TAG=ltsc2019
+
+FROM mcr.microsoft.com/windows/servercore:$WIN_TAG as ruby-base
+LABEL maintainer "Fluentd developers <fluentd@googlegroups.com>"
+LABEL Description="Fluentd docker image" Vendor="Fluent Organization" Version="1.13.1"
+
+
+# Do not split this into multiple RUN!
+# Docker creates a layer for every RUN-Statement
+RUN powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+
+# Fluentd depends on cool.io whose fat gem is only available for Ruby < 2.5, so need to specify --platform ruby when install Ruby > 2.5 and install msys2 to get dev tools
+# NOTE: For avoiding stalling with docker build on windows, we must use latest version of msys2.
+RUN choco install -y ruby --version=2.7.2.1 --params "'/InstallDir:C:\ruby27'" \
+    && MD C:\Users\ContainerUser\.gem \
+    && MD C:\fluentd \
+    && refreshenv \
+    && echo gem: --user-install --no-document >> c:/Users/ContainerUser/.gemrc \
+    && gem update --system 
+
+USER ContainerAdministrator
+RUN setx /m PATH "C:\Users\ContainerUser\.gem\bin;%PATH%" \
+ && setx /m GEM_HOME c:/Users/ContainerUser/.gem
+USER ContainerUser
+
+
+
+FROM ruby-base as ruby-build
+
+USER ContainerAdministrator
+RUN choco install -y msys2 --version 20210604.0.0 --params "'/NoPath /NoUpdate /InstallDir:C:\msys64'" \
+    && setx /m PATH "C:\msys64\usr\bin;%PATH%" \
+    && setx /m MSYS winsymlinks:nativestrict \
+    && ridk install 3 \
+    && mklink /J C:\msys64\fluentd C:\fluentd
+USER ContainerUser
+
+SHELL ["bash", "-lc"]
+RUN "echo 'PATH=$PATH:/mingw64/bin:/c/ruby27/bin:/c/users/containeruser/.gem/ruby/2.7.0/bin' >> /etc/profile.d/000-mingw64.sh \
+    && pacman -Suu --noconfirm && pacman -S --needed --noconfirm git \
+    "
+
+# RUN "pacman -Suu --noconfirm && pacman -S --needed --noconfirm git"
+
+COPY basegems/Gemfile /fluentd/Gemfile.basegems
+COPY basegems/Gemfile.lock /fluentd/Gemfile.basegems.lock
+
+COPY Gemfile /fluentd/Gemfile
+COPY Gemfile.lock /fluentd/Gemfile.lock
+
+RUN "\
+    gem install bundler:'>= 2.2.27' rexml:'>= 3.2.5' rdoc:'>= 6.3.2' json:'>= 2.5.1' webrick:'>= 1.7.0' bigdecimal \
+    && cd /fluentd \
+    && bundler config --global jobs 4 \
+    && bundler config set --global without \"development test\" \
+    && bundler config set --global cache_all 'false' \
+    && bundler install --no-cache --gemfile=Gemfile.basegems \
+    && bundler install --no-cache --gemfile=Gemfile \
+    && git clone https://github.com/Cryptophobia/fluent-plugin-google-cloud.git fluent-plugin-google-cloud \
+    && gem build -C fluent-plugin-google-cloud fluent-plugin-google-cloud.gemspec \
+    && gem install --no-document fluent-plugin-google-cloud/fluent-plugin-google-cloud-*.gem \
+    && git clone https://github.com/Cryptophobia/fluent-plugin-loggly.git fluent-plugin-loggly \
+    && gem build -C fluent-plugin-loggly fluent-plugin-loggly.gemspec \
+    && gem install fluent-plugin-loggly/fluent-plugin-loggly-*.gem \
+    && rm -rf $GEM_HOME/cache/* $GEM_HOME/doc/* \
+    "
+# RUN "cd /fluentd && bundle config list && du -h --max-depth 1 $GEM_HOME"
+
+FROM ruby-base as ruby-runtime
+COPY --from=ruby-build /Users/ContainerUser/.gem /Users/ContainerUser/.gem
+COPY plugins /etc/fluent-plugin
+
+USER ContainerAdministrator
+RUN tzutil /s UTC \
+    && (if not exist C:\etc\fluent-conf (MD C:\etc\fluent-conf)) \
+    && (if not exist C:\etc\fluent-plugin (MD C:\etc\fluent-plugin)) \
+    && (if not exist C:\var\run\secrets\kubernetes.io\serviceaccount (MD C:\var\run\secrets\kubernetes.io\serviceaccount)) \
+    && (if not exist C:\var\log (MD C:\var\log)) \
+    && (if not exist C:\var\lib\kubelet (MD C:\var\lib\kubelet))
+USER ContainerUser
+RUN powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.13/debian-elasticsearch7/plugins/parser_kubernetes.rb -OutFile C:\etc\fluent-plugin\parser_kubernetes.rb \
+  ; Invoke-WebRequest https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.13/debian-elasticsearch7/plugins/parser_multiline_kubernetes.rb -OutFile C:\etc\fluent-plugin\parser_multiline_kubernetes.rb \
+  "
+
+COPY failsafe.conf /etc/fluent-conf/failsafe.conf
+COPY entrypoint.ps1 /entrypoint.ps1
+ENTRYPOINT ["powershell", "/entrypoint.ps1"]

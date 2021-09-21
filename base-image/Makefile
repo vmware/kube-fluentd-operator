@@ -1,13 +1,23 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-IMAGE ?= vmware/base-fluentd-operator
-TAG ?= latest
+IMAGE            ?= vmware/base-fluentd-operator
+IMG_ARCH         ?= amd64
+WIN_TAG          ?=
+IMG_OS           ?= linux
+TAG              ?= $(IMG_ARCH)-$(IMG_OS)$(shell v='$(WIN_TAG)'; echo "$${v:+-}$${v:-}")
 
 .PHONY: test
+ttt:
+	echo $(TAG)
 
 build-image:
 	DOCKER_BUILDKIT=1 docker build -t $(IMAGE):$(TAG) .
+
+build-windows-image:
+	@echo Building $(IMAGE):$(TAG)
+	docker build --network "Default Switch" -f Dockerfile.windows --build-arg WIN_TAG=$(WIN_TAG) -t $(IMAGE):$(TAG) .
+
 
 shell:
 	docker run --entrypoint=/bin/bash \

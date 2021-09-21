@@ -25,7 +25,7 @@ func TestReloaderCalls(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("req %+v", r)
-		if r.Method == "POST" && r.RequestURI == "/api/config.gracefulReload" {
+		if r.Method == "POST" && (r.RequestURI == "/api/config.gracefulReload" || r.RequestURI == "/api/config.reload") {
 			counter++
 		}
 	}
@@ -38,7 +38,7 @@ func TestReloaderCalls(t *testing.T) {
 	go server.ListenAndServe()
 	defer server.Close()
 
-	r := NewReloader(ctx, port)
+	r := NewReloader(ctx, port, "/api/config.gracefulReload")
 
 	var err error
 	for i := 10; i >= 0; i-- {

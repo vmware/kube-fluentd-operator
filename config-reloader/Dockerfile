@@ -1,6 +1,8 @@
 # Copyright © 2018 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
+ARG ARCH=amd64
+ARG OS=linux
 # builder image
 FROM golang:1.16 as builder
 
@@ -14,7 +16,7 @@ RUN make in-docker-test
 RUN make build VERSION=$VERSION
 
 # always use the un-pushable image
-FROM vmware/base-fluentd-operator:latest
+FROM vmware/base-fluentd-operator:$ARCH-$OS
 
 COPY templates /templates
 COPY validate-from-dir.sh /bin/validate-from-dir.sh

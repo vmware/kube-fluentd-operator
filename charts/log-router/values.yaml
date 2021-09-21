@@ -32,7 +32,10 @@ image:
 logLevel: debug
 fluentdLogLevel: debug
 interval: 45
-kubeletRoot: /var/lib/kubelet
+# Profile name for operator "linux" or "windows"
+nodeProfileName: "linux"
+# Profile settings. See templates\_helpers.tpl
+nodeProfile: {}
 # bufferMountFolder -- a folder inside /var/log to write all fluentd buffers to
 bufferMountFolder: ""
 
