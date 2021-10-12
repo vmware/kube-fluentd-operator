@@ -271,6 +271,20 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 
 The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to loggly. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allows for targeting the log stream of a specific container in a multi-container pod.
 
+If you use [Kubernetes recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/), then you will need to translate `.` characters into `_`, like this:
+
+```xml
+<filter $labels(app_kubernetes_io/name=jsonpetstore) >
+    key_name log
+    @type parser
+    <parse>
+        @type json
+    </parse>
+    reserve_data true
+    remove_key_name_field true
+</filter>
+```
+
 All plugins that change the fluentd tag are disabled for security reasons. Otherwise a rogue configuration may divert other namespace's logs to itself by prepending its name to the tag.
 
 ### Ingest logs from a file in the container
