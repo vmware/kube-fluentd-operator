@@ -234,7 +234,7 @@ GEM
       tzinfo-data (~> 1.0)
       webrick (>= 1.4.2, < 1.8.0)
       yajl-ruby (~> 1.0)
-    gelf (3.1.0)
+    gelf (3.0.0)
       json
     google-protobuf (3.18.0-universal-darwin)
     http (4.4.1)
@@ -404,7 +404,7 @@ DEPENDENCIES
   fluent-plugin-vmware-log-intelligence (= 2.0.6)
   fluent-plugin-vmware-loginsight (= 1.0.0)
   fluentd (~> 1.14.0)
-  gelf (= 3.1.0)
+  gelf (= 3.0.0)
   kubeclient (~> 4.9.0, < 5.0.0)
   logfmt (= 0.0.9)
   oj (= 3.11.0)

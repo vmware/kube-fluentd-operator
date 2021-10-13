@@ -50,6 +50,6 @@ gem 'fluent-plugin-vmware-loginsight', "1.0.0"
 gem 'fluent-plugin-vmware-log-intelligence', "2.0.6"
 # fluent-plugin-mysqlslowquery is dependency for fluent-plugin-vmware-log-intelligence
 gem 'fluent-plugin-mysqlslowquery', "0.0.9"
-gem 'gelf', "3.1.0"
+gem 'gelf', "3.0.0"
 gem 'logfmt', "0.0.9"
 gem 'kubeclient', "~> 4.9.0", "< 5.0.0"
