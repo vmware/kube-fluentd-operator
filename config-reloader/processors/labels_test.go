@@ -38,6 +38,7 @@ func TestSafeLabel(t *testing.T) {
 	assert.Equal(t, "_abc_", safeLabelValue("-abc-"))
 	assert.Equal(t, "abc___", safeLabelValue("abc..."))
 	assert.Equal(t, "abc_def", safeLabelValue("abc.def"))
+	assert.Equal(t, "app_kubernetes_io/name=nginx_ingress", safeLabelValue("app.kubernetes.io/name=nginx-ingress"))
 }
 
 func TestLabelsParseNotOk(t *testing.T) {
@@ -55,6 +56,7 @@ func TestLabelsParseNotOk(t *testing.T) {
 		"$labels(a=*)",
 		"$labels(a=1, =2)",
 		"$labels(_container=)", // empty container name
+		"$labels(app.kubernetes.io/name=*)",
 	}
 
 	for _, tag := range inputs {

@@ -21,12 +21,6 @@ func TestParseConfigWithBadLabels(t *testing.T) {
 		`
 		<match **>
 		 @type relabel
-		 # missing label name
-		</match>
-		`,
-		`
-		<match **>
-		 @type relabel
 		 @label hello
 		 # bad prefix
 		</match>
@@ -79,6 +73,11 @@ func TestLabelsAreRewritten(t *testing.T) {
 	  @label @prometheus
 	</match>
 
+	<filter **>
+	  @type concat
+	  timeout_label @prometheus
+	</filter>
+
 	<label @prometheus>
 	  <match **>
 		@type forward
@@ -107,11 +106,15 @@ func TestLabelsAreRewritten(t *testing.T) {
 	assert.Equal(t, "kube.monitoring.*.prometheus", lit.Tag)
 	assert.NotEqual(t, lit.Param("@label"), "@prometheus")
 
-	starstar := fragment[1]
+	timeoutLabel := fragment[1].Params["timeout_label"]
+	assert.Equal(t, timeoutLabel.Name, "timeout_label")
+	assert.NotEqual(t, timeoutLabel.Value, "@prometheus")
+
+	starstar := fragment[2]
 	assert.Equal(t, "label", starstar.Name)
 	assert.NotEqual(t, lit.Tag, "@prometheus")
 
-	match := fragment[1].Nested[0]
+	match := fragment[2].Nested[0]
 	assert.Equal(t, "**", match.Tag)
 }
 
