@@ -1,0 +1,35 @@
+# Copyright © 2018 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+
+# builder image
+ARG WIN_TAG=ltsc2019
+ARG VERSION
+ARG ARCH=amd64
+ARG OS=windows
+
+FROM mcr.microsoft.com/windows/servercore:$WIN_TAG as reloader-builder
+
+RUN powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+
+# Fluentd depends on cool.io whose fat gem is only available for Ruby < 2.5, so need to specify --platform ruby when install Ruby > 2.5 and install msys2 to get dev tools
+# NOTE: For avoiding stalling with docker build on windows, we must use latest version of msys2.
+RUN choco install -y msys2 --version 20210604.0.0 --params "'/NoPath /NoUpdate /InstallDir:C:\msys64'" \
+    && choco install -y golang --version=1.16 \
+    && choco install -y mingw make git jq
+
+USER ContainerAdministrator
+RUN setx /m PATH "%PATH%;c:\msys64\usr\bin"
+USER ContainerUser
+# ENV PATH "%PATH%;C:\msys64\usr\bin"
+
+WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
+COPY . .
+
+RUN make in-docker-test
+RUN make build VERSION=$VERSION
+
+# always use the un-pushable image
+FROM vmware/base-fluentd-operator:${ARCH}-${OS}-${WIN_TAG}
+
+COPY templates /templates
+COPY --from=reloader-builder /go/src/github.com/vmware/kube-fluentd-operator/config-reloader/config-reloader.exe /bin/config-reloader.exe

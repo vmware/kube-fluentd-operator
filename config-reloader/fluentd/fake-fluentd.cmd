@@ -1,0 +1,1 @@
+@bash fake-fluentd.sh %*

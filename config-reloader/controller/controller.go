@@ -59,7 +59,7 @@ func New(ctx context.Context, cfg *config.Config) (*Controller, error) {
 		if err != nil {
 			return nil, err
 		}
-		reloader = fluentd.NewReloader(ctx, cfg.FluentdRPCPort)
+		reloader = fluentd.NewReloader(ctx, cfg.FluentdRPCPort, cfg.FluentdReloadPath)
 		up = NewOnDemandUpdater(ctx, updateChan)
 	}
 

@@ -14,12 +14,14 @@ import (
 // Reloader sends a reload signal to fluentd
 type Reloader struct {
 	port int
+        path string
 }
 
 // NewReloader will notify on the given rpc port
-func NewReloader(ctx context.Context, port int) *Reloader {
+func NewReloader(ctx context.Context, port int, path string) *Reloader {
 	return &Reloader{
 		port: port,
+                path: path,
 	}
 }
 
@@ -29,7 +31,7 @@ func (r *Reloader) ReloadConfiguration() {
 		logrus.Infof("Not reloading fluentd (fake or filesystem datasource used)")
 		return
 	}
-	_, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port), "application/json", nil)
+	_, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d%s", r.port, r.path), "application/json", nil)
 
 	if err != nil {
 		logrus.Errorf("cannot notify fluentd: %+v", err)

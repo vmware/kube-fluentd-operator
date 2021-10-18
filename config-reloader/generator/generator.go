@@ -115,6 +115,7 @@ func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputD
 		FluentdLogLevel         string
 		BufferMountFolder       string
 		PreprocessingDirectives []string
+		UseSystemd              bool
 	}{}
 
 	if g.cfg.MetaKey != "" {
@@ -129,6 +130,7 @@ func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputD
 	if g.cfg.BufferMountFolder != "" {
 		model.BufferMountFolder = g.cfg.BufferMountFolder
 	}
+	model.UseSystemd = g.cfg.UseSystemd
 
 	genCtx := &processors.GenerationContext{
 		ReferencedBridges: map[string]bool{},
