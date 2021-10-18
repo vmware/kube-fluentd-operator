@@ -1,16 +1,16 @@
-# kube-fluentd-operator  [![Build Status](https://travis-ci.org/vmware/kube-fluentd-operator.svg?branch=master)](https://travis-ci.org/vmware/kube-fluentd-operator)
+# kube-fluentd-operator (KFO)  [![Build Status](https://travis-ci.org/vmware/kube-fluentd-operator.svg?branch=master)](https://travis-ci.org/vmware/kube-fluentd-operator)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/vmware/kube-fluentd-operator)](https://goreportcard.com/report/github.com/vmware/kube-fluentd-operator)
 
 ## Overview
 
-TL;DR: a sane, no-brainer K8S+Helm distribution of Fluentd with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in. Use Kubernetes labels to filter/route logs!
+Kubernetes Fluentd Operator (KFO) is a Fluentd config manager with batteries included, config validation, no needs to restart, with sensible defaults and best practices built-in. Use Kubernetes labels to filter/route logs per namespace!
 
-*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how an Ingress controller would compile nginx configuration from several Ingress resources. This way only one instance of Fluentd can handle all log shipping while the cluster admin need NOT coordinate with namespace admins.
+*kube-fluentd-operator* configures Fluentd in a Kubernetes environment. It compiles a Fluentd configuration from configmaps (one per namespace) - similar to how an Ingress controller would compile nginx configuration from several Ingress resources. This way only one instance of Fluentd can handle all log shipping for an entire cluster and the cluster admin does NOT need to coordinate with namespace admins.
 
-Cluster administrators set up Fluentd once only and namespace owners can configure log routing as they wish. *kube-fluentd-operator* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
+Cluster administrators set up Fluentd only once and namespace owners can configure log routing as they wish. *KFO* will re-configure Fluentd accordingly and make sure logs originating from a namespace will not be accessible by other tenants/namespaces.
 
-*kube-fluentd-operator* also extends the Fluentd configuration language making it possible to refer to pods based on their labels and the container. This enables for very fined-grained targeting of log streams for the purpose of pre-processing before shipping.
+*KFO* also extends the Fluentd configuration language making it possible to refer to pods based on their labels and the container name pattern. This enables for very fined-grained targeting of log streams for the purpose of pre-processing before shipping. Writing a custom processor, adding a new Fluentd plugin, or writing a custom Fluentd plugin allow KFO to be extendable for any use case and any external logging ingestion system.
 
 Finally, it is possible to ingest logs from a file on the container filesystem. While this is not recommended, there are still legacy or misconfigured apps that insist on logging to the local filesystem.
 
@@ -270,6 +270,107 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 ```
 
 The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to loggly. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allows for targeting the log stream of a specific container in a multi-container pod.
+
+If you use [Kubernetes recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/) for the pods and deployments, then KFO will rewrite `.` characters into `_`.
+
+For example, let's assume the following labels exist in the fluentd-config in the `testing` namespace:
+
+This label `$labels(_container=nginx-ingress-controller)` will filter by container name pattern. The label will convert to this for example: `kube.testing.*.nginx-ingress-controller._labels.*.*.`
+
+This label `$labels(app.kubernetes.io/name=nginx-ingress, _container=nginx-ingress-controller)` converts to this `kube.testing.*.nginx-ingress-controller._labels.*.nginx_ingress`.
+
+This label `$labels(app.kubernetes.io/name=nginx-ingress)` converts to this `$labels(kube.testing*.*._labels.*.nginx_ingress)`.
+
+This fluentd configmap in the `testing` namespace:
+
+```xml
+<filter **>
+  @type concat
+  timeout_label @DISTILLERY_TYPES
+  key message
+  stream_identity_key cont_id
+  multiline_start_regexp /^(\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}|\[\w+\]\s|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b|=\w+ REPORT====|\d{2}\:\d{2}\:\d{2}\.\d{3})/
+  flush_interval 10
+</filter>
+
+<match **>
+  @type relabel
+  @label @DISTILLERY_TYPES
+</match>
+
+<label @DISTILLERY_TYPES>
+  <filter $labels(app_kubernetes_io/name=kafka)>
+    @type parser
+    key_name log
+    format json
+    reserve_data true
+    suppress_parse_error_log true
+  </filter>
+
+  <filter $labels(app.kubernetes.io/name=nginx-ingress, _container=controller)>
+    @type parser
+    key_name log
+
+    <parse>
+      @type json
+      reserve_data true
+      time_format %FT%T%:z
+      emit_invalid_record_to_error false
+    </parse>
+  </filter>
+
+  <match $labels(tag=noisy)>
+    @type null
+  </match>
+</label>
+```
+
+will be rewritten inside of KFO pods as this:
+
+```xml
+<filter kube.testing.**>
+  @type concat
+  flush_interval 10
+  key message
+  multiline_start_regexp /^(\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}|\[\w+\]\s|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b|=\w+ REPORT====|\d{2}\:\d{2}\:\d{2}\.\d{3})/
+  stream_identity_key cont_id
+  timeout_label @-DISTILLERY_TYPES-0e93f964a5b5f1760278744f1adf55d58d0e78ba
+</filter>
+
+<match kube.testing.**>
+  @label @-DISTILLERY_TYPES-0e93f964a5b5f1760278744f1adf55d58d0e78ba
+  @type relabel
+</match>
+
+<match kube.testing.**>
+  @label @-DISTILLERY_TYPES-0e93f964a5b5f1760278744f1adf55d58d0e78ba
+  @type null
+</match>
+
+<label @-DISTILLERY_TYPES-0e93f964a5b5f1760278744f1adf55d58d0e78ba>
+  <filter kube.testing.*.*._labels.*.kafka.*>
+    @type parser
+    format json
+    key_name log
+    reserve_data true
+    suppress_parse_error_log true
+  </filter>
+  <filter kube.testing.*.controller._labels.nginx_ingress.*.*>
+    @type parser
+    key_name log
+
+    <parse>
+      @type json
+      emit_invalid_record_to_error false
+      reserve_data true
+      time_format %FT%T%:z
+    </parse>
+  </filter>
+  <match kube.testing.*.*._labels.*.*.noisy>
+    @type null
+  </match>
+</label>
+```
 
 All plugins that change the fluentd tag are disabled for security reasons. Otherwise a rogue configuration may divert other namespace's logs to itself by prepending its name to the tag.
 
@@ -545,8 +646,9 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.13.1                     | 1.15.1                  |
 | 1.13.3                     | 1.15.2                  |
 | 1.14.0                     | 1.15.3                  |
+| 1.14.1                     | 1.16.0                  |
 
-## Plugins in latest release (1.15.3)
+## Plugins in latest release (1.16.0)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -785,7 +887,7 @@ spec:
   - name: logs
     emptyDir: {}
 ```
-To get the hello.log ingested by Fluetd you need at least this in the configuration for `kfo-test` namespace:
+To get the hello.log ingested by Fluentd you need at least this in the configuration for `kfo-test` namespace:
 
 ```xml
 <source>
