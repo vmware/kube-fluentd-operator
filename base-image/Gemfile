@@ -1,15 +1,15 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "~> 1.14.0"
+gem "fluentd", "~> 1.14.1"
 
-gem 'oj', '3.11.0'
+gem 'oj', '3.11.8'
 gem 'ffi'
 gem 'fluent-plugin-amqp', "0.14.0"
 gem 'fluent-plugin-azure-loganalytics', "0.7.0"
-gem 'fluent-plugin-cloudwatch-logs', "0.14.0"
+gem 'fluent-plugin-cloudwatch-logs', "0.14.2"
 gem 'fluent-plugin-concat', "2.5.0"
-gem 'fluent-plugin-datadog', "0.13.0"
+gem 'fluent-plugin-datadog', "0.14.0"
 gem 'fluent-plugin-detect-exceptions', "0.0.14"
 gem 'fluent-plugin-elasticsearch', "5.1.0"
 gem 'fluent-plugin-gelf-hs', "1.0.8"
@@ -17,9 +17,9 @@ gem 'fluent-plugin-gelf-hs', "1.0.8"
 gem 'fluent-plugin-grafana-loki', "1.2.16"
 gem 'fluent-plugin-grok-parser', "2.6.2"
 gem 'fluent-plugin-json-in-json-2', "1.0.2"
-gem 'fluent-plugin-kafka', "0.17.0"
-gem 'fluent-plugin-kinesis', "3.4.0"
-gem 'fluent-plugin-kubernetes_metadata_filter', "2.9.0"
+gem 'fluent-plugin-kafka', "0.17.2"
+gem 'fluent-plugin-kinesis', "3.4.1"
+gem 'fluent-plugin-kubernetes_metadata_filter', "2.9.1"
 gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
 gem 'fluent-plugin-kubernetes', "0.3.1"
 gem 'fluent-plugin-logentries', "0.2.10"
