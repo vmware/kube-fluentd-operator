@@ -29,9 +29,9 @@ func (r *Reloader) ReloadConfiguration() {
 		logrus.Infof("Not reloading fluentd (fake or filesystem datasource used)")
 		return
 	}
-	_, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port), "application/json", nil)
+	_, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.reload", r.port), "application/json", nil)
 
 	if err != nil {
-		logrus.Errorf("cannot notify fluentd: %+v", err)
+		logrus.Infof("cannot notify fluentd: %+v", err)
 	}
 }

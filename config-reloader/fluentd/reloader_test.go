@@ -25,7 +25,7 @@ func TestReloaderCalls(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("req %+v", r)
-		if r.Method == "POST" && r.RequestURI == "/api/config.gracefulReload" {
+		if r.Method == "POST" && r.RequestURI == "/api/config.reload" {
 			counter++
 		}
 	}
