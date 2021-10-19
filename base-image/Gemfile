@@ -39,9 +39,10 @@ gem 'fluent-plugin-remote_syslog', "1.0.0"
 gem 'fluent-plugin-rewrite-tag-filter', "2.4.0"
 gem 'fluent-plugin-route', "1.0.0"
 gem 'fluent-plugin-s3', "1.6.1"
-gem 'fluent-plugin-secure-forward', "0.4.5"
-gem 'fluent-plugin-splunk-hec', "1.2.7"
-gem 'fluent-plugin-splunkhec', "2.0"
+#DEPRECATION: Until issues in #266 are fixed, we are deprecating these two plugins:
+#https://github.com/vmware/kube-fluentd-operator/issues/266
+#gem 'fluent-plugin-splunk-hec', "1.2.7"
+#gem 'fluent-plugin-splunkhec', "2.0"
 gem 'fluent-plugin-sumologic_output', "1.7.2"
 gem 'fluent-plugin-systemd', "1.0.5"
 gem 'fluent-plugin-uri-parser', "0.3.0"
