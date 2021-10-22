@@ -81,7 +81,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 
 	out, err := util.ExecAndGetOutput(v.command, v.timeout, args...)
 
-	// strip color stuf from fluentd output
+	// strip color stuff from fluentd output
 	out = strings.TrimFunc(out, func(r rune) bool {
 		return !unicode.IsPrint(r)
 	})
