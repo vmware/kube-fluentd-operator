@@ -31,7 +31,7 @@ func (r *Reloader) ReloadConfiguration() {
 		return
 	}
 
-	resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.reload", r.port), "application/json", nil)
+	resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port), "application/json", nil)
 	if err != nil {
 		logrus.Errorf("fluentd config.reload post request failed: %+v", err)
 	} else if resp.StatusCode != 200 {
