@@ -108,6 +108,12 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && cd /fluentd \
   && bundle install \
   && cd /fluentd \
+  && git clone https://github.com/Cryptophobia/fluent-plugin-detect-exceptions.git fluent-plugin-detect-exceptions \
+  && cd fluent-plugin-detect-exceptions \
+  && gem build fluent-plugin-detect-exceptions.gemspec \
+  && gem install fluent-plugin-detect-exceptions-*.gem \
+  && rm -rf /fluentd/fluent-plugin-detect-exceptions \
+  && cd /fluentd \
   && git clone https://github.com/Cryptophobia/fluent-plugin-google-cloud.git fluent-plugin-google-cloud \
   && cd fluent-plugin-google-cloud \
   && gem build fluent-plugin-google-cloud.gemspec \

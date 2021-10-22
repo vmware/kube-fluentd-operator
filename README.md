@@ -660,7 +660,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-cloudwatch-logs (0.14.2)
 * fluent-plugin-concat (2.5.0)
 * fluent-plugin-datadog (0.14.0)
-* fluent-plugin-detect-exceptions (0.0.14)
+* fluent-plugin-detect-exceptions (0.0.14) - forked to allow fluentd v1 plugin api
 * fluent-plugin-elasticsearch (5.1.0)
 * fluent-plugin-gelf-hs (1.0.8)
 * fluent-plugin-google-cloud (0.13.0) - forked to allow fluentd v1.14.x
