@@ -9,7 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
-
+	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -65,6 +65,11 @@ func NewConfigMapDS(ctx context.Context, cfg *config.Config, factory informers.S
 	})
 
 	return cmDS, nil
+}
+
+// GetFdlist return nil for this mode because it does not use CRDs:
+func (c *ConfigMapDS) GetFdlist() kfoListersV1beta1.FluentdConfigLister {
+	return nil
 }
 
 // IsReady returns a boolean specifying whether the ConfigMapDS is ready

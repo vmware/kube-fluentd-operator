@@ -96,7 +96,7 @@ func (cfg *Config) Validate() error {
 	}
 
 	if cfg.ExecTimeoutSeconds < 0 {
-		cfg.IntervalSeconds = 30
+		cfg.ExecTimeoutSeconds = 30
 	}
 
 	ll, err := logrus.ParseLevel(cfg.LogLevel)

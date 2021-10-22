@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
+	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
 
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/rest"
@@ -54,4 +55,9 @@ func (m *MigrationModeDS) GetFluentdConfig(ctx context.Context, namespace string
 	}
 
 	return cmConfigs + "\n" + fdConfigs, nil
+}
+
+// GetFdlist return nil for this mode because it does not use CRDs:
+func (m *MigrationModeDS) GetFdlist() kfoListersV1beta1.FluentdConfigLister {
+	return nil
 }

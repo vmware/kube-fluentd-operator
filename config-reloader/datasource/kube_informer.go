@@ -14,6 +14,7 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource"
 
+	kfoListersV1beta1 "github.com/vmware/kube-fluentd-operator/config-reloader/datasource/kubedatasource/fluentdconfig/client/listers/logs.vdp.vmware.com/v1beta1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
@@ -30,13 +31,15 @@ type kubeInformerConnection struct {
 	kubeds  kubedatasource.KubeDS
 	nslist  listerv1.NamespaceLister
 	podlist listerv1.PodLister
+	cmlist  listerv1.ConfigMapLister
+	fdlist  kfoListersV1beta1.FluentdConfigLister
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
 // It uses options from the configuration to determine which namespaces to inspect and which resources
 // within those namespaces contain fluentd configuration.
 func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, error) {
-	// Get a list of the namespaces which may contain fluentd configuration
+	// Get a list of the namespaces which may contain fluentd configuration:
 	nses, err := d.discoverNamespaces(ctx)
 	if err != nil {
 		return nil, err
@@ -132,23 +135,66 @@ func (d *kubeInformerConnection) UpdateStatus(ctx context.Context, namespace str
 }
 
 // discoverNamespaces constructs a list of namespaces to inspect for fluentd
-// configuration, using the configured list if provided, otherwise all namespaces are inspected
+// configuration, using the configured list if provided, otherwise find only
+// namespaces that have fluentd configmaps based on default name, and if that fails
+// find all namespace and iterrate through them.
 func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]string, error) {
 	var namespaces []string
 	if len(d.cfg.Namespaces) != 0 {
 		namespaces = d.cfg.Namespaces
 	} else {
-		nses, err := d.nslist.List(labels.NewSelector())
-		if err != nil {
-			return nil, fmt.Errorf("Failed to list all namespaces: %v", err)
-		}
-		namespaces = make([]string, 0)
-		for _, ns := range nses {
-			namespaces = append(namespaces, ns.ObjectMeta.Name)
+		if d.cfg.Datasource == "crd" {
+			logrus.Infof("Discovering only namespaces that have fluentdconfig crd defined.")
+			if d.fdlist == nil {
+				return nil, fmt.Errorf("Failed to initialize the fluentdconfig crd client, d.fclient = nil")
+			}
+			fcList, err := d.fdlist.List(labels.NewSelector())
+			if err != nil {
+				return nil, fmt.Errorf("Failed to list all fluentdconfig crds in cluster: %v", err)
+			}
+			namespaces = make([]string, 0)
+			for _, crd := range fcList {
+				namespaces = append(namespaces, crd.ObjectMeta.Namespace)
+			}
+			logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", namespaces)
+		} else {
+			// Find the configmaps that exist on this cluster to find namespaces:
+			confMapsList, err := d.cmlist.List(labels.NewSelector())
+			if err != nil {
+				return nil, fmt.Errorf("Failed to list all configmaps in cluster: %v", err)
+			}
+			// If default configmap name is defined get all namespaces for those configmaps:
+			if d.cfg.DefaultConfigmapName != "" {
+				for _, cfmap := range confMapsList {
+					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
+						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+					}
+				}
+			} else {
+				// get all namespaces and iterrate through them like before:
+				nses, err := d.nslist.List(labels.NewSelector())
+				if err != nil {
+					return nil, fmt.Errorf("Failed to list all namespaces in cluster: %v", err)
+				}
+				namespaces = make([]string, 0)
+				for _, ns := range nses {
+					namespaces = append(namespaces, ns.ObjectMeta.Name)
+				}
+			}
 		}
 	}
-	sort.Strings(namespaces)
-	return namespaces, nil
+	// Remove duplicates (crds can be many in single namespace):
+	nsKeys := make(map[string]bool)
+	nsList := []string{}
+	for _, ns := range namespaces {
+		if _, value := nsKeys[ns]; !value {
+			nsKeys[ns] = true
+			nsList = append(nsList, ns)
+		}
+	}
+	// Sort the namespaces:
+	sort.Strings(nsList)
+	return nsList, nil
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
@@ -177,13 +223,22 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	factory := informers.NewSharedInformerFactory(client, 0)
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
 	podLister := factory.Core().V1().Pods().Lister()
+	cmLister := factory.Core().V1().ConfigMaps().Lister()
 
 	var kubeds kubedatasource.KubeDS
+	fluentdconfigDSLister :=
+		&kubedatasource.FluentdConfigDS{
+			Fdlist: nil,
+		}
 	if cfg.Datasource == "crd" {
 		kubeds, err = kubedatasource.NewFluentdConfigDS(ctx, cfg, kubeCfg, updateChan)
 		if err != nil {
 			return nil, err
 		}
+		fluentdconfigDSLister =
+			&kubedatasource.FluentdConfigDS{
+				Fdlist: kubeds.GetFdlist(),
+			}
 	} else {
 		if cfg.CRDMigrationMode {
 			kubeds, err = kubedatasource.NewMigrationModeDS(ctx, cfg, kubeCfg, factory, updateChan)
@@ -202,6 +257,7 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	if !cache.WaitForCacheSync(nil,
 		factory.Core().V1().Namespaces().Informer().HasSynced,
 		factory.Core().V1().Pods().Informer().HasSynced,
+		factory.Core().V1().ConfigMaps().Informer().HasSynced,
 		kubeds.IsReady) {
 		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
 	}
@@ -214,5 +270,7 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		kubeds:  kubeds,
 		nslist:  namespaceLister,
 		podlist: podLister,
+		cmlist:  cmLister,
+		fdlist:  fluentdconfigDSLister.Fdlist,
 	}, nil
 }
