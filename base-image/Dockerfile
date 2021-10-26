@@ -46,7 +46,7 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && $RUBY_PATH/plugins/ruby-build/install.sh \
     && ruby-build $RUBY_VERSION $RUBY_PATH/ \
     && gem update --system --no-document \
-    && gem install bundler -v '>= 2.2.29' --default --no-document \
+    && gem install bundler -v '>= 2.2.30' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
     && gem install rdoc -v '>= 6.3.2' --default --no-document \
     && gem install json -v '>= 2.6.0' --default --no-document \
