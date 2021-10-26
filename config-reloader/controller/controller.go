@@ -16,11 +16,12 @@ import (
 )
 
 type Controller struct {
-	Updater    Updater
-	OutputDir  string
-	Reloader   *fluentd.Reloader
-	Datasource datasource.Datasource
-	Generator  *generator.Generator
+	Updater          Updater
+	OutputDir        string
+	Reloader         *fluentd.Reloader
+	Datasource       datasource.Datasource
+	Generator        *generator.Generator
+	NumTotalConfigNS int
 }
 
 func (c *Controller) Run(ctx context.Context, stop <-chan struct{}) {
@@ -78,12 +79,12 @@ func New(ctx context.Context, cfg *config.Config) (*Controller, error) {
 func (c *Controller) RunOnce(ctx context.Context) error {
 	logrus.Infof("Running main control loop")
 
-	allNamespaces, err := c.Datasource.GetNamespaces(ctx)
+	allConfigNamespaces, err := c.Datasource.GetNamespaces(ctx)
 	if err != nil {
 		return err
 	}
 
-	c.Generator.SetModel(allNamespaces)
+	c.Generator.SetModel(allConfigNamespaces)
 	configHashes, err := c.Generator.RenderToDisk(ctx, c.OutputDir)
 	if err != nil {
 		return nil
@@ -91,7 +92,9 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 
 	needsReload := false
 
-	for _, nsConfig := range allNamespaces {
+	logrus.Debugf("Config hashes returned in RunOnce loop: %v", configHashes)
+
+	for _, nsConfig := range allConfigNamespaces {
 		newHash, found := configHashes[nsConfig.Name]
 		if !found {
 			logrus.Infof("No config updates for namespace %s", nsConfig.Name)
@@ -103,6 +106,13 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 			needsReload = true
 			c.Datasource.WriteCurrentConfigHash(nsConfig.Name, newHash)
 		}
+	}
+
+	// lastly, if number of configs has changed, then need to reload configurations obviously!
+	// this means a crd was deleted or reapplied, and GetNamespaces does not return it anymore
+	if c.NumTotalConfigNS != len(allConfigNamespaces) {
+		needsReload = true
+		c.NumTotalConfigNS = len(allConfigNamespaces)
 	}
 
 	if needsReload {
