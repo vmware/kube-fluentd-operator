@@ -5,7 +5,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     amq-protocol (2.3.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.518.0)
+    aws-partitions (1.519.0)
     aws-sdk-cloudwatchlogs (1.46.0)
       aws-sdk-core (~> 3, >= 3.121.2)
       aws-sigv4 (~> 1.1)
@@ -176,6 +176,9 @@ GEM
       aws-sdk-s3 (~> 1.60)
       aws-sdk-sqs (~> 1.23)
       fluentd (>= 0.14.22, < 2)
+    fluent-plugin-splunkhec (2.1)
+      fluentd (>= 1.9.0, < 2)
+      yajl-ruby (>= 1.4.0)
     fluent-plugin-sumologic_output (1.7.2)
       fluentd (>= 0.14.12)
       httpclient (~> 2.8.0)
@@ -225,7 +228,7 @@ GEM
     http_parser.rb (0.7.0)
     httpclient (2.8.3)
     jmespath (1.4.0)
-    json (2.6.0)
+    json (2.6.1)
     jsonpath (1.1.0)
       multi_json
     kubeclient (4.9.2)
@@ -267,7 +270,7 @@ GEM
     ruby2_keywords (0.0.5)
     serverengine (2.2.4)
       sigdump (~> 0.2.2)
-    set (1.0.1)
+    set (1.0.2)
     sigdump (0.2.4)
     sorted_set (1.0.3)
       rbtree
@@ -278,7 +281,7 @@ GEM
       ffi (~> 1.9)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2021.4)
+    tzinfo-data (1.2021.5)
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
@@ -324,6 +327,7 @@ DEPENDENCIES
   fluent-plugin-rewrite-tag-filter (= 2.4.0)
   fluent-plugin-route (= 1.0.0)
   fluent-plugin-s3 (= 1.6.1)
+  fluent-plugin-splunkhec (= 2.1)
   fluent-plugin-sumologic_output (= 1.7.2)
   fluent-plugin-systemd (= 1.0.5)
   fluent-plugin-uri-parser (= 0.3.0)
@@ -337,4 +341,4 @@ DEPENDENCIES
   oj (= 3.11.8)
 
 BUNDLED WITH
-   2.2.29
+   2.2.30

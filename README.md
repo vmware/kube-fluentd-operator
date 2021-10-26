@@ -690,6 +690,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-route (1.0.0)
 * fluent-plugin-s3 (1.6.1)
 * fluent-plugin-secure-forward (0.4.5)
+* fluent-plugin-splunkhec (2.1)
 * fluent-plugin-sumologic_output (1.7.2)
 * fluent-plugin-systemd (1.0.5)
 * fluent-plugin-uri-parser (0.3.0)
@@ -700,7 +701,6 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 DEPRECATIONS (these are deprecated until fixed - [#266](https://github.com/vmware/kube-fluentd-operator/issues/266)):
 
 * fluent-plugin-splunk-hec (1.2.7)
-* fluent-plugin-splunkhec (2.0)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 

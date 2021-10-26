@@ -65,7 +65,7 @@ DEPENDENCIES
   async-io (= 1.28.0)
   async-pool (= 0.2.0)
   bigdecimal
-  bundler (>= 2.2.29)
+  bundler (>= 2.2.30)
   did_you_mean (= 1.3.0)
   ext_monitor (= 0.1.2)
   json (= 2.6.0)
@@ -93,4 +93,4 @@ DEPENDENCIES
   xmlrpc (= 0.3.0)
 
 BUNDLED WITH
-   2.2.29
+   2.2.30
