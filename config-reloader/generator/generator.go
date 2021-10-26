@@ -388,7 +388,7 @@ func (g *Generator) SetStatusUpdater(ctx context.Context, su datasource.StatusUp
 	g.su = su
 }
 
-// New creates a default impl
+// New creates a default implementation
 func New(ctx context.Context, cfg *config.Config) *Generator {
 	templatesDir, _ := filepath.Abs(cfg.TemplatesDir)
 	var validator fluentd.Validator
