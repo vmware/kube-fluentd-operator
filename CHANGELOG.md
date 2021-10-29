@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## [v1.16.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.0)
+
+#### Core:
+  - docs(readme): update changelogs for v1.15.3 #259 (@Cryptophobia)
+  - chore(go): upgrade to go 1.17 #260 (@Cryptophobia)
+  - fix(kubectl): add update to kubectl manifests #263 (@Cryptophobia)
+  - chore(k8s): regen k8s clients with code-generator #265 (@Cryptophobia)
+  - fix(relabel): process timeout_labels also #270 (@Cryptophobia)
+  - docs(README): add docs about label rewriting etc. #271 (@Cryptophobia)
+  - chore(fluentd): upgrade fluentd v1.14.1 and gems #272 (@Cryptophobia)
+  - fix(reloader): revert to reload endpoint and info #273 (@Cryptophobia)
+  - fix(reloader): we can do better error logging #275 (@Cryptophobia)
+  - ref(datasource): ns discovery on startup #278 (@Cryptophobia)
+  - fix(reloader): move back to config.gracefulReload #279 (@Cryptophobia)
+  - fix(controller): fix tracking of num config ns #282 (@Cryptophobia)
+
+#### Plugins:
+  - fix(plugins): remove splunk plugins for #266 #274 (@Cryptophobia)
+  - chore(plugin): use fork of detect-exception gem #280 (@Cryptophobia)
+  - fix(plugins): add back splunkhec 2.1 plugin #281 (@Cryptophobia)
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.15.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.15.3)
 
 #### Core:
