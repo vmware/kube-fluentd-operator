@@ -199,14 +199,14 @@ GEM
       myslog (~> 0.0)
     fluent-plugin-vmware-loginsight (1.0.0)
       fluentd (>= 0.14.10, < 2)
-    fluentd (1.14.1)
+    fluentd (1.14.2)
       bundler
       cool.io (>= 1.4.5, < 2.0.0)
       http_parser.rb (>= 0.5.1, < 0.8.0)
       msgpack (>= 1.3.1, < 2.0.0)
       serverengine (>= 2.2.2, < 3.0.0)
       sigdump (~> 0.2.2)
-      strptime (>= 0.2.2, < 1.0.0)
+      strptime (>= 0.2.4, < 1.0.0)
       tzinfo (>= 1.0, < 3.0)
       tzinfo-data (~> 1.0)
       webrick (>= 1.4.2, < 1.8.0)
@@ -214,6 +214,7 @@ GEM
     gelf (3.1.0)
       json
     google-protobuf (3.19.0-x86_64-darwin)
+    google-protobuf (3.19.0-x86_64-linux)
     http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -293,6 +294,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-20
+  x86_64-linux
 
 DEPENDENCIES
   ffi
@@ -334,7 +336,7 @@ DEPENDENCIES
   fluent-plugin-verticajson (= 0.0.6)
   fluent-plugin-vmware-log-intelligence (= 2.0.6)
   fluent-plugin-vmware-loginsight (= 1.0.0)
-  fluentd (~> 1.14.1)
+  fluentd (~> 1.14.2)
   gelf (= 3.1.0)
   kubeclient (~> 4.9.0, < 5.0.0)
   logfmt (= 0.0.9)
