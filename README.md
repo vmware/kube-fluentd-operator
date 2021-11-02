@@ -647,6 +647,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.13.3                     | 1.15.2                  |
 | 1.14.0                     | 1.15.3                  |
 | 1.14.1                     | 1.16.0                  |
+| 1.14.2                     | 1.16.1 (TBA)            |
 
 ## Plugins in latest release (1.16.0)
 
