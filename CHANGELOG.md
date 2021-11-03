@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## [v1.16.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.1)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.0 #283 (@Cryptophobia)
+  - chore(fluentd): upgrade fluentd to v1.14.2 #286 (@Cryptophobia)
+  - chore(docs): update docs for v1.16.1 release #287  (@Cryptophobia)
+
+#### Plugins:
+  - None
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.0)
 
 #### Core:
