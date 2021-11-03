@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.16.0 \
+  --set image.tag=v1.16.1 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.0/log-router-0.4.0.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.1/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.16.0 \
+  --set image.tag=v1.16.1 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -647,13 +647,13 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.13.3                     | 1.15.2                  |
 | 1.14.0                     | 1.15.3                  |
 | 1.14.1                     | 1.16.0                  |
-| 1.14.2                     | 1.16.1 (TBA)            |
+| 1.14.2                     | 1.16.1                  |
 
-## Plugins in latest release (1.16.0)
+## Plugins in latest release (1.16.1)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
-* fluentd (1.14.1)
+* fluentd (1.14.2)
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.14.0)
