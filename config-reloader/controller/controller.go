@@ -11,17 +11,18 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/generator"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 
 	"github.com/sirupsen/logrus"
 )
 
 type Controller struct {
-	Updater          Updater
-	OutputDir        string
-	Reloader         *fluentd.Reloader
-	Datasource       datasource.Datasource
-	Generator        *generator.Generator
-	NumTotalConfigNS int
+	Updater        Updater
+	OutputDir      string
+	Reloader       *fluentd.Reloader
+	Datasource     datasource.Datasource
+	Generator      *generator.Generator
+	AllConfigsHash uint64
 }
 
 func (c *Controller) Run(ctx context.Context, stop <-chan struct{}) {
@@ -104,15 +105,20 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 
 		if newHash != nsConfig.PreviousConfigHash {
 			needsReload = true
+			logrus.Debugf("Previous Config hash for ns %s is %v", nsConfig.Name, nsConfig.PreviousConfigHash)
+			logrus.Debugf("New Config hash for ns %s is %v", nsConfig.Name, newHash)
 			c.Datasource.WriteCurrentConfigHash(nsConfig.Name, newHash)
 		}
 	}
 
-	// lastly, if number of configs has changed, then need to reload configurations obviously!
+	// lastly, if number of all configs has changed, then need to reload configurations obviously!
 	// this means a crd was deleted or reapplied, and GetNamespaces does not return it anymore
-	if c.NumTotalConfigNS != len(allConfigNamespaces) {
+	// metahashing, hashing the object of hashes :)
+	allConfigsHash, _ := util.MakeStructureHash(configHashes)
+	if c.AllConfigsHash != allConfigsHash {
 		needsReload = true
-		c.NumTotalConfigNS = len(allConfigNamespaces)
+		c.AllConfigsHash = allConfigsHash
+		logrus.Debugf("All Configs hash for all KFO is %v", c.AllConfigsHash)
 	}
 
 	if needsReload {

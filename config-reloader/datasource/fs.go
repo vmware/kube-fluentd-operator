@@ -16,7 +16,7 @@ import (
 )
 
 type fsDatasource struct {
-	hashes          map[string]string
+	confHashes      map[string]string
 	rootDir         string
 	statusOutputDir string
 }
@@ -41,7 +41,7 @@ func (d *fsDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, e
 		cfg := &NamespaceConfig{
 			Name:               ns,
 			FluentdConfig:      string(contents),
-			PreviousConfigHash: d.hashes[ns],
+			PreviousConfigHash: d.confHashes[ns],
 		}
 
 		logrus.Infof("Loading namespace %s from file %s", ns, f)
@@ -52,7 +52,7 @@ func (d *fsDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, e
 }
 
 func (d *fsDatasource) WriteCurrentConfigHash(namespace string, hash string) {
-	d.hashes[namespace] = hash
+	d.confHashes[namespace] = hash
 }
 
 func (d *fsDatasource) UpdateStatus(ctx context.Context, namespace string, status string) {
@@ -67,7 +67,7 @@ func (d *fsDatasource) UpdateStatus(ctx context.Context, namespace string, statu
 // NewFileSystemDatasource turns all files matching *.conf patter in the given dir into namespace configs
 func NewFileSystemDatasource(ctx context.Context, rootDir string, statusOutputDir string) Datasource {
 	return &fsDatasource{
-		hashes:          make(map[string]string),
+		confHashes:      make(map[string]string),
 		rootDir:         rootDir,
 		statusOutputDir: statusOutputDir,
 	}
