@@ -25,14 +25,14 @@ import (
 )
 
 type kubeInformerConnection struct {
-	client  kubernetes.Interface
-	hashes  map[string]string
-	cfg     *config.Config
-	kubeds  kubedatasource.KubeDS
-	nslist  listerv1.NamespaceLister
-	podlist listerv1.PodLister
-	cmlist  listerv1.ConfigMapLister
-	fdlist  kfoListersV1beta1.FluentdConfigLister
+	client     kubernetes.Interface
+	confHashes map[string]string
+	cfg        *config.Config
+	kubeds     kubedatasource.KubeDS
+	nslist     listerv1.NamespaceLister
+	podlist    listerv1.PodLister
+	cmlist     listerv1.ConfigMapLister
+	fdlist     kfoListersV1beta1.FluentdConfigLister
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
@@ -77,7 +77,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		nsconfigs = append(nsconfigs, &NamespaceConfig{
 			Name:               ns,
 			FluentdConfig:      configdata,
-			PreviousConfigHash: d.hashes[ns],
+			PreviousConfigHash: d.confHashes[ns],
 			Labels:             nsobj.Labels,
 			MiniContainers:     minis,
 		})
@@ -88,7 +88,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 
 // WriteCurrentConfigHash is a setter for the hashtable maintained by this Datasource
 func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash string) {
-	d.hashes[namespace] = hash
+	d.confHashes[namespace] = hash
 }
 
 // UpdateStatus updates a namespace's status annotation with the latest result
@@ -168,6 +168,13 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 				for _, cfmap := range confMapsList {
 					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
 						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+					} else {
+						// We need to find configmaps that honor the global annotation for configmaps:
+						configMapNamespace, _ := d.nslist.Get(cfmap.ObjectMeta.Namespace)
+						configMapName := configMapNamespace.Annotations[d.cfg.AnnotConfigmapName]
+						if configMapName != "" {
+							namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+						}
 					}
 				}
 			} else {
@@ -253,6 +260,23 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		}
 	}
 
+	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(new interface{}) {
+			select {
+			case updateChan <- time.Now():
+			default:
+			}
+		},
+		UpdateFunc: func(old, new interface{}) {
+		},
+		DeleteFunc: func(new interface{}) {
+			select {
+			case updateChan <- time.Now():
+			default:
+			}
+		},
+	})
+
 	factory.Start(nil)
 	if !cache.WaitForCacheSync(nil,
 		factory.Core().V1().Namespaces().Informer().HasSynced,
@@ -264,13 +288,13 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
 	return &kubeInformerConnection{
-		client:  client,
-		hashes:  make(map[string]string),
-		cfg:     cfg,
-		kubeds:  kubeds,
-		nslist:  namespaceLister,
-		podlist: podLister,
-		cmlist:  cmLister,
-		fdlist:  fluentdconfigDSLister.Fdlist,
+		client:     client,
+		confHashes: make(map[string]string),
+		cfg:        cfg,
+		kubeds:     kubeds,
+		nslist:     namespaceLister,
+		podlist:    podLister,
+		cmlist:     cmLister,
+		fdlist:     fluentdconfigDSLister.Fdlist,
 	}, nil
 }
