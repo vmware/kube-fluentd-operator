@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [v1.16.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.2)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.1 #288 (@Cryptophobia)
+  - fix: fix datetime parse to extended format #291 (@Cryptophobia)
+  - chore: upgrade date gem and bundler #292  (@Cryptophobia)
+  - fix: react to pod events to regen preprocess conf #293 (@sabdalla80 @Cryptophobia)
+
+#### Plugins:
+  - None
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.1)
 
 #### Core:
