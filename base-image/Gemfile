@@ -1,26 +1,26 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "~> 1.14.2"
+gem "fluentd", "~> 1.14.3"
 
-gem 'oj', '3.11.8'
+gem 'oj', '3.13.10'
 gem 'ffi'
 gem 'fluent-plugin-amqp', "0.14.0"
 gem 'fluent-plugin-azure-loganalytics', "0.7.0"
 gem 'fluent-plugin-cloudwatch-logs', "0.14.2"
 gem 'fluent-plugin-concat', "2.5.0"
-gem 'fluent-plugin-datadog', "0.14.0"
+gem 'fluent-plugin-datadog', "0.14.1"
 #This gem has been forked because maintainers take too long to support v1 fluentd plugin API:
 #gem 'fluent-plugin-detect-exceptions', "0.0.14", :git => "https://github.com/Cryptophobia/fluent-plugin-detect-exceptions.git"
-gem 'fluent-plugin-elasticsearch', "5.1.0"
+gem 'fluent-plugin-elasticsearch', "5.1.4"
 gem 'fluent-plugin-gelf-hs', "1.0.8"
 #gem 'fluent-plugin-google-cloud', :git => "https://github.com/Cryptophobia/fluent-plugin-google-cloud.git"
 gem 'fluent-plugin-grafana-loki', "1.2.16"
 gem 'fluent-plugin-grok-parser', "2.6.2"
 gem 'fluent-plugin-json-in-json-2', "1.0.2"
-gem 'fluent-plugin-kafka', "0.17.2"
-gem 'fluent-plugin-kinesis', "3.4.1"
-gem 'fluent-plugin-kubernetes_metadata_filter', "2.9.1"
+gem 'fluent-plugin-kafka', "0.17.3"
+gem 'fluent-plugin-kinesis', "3.4.2"
+gem 'fluent-plugin-kubernetes_metadata_filter', "2.9.3"
 gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
 gem 'fluent-plugin-kubernetes', "0.3.1"
 gem 'fluent-plugin-logentries', "0.2.10"
@@ -43,8 +43,8 @@ gem 'fluent-plugin-s3', "1.6.1"
 #DEPRECATION: Until issues in #266 are fixed, we are deprecating these two plugins:
 #https://github.com/vmware/kube-fluentd-operator/issues/266
 #gem 'fluent-plugin-splunk-hec', "1.2.7"
-gem 'fluent-plugin-splunkhec', "2.1"
-gem 'fluent-plugin-sumologic_output', "1.7.2"
+gem 'fluent-plugin-splunkhec', "2.2"
+gem 'fluent-plugin-sumologic_output', "1.7.3"
 gem 'fluent-plugin-systemd', "1.0.5"
 gem 'fluent-plugin-uri-parser', "0.3.0"
 gem 'fluent-plugin-verticajson', "0.0.6"
