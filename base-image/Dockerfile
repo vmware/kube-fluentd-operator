@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
-ARG RUBY_PATH=/usr/local
-ARG RUBY_VERSION=2.7.4
+ARG RVM_PATH=/usr/local/rvm
+ARG RUBY_VERSION=ruby-2.7.5
+ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
-FROM photon:4.0 AS rubybuild
+FROM photon:3.0 AS rubybuild
+ARG RVM_PATH
 ARG RUBY_PATH
 ARG RUBY_VERSION
 ARG RUBYOPT
@@ -14,6 +16,8 @@ RUN tdnf clean all && \
     tdnf upgrade -y && \
     tdnf erase -y toybox && \
     tdnf install -y \
+         findutils \
+         procps-ng \
          bzip2 \
          shadow \
          wget \
@@ -34,21 +38,27 @@ RUN tdnf clean all && \
          openssl-devel \
          systemd \
          net-tools \
-         git && \
+         git \
+         gpg && \
     tdnf clean all
 
 # Copy Gemfile.lock to pin versions further:
 COPY basegems/Gemfile Gemfile
 COPY basegems/Gemfile.lock Gemfile.lock
 
+SHELL [ "/bin/bash", "-l", "-c" ]
+
 # Install the gems with bundler is better practice:
-RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-build \
-    && $RUBY_PATH/plugins/ruby-build/install.sh \
-    && ruby-build $RUBY_VERSION $RUBY_PATH/ \
+RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
+    && curl -sSL https://rvm.io/pkuczynski.asc | gpg --import \
+    && curl -sSL https://get.rvm.io | bash -s stable \
+    && source /etc/profile.d/rvm.sh \
+    && rvm autolibs disable \
+    && rvm requirements \
+    && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
-    && gem install bundler -v '>= 2.2.32' --default --no-document \
+    && gem install bundler -v '>= 2.2.4' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
-    && gem install rdoc -v '>= 6.3.3' --default --no-document \
     && gem install json -v '>= 2.6.1' --default --no-document \
     && gem install webrick -v '>= 1.7.0' --default --no-document \
     && bundler install \
@@ -58,14 +68,15 @@ RUN git clone git://github.com/rbenv/ruby-build.git $RUBY_PATH/plugins/ruby-buil
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.3.0.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/webrick-1.6.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.0.gemspec
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.3.gemspec
 
-FROM photon:4.0
+FROM photon:3.0
 ARG RUBY_PATH
 ARG RUBYOPT
 ENV PATH $RUBY_PATH/bin:$PATH
 COPY --from=rubybuild $RUBY_PATH $RUBY_PATH
 # Not sure why this is needed: see https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v1.13/debian-elasticsearch7/Dockerfile
+# skip runtime bundler installation
 ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
 # start with a valid empty file
 COPY failsafe.conf /fluentd/failsafe.conf
