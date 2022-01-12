@@ -649,12 +649,13 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.14.1                     | 1.16.0                  |
 | 1.14.2                     | 1.16.1                  |
 | 1.14.2                     | 1.16.2                  |
+| 1.14.4                     | 1.16.3 (TBA)            |
 
 ## Plugins in latest release (1.16.2)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
-* fluentd (1.14.2)
+* fluentd (1.14.4)
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.14.0)
