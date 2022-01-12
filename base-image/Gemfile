@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "~> 1.14.3"
+gem "fluentd", "1.14.4"
 
 gem 'oj', '3.13.10'
 gem 'ffi'
