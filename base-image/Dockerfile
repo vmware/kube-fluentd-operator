@@ -57,7 +57,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rvm requirements \
     && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
-    && gem install bundler -v '>= 2.2.4' --default --no-document \
+    && gem install bundler -v '>= 2.3.4' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
     && gem install json -v '>= 2.6.1' --default --no-document \
     && gem install webrick -v '>= 1.7.0' --default --no-document \
