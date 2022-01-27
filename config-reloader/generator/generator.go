@@ -41,10 +41,15 @@ type Generator struct {
 	su           datasource.StatusUpdater
 }
 
-func ensureDirExists(dir string) {
+func ensureDirExists(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		_ = os.Mkdir(dir, maskDirectory)
+		err = os.Mkdir(dir, maskDirectory)
+		if err != nil {
+			logrus.Errorln("Unexpected error occurred with output config directory: ", dir)
+			return err
+		}
 	}
+	return nil
 }
 
 func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext, mode int) (string, string, error) {
@@ -351,7 +356,10 @@ func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]s
 
 // RenderToDisk write only valid configurations to disk
 func (g *Generator) RenderToDisk(ctx context.Context, outputDir string) (map[string]string, error) {
-	ensureDirExists(outputDir)
+	err := ensureDirExists(outputDir)
+	if err != nil {
+		return nil, err
+	}
 	outputDir, _ = filepath.Abs(outputDir)
 	res := map[string]string{}
 
