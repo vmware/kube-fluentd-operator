@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -195,6 +196,26 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	// Sort the namespaces:
 	sort.Strings(nsList)
 	return nsList, nil
+}
+
+// handlePodChange decides whether to to a graceful reload on pod changes based on source type such as mounted-file
+// it will call Run controller loop if pod changed is a mounted-file type as other types don't require the reload
+// Note Namespace config may have mixed mounted-file and non-mounted file pods, In the first attempt,
+// let's start simple and start by finding if pod changed is associated with a namespace that has mounted-file plugin in it's config
+func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
+	mObj := obj.(metav1.Object)
+	logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
+	nsConfigStr := fmt.Sprintf("%#v", configdata)
+	//logrus.Infof("nsConfigStr: %s", nsConfigStr)
+	if err == nil {
+		if strings.Contains(nsConfigStr, "mounted-file") {
+			select {
+			case d.updateChan <- time.Now():
+			default:
+			}
+		}
+	}
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
