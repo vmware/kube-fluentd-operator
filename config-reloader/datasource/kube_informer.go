@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -25,14 +26,15 @@ import (
 )
 
 type kubeInformerConnection struct {
-	client  kubernetes.Interface
-	hashes  map[string]string
-	cfg     *config.Config
-	kubeds  kubedatasource.KubeDS
-	nslist  listerv1.NamespaceLister
-	podlist listerv1.PodLister
-	cmlist  listerv1.ConfigMapLister
-	fdlist  kfoListersV1beta1.FluentdConfigLister
+	client     kubernetes.Interface
+	confHashes map[string]string
+	cfg        *config.Config
+	kubeds     kubedatasource.KubeDS
+	nslist     listerv1.NamespaceLister
+	podlist    listerv1.PodLister
+	cmlist     listerv1.ConfigMapLister
+	fdlist     kfoListersV1beta1.FluentdConfigLister
+	updateChan chan time.Time
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
@@ -77,7 +79,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		nsconfigs = append(nsconfigs, &NamespaceConfig{
 			Name:               ns,
 			FluentdConfig:      configdata,
-			PreviousConfigHash: d.hashes[ns],
+			PreviousConfigHash: d.confHashes[ns],
 			Labels:             nsobj.Labels,
 			MiniContainers:     minis,
 		})
@@ -88,7 +90,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 
 // WriteCurrentConfigHash is a setter for the hashtable maintained by this Datasource
 func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash string) {
-	d.hashes[namespace] = hash
+	d.confHashes[namespace] = hash
 }
 
 // UpdateStatus updates a namespace's status annotation with the latest result
@@ -168,6 +170,13 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 				for _, cfmap := range confMapsList {
 					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
 						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+					} else {
+						// We need to find configmaps that honor the global annotation for configmaps:
+						configMapNamespace, _ := d.nslist.Get(cfmap.ObjectMeta.Namespace)
+						configMapName := configMapNamespace.Annotations[d.cfg.AnnotConfigmapName]
+						if configMapName != "" {
+							namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+						}
 					}
 				}
 			} else {
@@ -195,6 +204,26 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	// Sort the namespaces:
 	sort.Strings(nsList)
 	return nsList, nil
+}
+
+// handlePodChange decides whether to to a graceful reload on pod changes based on source type such as mounted-file
+// it will call Run controller loop if pod changed is a mounted-file type as other types don't require the reload
+// Note Namespace config may have mixed mounted-file and non-mounted file pods, In the first attempt,
+// let's start simple and start by finding if pod changed is associated with a namespace that has mounted-file plugin in it's config
+func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
+	mObj := obj.(metav1.Object)
+	logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
+	nsConfigStr := fmt.Sprintf("%#v", configdata)
+	//logrus.Infof("nsConfigStr: %s", nsConfigStr)
+	if err == nil {
+		if strings.Contains(nsConfigStr, "mounted-file") {
+			select {
+			case d.updateChan <- time.Now():
+			default:
+			}
+		}
+	}
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
@@ -263,14 +292,28 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
-	return &kubeInformerConnection{
-		client:  client,
-		hashes:  make(map[string]string),
-		cfg:     cfg,
-		kubeds:  kubeds,
-		nslist:  namespaceLister,
-		podlist: podLister,
-		cmlist:  cmLister,
-		fdlist:  fluentdconfigDSLister.Fdlist,
-	}, nil
+	kubeInfoCx := &kubeInformerConnection{
+		client:     client,
+		confHashes: make(map[string]string),
+		cfg:        cfg,
+		kubeds:     kubeds,
+		nslist:     namespaceLister,
+		podlist:    podLister,
+		cmlist:     cmLister,
+		fdlist:     fluentdconfigDSLister.Fdlist,
+		updateChan: updateChan,
+	}
+
+	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+		UpdateFunc: func(old, obj interface{}) {
+		},
+		DeleteFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+	})
+
+	return kubeInfoCx, nil
 }
