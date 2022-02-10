@@ -217,7 +217,6 @@ func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interf
    logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
    configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
    nsConfigStr := fmt.Sprintf("%#v", configdata)
-   //logrus.Infof("nsConfigStr: %s", nsConfigStr)
    if err == nil {
        if strings.Contains(nsConfigStr, "mounted-file"){
           select {
