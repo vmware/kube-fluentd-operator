@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"time"
 	"strings"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -36,7 +36,6 @@ type kubeInformerConnection struct {
 	fdlist     kfoListersV1beta1.FluentdConfigLister
 	updateChan chan time.Time
 }
-
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
 // It uses options from the configuration to determine which namespaces to inspect and which resources
@@ -207,24 +206,23 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	return nsList, nil
 }
 
-
 // handlePodChange decides whether to to a graceful reload on pod changes based on source type such as mounted-file
 // it will call Run controller loop if pod changed is a mounted-file type as other types don't require the reload
 // Note Namespace config may have mixed mounted-file and non-mounted file pods, In the first attempt,
 // let's start simple and start by finding if pod changed is associated with a namespace that has mounted-file plugin in it's config
 func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
-   mObj := obj.(metav1.Object)
-   logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
-   configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
-   nsConfigStr := fmt.Sprintf("%#v", configdata)
-   if err == nil {
-       if strings.Contains(nsConfigStr, "mounted-file"){
-          select {
-             case d.updateChan <- time.Now():
-             default:
-          }
-       }
-   }
+	mObj := obj.(metav1.Object)
+	logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
+	nsConfigStr := fmt.Sprintf("%#v", configdata)
+	if err == nil {
+		if strings.Contains(nsConfigStr, "mounted-file") {
+			select {
+			case d.updateChan <- time.Now():
+			default:
+			}
+		}
+	}
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
@@ -305,16 +303,16 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		updateChan: updateChan,
 	}
 
-    factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-        AddFunc: func(obj interface{}) {
-            kubeInfoCx.handlePodChange(ctx, obj)
-        },
-        UpdateFunc: func(old, obj interface{}) {
-        },
-        DeleteFunc: func(obj interface{}) {
-            kubeInfoCx.handlePodChange(ctx, obj)
-        },
-    })
+	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+		UpdateFunc: func(old, obj interface{}) {
+		},
+		DeleteFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+	})
 
 	return kubeInfoCx, nil
 }
