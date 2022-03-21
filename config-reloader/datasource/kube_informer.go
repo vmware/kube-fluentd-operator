@@ -145,18 +145,11 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	} else {
 		if d.cfg.Datasource == "crd" {
 			logrus.Infof("Discovering only namespaces that have fluentdconfig crd defined.")
-			if d.fdlist == nil {
-				return nil, fmt.Errorf("Failed to initialize the fluentdconfig crd client, d.fclient = nil")
-			}
-			fcList, err := d.fdlist.List(labels.NewSelector())
+			nsList, err := d.discoverFluentdConfigNamespaces()
 			if err != nil {
-				return nil, fmt.Errorf("Failed to list all fluentdconfig crds in cluster: %v", err)
+				return nil, err
 			}
-			namespaces = make([]string, 0)
-			for _, crd := range fcList {
-				namespaces = append(namespaces, crd.ObjectMeta.Namespace)
-			}
-			logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", namespaces)
+			namespaces = nsList
 		} else {
 			// Find the configmaps that exist on this cluster to find namespaces:
 			confMapsList, err := d.cmlist.List(labels.NewSelector())
@@ -169,6 +162,13 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
 						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
 					}
+				}
+				if d.cfg.CRDMigrationMode {
+					nsList, err := d.discoverFluentdConfigNamespaces()
+					if err != nil {
+						return nil, err
+					}
+					namespaces = append(namespaces, nsList...)
 				}
 			} else {
 				// get all namespaces and iterrate through them like before:
@@ -194,6 +194,22 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	}
 	// Sort the namespaces:
 	sort.Strings(nsList)
+	return nsList, nil
+}
+
+func (d *kubeInformerConnection) discoverFluentdConfigNamespaces() ([]string, error) {
+	if d.fdlist == nil {
+		return nil, fmt.Errorf("Failed to initialize the fluentdconfig crd client, d.fclient = nil")
+	}
+	fcList, err := d.fdlist.List(labels.NewSelector())
+	if err != nil {
+		return nil, fmt.Errorf("Failed to list all fluentdconfig crds in cluster: %v", err)
+	}
+	nsList := make([]string, 0)
+	for _, crd := range fcList {
+		nsList = append(nsList, crd.ObjectMeta.Namespace)
+	}
+	logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", nsList)
 	return nsList, nil
 }
 
