@@ -35,7 +35,7 @@ jobs:
           PATH=$PATH:/tmp/bin helm upgrade --install --set image.tag=v$GITHUB_SHA_SHORT --set rbac.create=true --wait --timeout 60s  log-router ./log-router
   publish:
     name: publish-job
-    if: startsWith(github.event.ref, 'release')
+    if: startsWith(github.ref, 'refs/heads/release')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
