@@ -68,10 +68,13 @@ guess-tag:
 clean:
 	rm -fr config-reloader pkg > /dev/null
 
+docker-login:
+	docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+
 build-image:
 	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
-push-image: build-image
+push-image: build-image docker-login
 	docker push $(IMAGE):$(TAG)
 
 push-latest:
@@ -86,7 +89,7 @@ delete-test-ns:
 
 run-loop-fs: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 5 \
 		--log-level=debug \
 		--output-dir=tmp \
@@ -99,7 +102,7 @@ run-loop-fs: install
 
 run-once-fs: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 0 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
@@ -109,12 +112,12 @@ run-once-fs: install
 		--meta-values=aws_region=us-west-2,csp_cluster=mon \
 		--templates-dir=templates \
 		--datasource=fs \
-		--fs-dir=examples \
+		--fs-dir=examples-2 \
 		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
 run-once: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 0 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
@@ -127,7 +130,7 @@ run-once: install
 
 run-loop: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 5 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
