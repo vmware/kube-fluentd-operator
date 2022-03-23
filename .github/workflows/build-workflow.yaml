@@ -40,9 +40,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
+      - name: build-base
+        run: |
+          cd base-image && make build-image
       - name: push-image
         run: |
-          cd base-image && make build-image && cd ..
           cd config-reloader && make push-image
         env: # Or as an environment variable
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
