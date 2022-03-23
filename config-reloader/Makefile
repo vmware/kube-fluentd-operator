@@ -69,9 +69,9 @@ clean:
 	rm -fr config-reloader pkg > /dev/null
 
 docker-login:
-	docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+	echo "${DOCKER_PASSWORD}" | docker login -u="${DOCKER_USERNAME}" --password-stdin
 
-build-image: docker-login
+build-image:
 	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
 push-image: build-image 
