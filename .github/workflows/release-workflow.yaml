@@ -1,0 +1,28 @@
+name: build-workflow
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  publish:
+    name: publish-job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: FranzDiebold/github-env-vars-action@v1.2.1
+      - name: docker-login
+        run: |
+          cd config-reloader && make docker-login
+        env: # Or as an environment variable
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: build-base
+        run: |
+          cd base-image && make build-image
+      - name: push-image
+        run: |
+          cd config-reloader && make push-image
+        env:
+          TAG: ${{github.ref_name}}
