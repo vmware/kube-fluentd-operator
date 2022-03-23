@@ -71,7 +71,7 @@ clean:
 build-image:
 	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
-push-image: build-image 
+push-image: build-image
 	docker push $(IMAGE):$(TAG)
 
 push-latest:
