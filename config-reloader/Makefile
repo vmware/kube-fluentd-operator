@@ -71,10 +71,10 @@ clean:
 docker-login:
 	docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 
-build-image:
+build-image: docker-login
 	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
-push-image: build-image docker-login
+push-image: build-image 
 	docker push $(IMAGE):$(TAG)
 
 push-latest:
