@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 IMAGE            ?= vmware/kube-fluentd-operator
-TAG              ?= test
+TAG              ?= latest
 
 VERSION          ?= $(shell git describe --tags --always --dirty)
 BUILD_FLAGS      := -v
@@ -112,7 +112,7 @@ run-once-fs: install
 		--meta-values=aws_region=us-west-2,csp_cluster=mon \
 		--templates-dir=templates \
 		--datasource=fs \
-		--fs-dir=examples-2 \
+		--fs-dir=examples \
 		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
 run-once: install
