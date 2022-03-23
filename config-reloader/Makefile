@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 IMAGE            ?= vmware/kube-fluentd-operator
-TAG              ?= latest
+TAG              ?= test
 
 VERSION          ?= $(shell git describe --tags --always --dirty)
 BUILD_FLAGS      := -v
