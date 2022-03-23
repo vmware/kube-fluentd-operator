@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: build-workflow
-=======
 name: release-workflow
->>>>>>> 0cf1de7 (feature: add pipeline for publish docker image)
 # This workflow is triggered on pushes to the repository.
 on:
   push:
@@ -27,14 +23,6 @@ jobs:
           cd base-image && make build-image
       - name: push-image
         run: |
-<<<<<<< HEAD
-          cd config-reloader && make push-image
-=======
-<<<<<<< HEAD
-          cd config-reloader && make push-image
-=======
           cd config-reloader && make push-image
         env:
           TAG: ${{github.ref_name}}
->>>>>>> cea1e9b (feature: add pipeline for publish docker image)
->>>>>>> 0cf1de7 (feature: add pipeline for publish docker image)
