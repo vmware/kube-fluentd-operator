@@ -68,9 +68,6 @@ guess-tag:
 clean:
 	rm -fr config-reloader pkg > /dev/null
 
-docker-login:
-	echo "${DOCKER_PASSWORD}" | docker login -u="${DOCKER_USERNAME}" --password-stdin
-
 build-image:
 	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
