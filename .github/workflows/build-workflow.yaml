@@ -42,7 +42,7 @@ jobs:
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
       - name: push-image
         run: |
-          cd base-image && make push-image
+          cd config-reloader && make push-image
         env: # Or as an environment variable
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
