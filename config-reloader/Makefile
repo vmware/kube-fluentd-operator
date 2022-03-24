@@ -86,7 +86,7 @@ delete-test-ns:
 
 run-loop-fs: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 5 \
 		--log-level=debug \
 		--output-dir=tmp \
@@ -99,7 +99,7 @@ run-loop-fs: install
 
 run-once-fs: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 0 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
@@ -114,7 +114,7 @@ run-once-fs: install
 
 run-once: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 0 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
@@ -127,7 +127,7 @@ run-once: install
 
 run-loop: install
 	rm -fr tmp
-	config-reloader \
+	./config-reloader \
 		--interval 5 \
 		--log-level=debug \
 		--fluentd-loglevel=debug \
