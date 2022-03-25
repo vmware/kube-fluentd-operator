@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [v1.16.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.3)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.3 #312 (@javiercri)
+  - chore: add pipeline for release builds (@javiercri)
+  - fix: Issue#289 Mounted file issue fix part-2 #306 (@vkadi)
+  - fix: Show error when dir is missing #305 (@javiercri)
+  - fix: Fix cri-o Config when log line contains a json #301 (@jonas.rutishauser)
+  - chore(fluentd): upgrade fluentd v1.14.4 #300 (@Cryptophobia)
+  - chore(fluentd): upgrade fluentd and ruby 2.7.5 #297 (@Cryptophobia)
+
+#### Plugins:
+  - fix(plugins) re-added fluentd Splunk HEC plugin #307 #309 (@xelalex)
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.2)
 
 #### Core:
