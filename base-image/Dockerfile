@@ -67,6 +67,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.3.0.gemspec \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.5.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/webrick-1.6.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.3.gemspec
 
@@ -148,7 +149,8 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
   && tdnf remove -y $buildDeps \
-  && tdnf clean all
+  && tdnf clean all \
+  && gem uninstall google-protobuf --version 3.17.3 --force && gem cleanup
 
 # Make sure fluentd picks jemalloc 3.6.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"

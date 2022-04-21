@@ -233,8 +233,8 @@ GEM
       yajl-ruby (~> 1.0)
     gelf (3.1.0)
       json
-    google-protobuf (3.19.3-x86_64-darwin)
-    google-protobuf (3.19.3-x86_64-linux)
+    google-protobuf (3.20.0-x86_64-darwin)
+    google-protobuf (3.20.0-x86_64-linux)
     http (4.4.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
