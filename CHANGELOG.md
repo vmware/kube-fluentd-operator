@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [v1.16.4](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.4)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.4 #312 (@javiercri)
+  - fix: update CVEs #317 (@slimm609)
+
+#### Plugins:
+  - Cleanup SERVERENGINE_SOCKETMANAGER socket files usually found in /tmp #316 (@danlenar)
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.3](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.3)
 
 #### Core:
