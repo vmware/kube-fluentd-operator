@@ -21,6 +21,7 @@ module Fluent
         # this means all input/filters are ok. User configs cannot
         # define sources so it's all safe
         # https://github.com/fluent/fluentd/blob/v1.2.2/lib/fluent/root_agent.rb#L171
+        Fluent::Supervisor.cleanup_resources
         Kernel.exit!(0)
       end
 
