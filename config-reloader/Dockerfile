@@ -1,8 +1,8 @@
-# Copyright © 2018 VMware, Inc. All Rights Reserved.
+# Copyright © 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
 # builder image
-FROM golang:1.17 as builder
+FROM golang:1.17.9 as builder
 
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
 COPY . .
