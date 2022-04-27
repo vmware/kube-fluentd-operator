@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dest=`mktemp -d`
+dest=$(mktemp -d)
 
 config-reloader \
   --interval 0 \
@@ -14,7 +14,7 @@ config-reloader \
 
 rc=0
 
-for st in `find ${dest} -iname *.status`; do
+for st in $(find ${dest} -iname *.status); do
   ns=$(basename ${st})
   ns=${ns%%.status}
   ns=${ns#ns-}
