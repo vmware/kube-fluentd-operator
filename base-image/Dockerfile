@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 ARG RVM_PATH=/usr/local/rvm
-ARG RUBY_VERSION=ruby-2.7.5
+ARG RUBY_VERSION=ruby-2.7.6
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
@@ -58,6 +58,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
     && gem install bundler -v '>= 2.3.4' --default --no-document \
+    && gem install cgi -v '>= 0.1.1' --default --no-document \
     && gem install rexml -v '>= 3.2.5' --default --no-document \
     && gem install json -v '>= 2.6.1' --default --no-document \
     && gem install webrick -v '>= 1.7.0' --default --no-document \
@@ -69,7 +70,8 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.3.0.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.5.1.gemspec \
     && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/webrick-1.6.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.3.gemspec
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.3.gemspec \
+    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/cgi-0.1.0.1.gemspec
 
 FROM photon:3.0
 ARG RUBY_PATH
@@ -150,7 +152,8 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
   && tdnf remove -y $buildDeps \
   && tdnf clean all \
-  && gem uninstall google-protobuf --version 3.17.3 --force && gem cleanup
+  && gem uninstall google-protobuf --version 3.17.3 --force && gem cleanup \
+  && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/cache $RUBY_PATH/lib/ruby/gems/2.7.0/doc/ /usr/share/doc /root/.bundle/cache
 
 # Make sure fluentd picks jemalloc 3.6.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
