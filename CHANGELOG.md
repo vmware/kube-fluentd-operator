@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [v1.16.5](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.5)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.5 #320 (@javiercri)
+  - fix: update ruby to 2.7.6 #319 (@slimm609)
+
+#### Plugins:
+  - None
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.4](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.4)
 
 #### Core:
