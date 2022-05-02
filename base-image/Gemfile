@@ -53,3 +53,6 @@ gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
 gem 'logfmt', "0.0.9"
 gem 'kubeclient', "~> 4.9.3"
+gem 'fluent-plugin-webhdfs', '1.5.0'
+# webhdfs requires gssapi plugin to work
+gem 'gssapi', '1.3.1'
