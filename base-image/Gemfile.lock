@@ -190,7 +190,7 @@ GEM
       aws-sdk-s3 (~> 1.60)
       aws-sdk-sqs (~> 1.23)
       fluentd (>= 0.14.22, < 2)
-    fluent-plugin-splunk-hec (1.2.10)
+    fluent-plugin-splunk-hec (1.2.13)
       fluentd (>= 1.4)
       multi_json (~> 1.13)
       net-http-persistent (~> 3.1)
