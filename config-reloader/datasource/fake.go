@@ -25,7 +25,7 @@ var template = `
 `
 
 type fakeDatasource struct {
-	confHashes map[string]string
+	hashes map[string]string
 }
 
 func makeFakeConfig(namespace string) string {
@@ -59,7 +59,7 @@ func (d *fakeDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig,
 }
 
 func (d *fakeDatasource) WriteCurrentConfigHash(namespace string, hash string) {
-	d.confHashes[namespace] = hash
+	d.hashes[namespace] = hash
 }
 
 func (d *fakeDatasource) UpdateStatus(ctx context.Context, namespace string, status string) {
@@ -69,6 +69,6 @@ func (d *fakeDatasource) UpdateStatus(ctx context.Context, namespace string, sta
 // NewFakeDatasource returns a predefined set of namespaces + configs
 func NewFakeDatasource(ctx context.Context) Datasource {
 	return &fakeDatasource{
-		confHashes: make(map[string]string),
+		hashes: make(map[string]string),
 	}
 }
