@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.16.5 \
+  --set image.tag=v1.16.6 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.3/log-router-0.4.0.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.6/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.16.5 \
+  --set image.tag=v1.16.6 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -652,7 +652,8 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.14.4                     | 1.16.3                  |
 | 1.14.4                     | 1.16.4                  |
 | 1.14.4                     | 1.16.5                  |
-## Plugins in latest release (1.16.5)
+| 1.14.6                     | 1.16.6                  |
+## Plugins in latest release (1.16.6)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -674,7 +675,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-kafka (0.17.2)
 * fluent-plugin-kinesis (3.4.1)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.9.1)
+* fluent-plugin-kubernetes_metadata_filter (2.10.0)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (1.0.0) - forked to fix for new fluentd api
@@ -702,6 +703,7 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-verticajson (0.0.6)
 * fluent-plugin-vmware-log-intelligence (2.0.6)
 * fluent-plugin-vmware-loginsight (1.0.0)
+* fluent-plugin-webhdfs (1.5.0)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
 

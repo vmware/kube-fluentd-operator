@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [v1.16.6](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.6)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.6 #320 (@javiercri)
+  - fix: revert issue #289 #325 (@javiercri)
+
+#### Plugins:
+  - chore(plugins) Add webhdfs plugin #321 (@luksan47)
+
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.5](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.5)
 
 #### Core:
