@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # pin fluentd, probably a good idea to pin all gems
-gem "fluentd", "1.14.4"
+gem "fluentd", "1.14.6"
 
 gem 'oj', '3.13.10'
 gem 'ffi'
@@ -20,7 +20,7 @@ gem 'fluent-plugin-grok-parser', "2.6.2"
 gem 'fluent-plugin-json-in-json-2', "1.0.2"
 gem 'fluent-plugin-kafka', "0.17.3"
 gem 'fluent-plugin-kinesis', "3.4.2"
-gem 'fluent-plugin-kubernetes_metadata_filter', "2.9.3"
+gem 'fluent-plugin-kubernetes_metadata_filter', "2.10.0"
 gem 'fluent-plugin-kubernetes_sumologic', "2.4.2"
 gem 'fluent-plugin-kubernetes', "0.3.1"
 gem 'fluent-plugin-logentries', "0.2.10"
@@ -51,7 +51,7 @@ gem 'fluent-plugin-vmware-log-intelligence', "2.0.6"
 # fluent-plugin-mysqlslowquery is dependency for fluent-plugin-vmware-log-intelligence
 gem 'fluent-plugin-mysqlslowquery', "0.0.9"
 gem 'gelf', "3.1.0"
-gem 'logfmt', "0.0.9"
+gem 'logfmt', "0.0.10"
 gem 'kubeclient', "~> 4.9.3"
 gem 'fluent-plugin-webhdfs', '1.5.0'
 # webhdfs requires gssapi plugin to work

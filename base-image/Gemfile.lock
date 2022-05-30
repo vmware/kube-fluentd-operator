@@ -371,7 +371,7 @@ DEPENDENCIES
   fluent-plugin-kafka (= 0.17.3)
   fluent-plugin-kinesis (= 3.4.2)
   fluent-plugin-kubernetes (= 0.3.1)
-  fluent-plugin-kubernetes_metadata_filter (= 2.9.3)
+  fluent-plugin-kubernetes_metadata_filter (= 2.10.0)
   fluent-plugin-kubernetes_sumologic (= 2.4.2)
   fluent-plugin-logentries (= 0.2.10)
   fluent-plugin-logzio (= 0.0.21)
@@ -397,10 +397,10 @@ DEPENDENCIES
   fluent-plugin-verticajson (= 0.0.6)
   fluent-plugin-vmware-log-intelligence (= 2.0.6)
   fluent-plugin-vmware-loginsight (= 1.0.0)
-  fluentd (= 1.14.4)
+  fluentd (= 1.14.6)
   gelf (= 3.1.0)
   kubeclient (~> 4.9.3)
-  logfmt (= 0.0.9)
+  logfmt (= 0.0.10)
   oj (= 3.13.10)
 
 BUNDLED WITH
