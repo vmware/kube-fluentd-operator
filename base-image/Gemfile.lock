@@ -255,7 +255,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
-    jmespath (1.5.0)
+    jmespath (1.6.1)
     json (2.6.1)
     json-jwt (1.13.0)
       activesupport (>= 4.2)
