@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [v1.16.7](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.7)
+
+#### Core:
+  - docs(readme): update changelogs for v1.16.7 #334 (@javiercri)
+
+#### Plugins:
+  - chore(plugins): upgrade plugins elastic, splunk, datadog and logzio #322 (@javiercri)
+  - chore(deps): bump jmespath
+#### Helm:
+  - None
+
+#### CI:
+  - None
+
 ## [v1.16.6](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.6)
 
 #### Core:
