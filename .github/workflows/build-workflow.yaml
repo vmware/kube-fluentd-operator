@@ -33,11 +33,3 @@ jobs:
         run: |
           cd charts
           PATH=$PATH:/tmp/bin helm upgrade --install --set image.tag=v$GITHUB_SHA_SHORT --set rbac.create=true --wait --timeout 60s  log-router ./log-router
-      - name: build-chart
-        working-directory: charts/log-router
-        run: make
-      - name: create-release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags')
-        with:
-          files: charts/log-router/log-router-0.4.0.tgz
