@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # builder image
-FROM golang:1.17.9 as builder
+FROM golang:1.18 as builder
 
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
 COPY . .
