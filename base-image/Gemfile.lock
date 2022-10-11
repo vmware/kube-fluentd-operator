@@ -187,6 +187,8 @@ GEM
     fluent-plugin-systemd (1.0.5)
       fluentd (>= 0.14.11, < 2)
       systemd-journal (~> 1.4.2)
+    fluent-plugin-throttle (0.0.5)
+      fluentd (~> 1.1)
     fluent-plugin-uri-parser (0.3.0)
       addressable
       fluentd (>= 0.14.0, < 2)
@@ -382,6 +384,7 @@ DEPENDENCIES
   fluent-plugin-splunkhec (= 2.2)
   fluent-plugin-sumologic_output (= 1.7.3)
   fluent-plugin-systemd (= 1.0.5)
+  fluent-plugin-throttle (= 0.0.5)
   fluent-plugin-uri-parser (= 0.3.0)
   fluent-plugin-verticajson (= 0.0.6)
   fluent-plugin-vmware-log-intelligence (= 2.0.6)
