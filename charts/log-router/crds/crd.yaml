@@ -1,0 +1,28 @@
+# log-router CRD resource:
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: fluentdconfigs.logs.vdp.vmware.com
+spec:
+  conversion:
+    strategy: None
+  group: logs.vdp.vmware.com
+  names:
+    kind: FluentdConfig
+    listKind: FluentdConfigList
+    plural: fluentdconfigs
+    singular: fluentdconfig
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              fluentconf:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
