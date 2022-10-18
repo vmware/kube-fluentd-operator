@@ -5,6 +5,7 @@ package processors
 
 import (
 	"fmt"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 	"strings"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
@@ -42,7 +43,7 @@ func (p *expandThisnsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if strings.HasPrefix(d.Tag, macroLabels) || strings.HasPrefix(d.Tag, macroUniqueTag) {
+		if strings.HasPrefix(d.Tag, util.MacroLabels) || strings.HasPrefix(d.Tag, macroUniqueTag) {
 			// Let other processors handle this
 			return nil
 		}
