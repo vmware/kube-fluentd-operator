@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os/exec"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -17,8 +19,13 @@ import (
 )
 
 const (
-	maskFile = 0664
+	maskFile       = 0664
+	MacroLabels    = "$labels"
+	ContainerLabel = "_container"
 )
+
+var reValidLabelName = regexp.MustCompile(`^([A-Za-z0-9][-A-Za-z0-9\/_.]*)?[A-Za-z0-9]$`)
+var reValidLabelValue = regexp.MustCompile(`^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$`)
 
 func Trim(s string) string {
 	return strings.TrimSpace(s)
@@ -122,4 +129,64 @@ func TrimTrailingComment(line string) string {
 	}
 
 	return line
+}
+
+func ParseTagToLabels(tag string) (map[string]string, error) {
+	if !strings.HasPrefix(tag, MacroLabels+"(") &&
+		!strings.HasSuffix(tag, ")") {
+		return nil, fmt.Errorf("bad $labels macro use: %s", tag)
+	}
+
+	labelsOnly := tag[len(MacroLabels)+1 : len(tag)-1]
+
+	result := map[string]string{}
+
+	records := strings.Split(labelsOnly, ",")
+	for _, rec := range records {
+		if rec == "" {
+			// be generous
+			continue
+		}
+		kv := strings.Split(rec, "=")
+		if len(kv) != 2 {
+			return nil, fmt.Errorf("bad label definition: %s", kv)
+		}
+
+		k := Trim(kv[0])
+		if k != ContainerLabel {
+			if !reValidLabelName.MatchString(k) {
+				return nil, fmt.Errorf("bad label name: %s", k)
+			}
+		}
+
+		v := Trim(kv[1])
+		if !reValidLabelValue.MatchString(v) {
+			return nil, fmt.Errorf("bad label value: %s", v)
+		}
+		if k == ContainerLabel && v == "" {
+			return nil, fmt.Errorf("value for %s cannot be empty string", ContainerLabel)
+		}
+
+		result[k] = v
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New("at least one label must be given")
+	}
+
+	return result, nil
+}
+
+func Match(labels map[string]string, contLabels map[string]string, contName string) bool {
+	for k, v := range labels {
+		value := contLabels[k]
+		if k == "_container" {
+			value = contName
+		}
+
+		if v != value {
+			return false
+		}
+	}
+	return true
 }
