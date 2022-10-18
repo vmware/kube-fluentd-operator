@@ -3,6 +3,8 @@ package datasource
 import (
 	"context"
 	"fmt"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 	"os"
 	"sort"
 	"strings"
@@ -26,15 +28,16 @@ import (
 )
 
 type kubeInformerConnection struct {
-	client     kubernetes.Interface
-	confHashes map[string]string
-	cfg        *config.Config
-	kubeds     kubedatasource.KubeDS
-	nslist     listerv1.NamespaceLister
-	podlist    listerv1.PodLister
-	cmlist     listerv1.ConfigMapLister
-	fdlist     kfoListersV1beta1.FluentdConfigLister
-	updateChan chan time.Time
+	client        kubernetes.Interface
+	confHashes    map[string]string
+	mountedLabels map[string][]map[string]string
+	cfg           *config.Config
+	kubeds        kubedatasource.KubeDS
+	nslist        listerv1.NamespaceLister
+	podlist       listerv1.PodLister
+	cmlist        listerv1.ConfigMapLister
+	fdlist        kfoListersV1beta1.FluentdConfigLister
+	updateChan    chan time.Time
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
@@ -59,6 +62,26 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		if err != nil {
 			return nil, err
 		}
+
+		fragment, err := fluentd.ParseString(configdata)
+		if err != nil {
+			return nil, err
+		}
+
+		var mountedLabels []map[string]string
+		for _, frag := range fragment {
+			if frag.Name == "source" && frag.Type() == "mounted-file" {
+				paramLabels := frag.Param("labels")
+				paramLabels = util.TrimTrailingComment(paramLabels)
+				currLabels, err := util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
+				if err != nil {
+					return nil, err
+				}
+				mountedLabels = append(mountedLabels, currLabels)
+			}
+		}
+
+		d.updateMountedLabels(ns, mountedLabels)
 
 		// Create a compact representation of the pods running in the namespace
 		// under consideration
@@ -91,6 +114,10 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 // WriteCurrentConfigHash is a setter for the hashtable maintained by this Datasource
 func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash string) {
 	d.confHashes[namespace] = hash
+}
+
+func (d *kubeInformerConnection) updateMountedLabels(namespace string, labels []map[string]string) {
+	d.mountedLabels[namespace] = labels
 }
 
 // UpdateStatus updates a namespace's status annotation with the latest result
@@ -206,24 +233,37 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	return nsList, nil
 }
 
-// handlePodChange decides whether to to a graceful reload on pod changes based on source type such as mounted-file
-// it will call Run controller loop if pod changed is a mounted-file type as other types don't require the reload
-// Note Namespace config may have mixed mounted-file and non-mounted file pods, In the first attempt,
-// let's start simple and start by finding if pod changed is associated with a namespace that has mounted-file plugin in it's config
 func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
-	mObj := obj.(metav1.Object)
+	mObj := obj.(*core.Pod)
 	logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
 	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
 	nsConfigStr := fmt.Sprintf("%#v", configdata)
-	//logrus.Infof("nsConfigStr: %s", nsConfigStr)
+
 	if err == nil {
 		if strings.Contains(nsConfigStr, "mounted-file") {
-			select {
-			case d.updateChan <- time.Now():
-			default:
+			podLabels := mObj.GetLabels()
+			mountedLabel := d.mountedLabels[mObj.GetNamespace()]
+			for _, container := range mObj.Spec.Containers {
+				if matchAny(podLabels, mountedLabel, container.Name) {
+					logrus.Infof("Detected mounted-file pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+					select {
+					case d.updateChan <- time.Now():
+					default:
+					}
+				}
 			}
 		}
 	}
+}
+
+func matchAny(contLabels map[string]string, mountedLabelsInNs []map[string]string, name string) bool {
+	for _, mountedLabels := range mountedLabelsInNs {
+		if util.Match(mountedLabels, contLabels, name) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
@@ -293,15 +333,16 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
 	kubeInfoCx := &kubeInformerConnection{
-		client:     client,
-		confHashes: make(map[string]string),
-		cfg:        cfg,
-		kubeds:     kubeds,
-		nslist:     namespaceLister,
-		podlist:    podLister,
-		cmlist:     cmLister,
-		fdlist:     fluentdconfigDSLister.Fdlist,
-		updateChan: updateChan,
+		client:        client,
+		confHashes:    make(map[string]string),
+		mountedLabels: make(map[string][]map[string]string),
+		cfg:           cfg,
+		kubeds:        kubeds,
+		nslist:        namespaceLister,
+		podlist:       podLister,
+		cmlist:        cmLister,
+		fdlist:        fluentdconfigDSLister.Fdlist,
+		updateChan:    updateChan,
 	}
 
 	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{

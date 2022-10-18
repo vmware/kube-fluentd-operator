@@ -43,7 +43,7 @@ func (state *mountedFileState) Prepare(input fluentd.Fragment) (fluentd.Fragment
 			}
 			paramLabels = util.TrimTrailingComment(paramLabels)
 
-			labels, err := parseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
+			labels, err := util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
 			if err != nil {
 				return nil, err
 			}
@@ -53,7 +53,7 @@ func (state *mountedFileState) Prepare(input fluentd.Fragment) (fluentd.Fragment
 			var addedLabels map[string]string
 			if paramAddedLabels != "" {
 				// no added labels is just fine
-				addedLabels, err = parseTagToLabels(fmt.Sprintf("$labels(%s)", paramAddedLabels))
+				addedLabels, err = util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramAddedLabels))
 				if err != nil {
 					return nil, err
 				}
@@ -86,18 +86,7 @@ func (state *mountedFileState) Prepare(input fluentd.Fragment) (fluentd.Fragment
 }
 
 func matches(spec *ContainerFile, mini *datasource.MiniContainer) bool {
-	for k, v := range spec.Labels {
-		contValue := mini.Labels[k]
-		if k == "_container" {
-			contValue = mini.Name
-		}
-
-		if v != contValue {
-			return false
-		}
-	}
-
-	return true
+	return util.Match(spec.Labels, mini.Labels, mini.Name)
 }
 
 func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fragment {
