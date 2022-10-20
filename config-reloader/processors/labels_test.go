@@ -12,24 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLabelsParseOk(t *testing.T) {
-	inputs := map[string]map[string]string{
-		"$labels(a=b,,,)":                  {"a": "b"},
-		"$labels(a=1, b=2)":                {"a": "1", "b": "2"},
-		"$labels(x=y,b=1)":                 {"b": "1", "x": "y"},
-		"$labels(x=1, b = 1)":              {"b": "1", "x": "1"},
-		"$labels(x=1, a=)":                 {"a": "", "x": "1"},
-		"$labels(hello/world=ok, a=value)": {"hello/world": "ok", "a": "value"},
-		"$labels(x=1, _container=main)":    {"_container": "main", "x": "1"},
-	}
-
-	for tag, result := range inputs {
-		processed, err := parseTagToLabels(tag)
-		assert.Nil(t, err, "Got an error instead: %+v", err)
-		assert.Equal(t, result, processed)
-	}
-}
-
 func TestSafeLabel(t *testing.T) {
 	// empty string is a valid label value
 	assert.Equal(t, "_", safeLabelValue(""))
@@ -39,30 +21,6 @@ func TestSafeLabel(t *testing.T) {
 	assert.Equal(t, "abc___", safeLabelValue("abc..."))
 	assert.Equal(t, "abc_def", safeLabelValue("abc.def"))
 	assert.Equal(t, "app_kubernetes_io/name=nginx_ingress", safeLabelValue("app.kubernetes.io/name=nginx-ingress"))
-}
-
-func TestLabelsParseNotOk(t *testing.T) {
-	inputs := []string{
-		"$labels",
-		"$labels()",
-		"$labels(=)",
-		"$labels(=f)",
-		"$labels(.=*)",
-		"$labels(a=.)",
-		"$labels(a==1)",
-		"$labels(-a=sfd)",
-		"$labels(a=-sfd)",
-		"$labels(a*=hello)",
-		"$labels(a=*)",
-		"$labels(a=1, =2)",
-		"$labels(_container=)", // empty container name
-		"$labels(app.kubernetes.io/name=*)",
-	}
-
-	for _, tag := range inputs {
-		res, err := parseTagToLabels(tag)
-		assert.NotNil(t, err, "Got this instead for %s: %+v", tag, res)
-	}
 }
 
 func TestLabelNoLabels(t *testing.T) {
