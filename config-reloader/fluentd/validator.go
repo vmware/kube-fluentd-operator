@@ -38,17 +38,15 @@ var justExitPluginDirective = `
 </source>
 `
 
-func (v *validatorState) EnsureUsable() error {
-	if v == nil {
-		return nil
-	}
-	out, err := util.ExecAndGetOutput(v.command, v.timeout, "--version")
-	if err != nil {
-		return fmt.Errorf("invalid fluentd binary used %s: %+v", v.command, err)
-	}
+// NewValidator creates a Validator using the given command
+func NewValidator(ctx context.Context, command string, timeout time.Duration) Validator {
+	parts := strings.Split(util.Trim(command), " ")
 
-	logrus.Infof("Validator using %s at version %s", v.command, util.Trim(out))
-	return nil
+	return &validatorState{
+		command: parts[0],
+		args:    parts[1:],
+		timeout: timeout,
+	}
 }
 
 func (v *validatorState) ValidateConfigExtremely(config string, namespace string) error {
@@ -138,13 +136,15 @@ func (v *validatorState) ValidateConfig(config string, namespace string) error {
 	return nil
 }
 
-// NewValidator creates a Validator using the given command
-func NewValidator(ctx context.Context, command string, timeout time.Duration) Validator {
-	parts := strings.Split(util.Trim(command), " ")
-
-	return &validatorState{
-		command: parts[0],
-		args:    parts[1:],
-		timeout: timeout,
+func (v *validatorState) EnsureUsable() error {
+	if v == nil {
+		return nil
 	}
+	out, err := util.ExecAndGetOutput(v.command, v.timeout, "--version")
+	if err != nil {
+		return fmt.Errorf("invalid fluentd binary used %s: %+v", v.command, err)
+	}
+
+	logrus.Infof("Validator using %s at version %s", v.command, util.Trim(out))
+	return nil
 }

@@ -9,15 +9,20 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 	"unicode"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	maskFile = 0664
+	maskFile      = 0664
+	maskDirectory = 0775
 )
 
 func Trim(s string) string {
@@ -122,4 +127,30 @@ func TrimTrailingComment(line string) string {
 	}
 
 	return line
+}
+
+func EnsureDirExists(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.Mkdir(dir, maskDirectory)
+		if err != nil {
+			logrus.Errorln("Unexpected error occurred with output config directory: ", dir)
+			return err
+		}
+	}
+	return nil
+}
+
+func TemplateAndWriteFile(tmpl *template.Template, model interface{}, dest string) (err error) {
+	buf := &bytes.Buffer{}
+	err = tmpl.Execute(buf, model)
+	if err != nil {
+		logrus.Warnf("Error rendering template file %s: %+v", dest, err)
+		return nil
+	}
+
+	err = WriteStringToFile(dest, buf.String())
+	if err != nil {
+		return err
+	}
+	return nil
 }

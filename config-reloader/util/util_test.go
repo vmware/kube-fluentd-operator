@@ -4,6 +4,7 @@
 package util
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,4 +41,35 @@ func TestTrimTrailingComment(t *testing.T) {
 	assert.Equal(t, "a", TrimTrailingComment("a #12451345"))
 	assert.Equal(t, "a", TrimTrailingComment("a"))
 	assert.Equal(t, "a", TrimTrailingComment("a#########"))
+}
+
+func TestEnsureDirExits(t *testing.T) {
+
+	type testDirConfig struct {
+		expectErr  bool
+		folderName string
+	}
+	configs := []testDirConfig{
+		{
+			expectErr:  false,
+			folderName: "tmp-1",
+		},
+		{
+			expectErr:  false,
+			folderName: "tmp-2",
+		},
+	}
+	for _, config := range configs {
+		os.Mkdir(config.folderName, 0775)
+		if config.expectErr == true {
+			assert.NoDirExists(t, config.folderName, EnsureDirExists(config.folderName))
+			assert.Error(t, EnsureDirExists(config.folderName))
+
+		} else {
+			assert.EqualValues(t, nil, EnsureDirExists(config.folderName))
+			assert.DirExists(t, config.folderName, EnsureDirExists(config.folderName))
+			os.Remove(config.folderName)
+		}
+	}
+
 }
