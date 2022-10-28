@@ -279,7 +279,7 @@ This label `$labels(_container=nginx-ingress-controller)` will filter by contain
 
 This label `$labels(app.kubernetes.io/name=nginx-ingress, _container=nginx-ingress-controller)` converts to this `kube.testing.*.nginx-ingress-controller._labels.*.nginx_ingress`.
 
-This label `$labels(app.kubernetes.io/name=nginx-ingress)` converts to this `$labels(kube.testing*.*._labels.*.nginx_ingress)`.
+This label `$labels(app.kubernetes.io/name=nginx-ingress)` converts to this `$labels(kube.testing.*.*._labels.*.nginx_ingress)`.
 
 This fluentd configmap in the `testing` namespace:
 
