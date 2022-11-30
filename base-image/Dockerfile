@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 ARG RVM_PATH=/usr/local/rvm
-ARG RUBY_VERSION=ruby-2.7.6
+ARG RUBY_VERSION=ruby-2.7.7
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
@@ -57,7 +57,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rvm requirements \
     && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
-    && gem install bundler -v '>= 2.3.22' --default --no-document \
+    && gem install bundler -v '>= 2.3.26' --default --no-document \
     && bundler install \
     && gem uninstall bundler \
     && gem uninstall rake -v 13.0.6 \
@@ -117,7 +117,7 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && cd /fluentd \
   && bundle install \
   && cd /fluentd \
-  && git clone https://github.com/Cryptophobia/fluent-plugin-detect-exceptions.git fluent-plugin-detect-exceptions \
+  && git clone https://github.com/slimm609/fluent-plugin-detect-exceptions.git fluent-plugin-detect-exceptions \
   && cd fluent-plugin-detect-exceptions \
   && gem build fluent-plugin-detect-exceptions.gemspec \
   && gem install fluent-plugin-detect-exceptions-*.gem \
@@ -129,17 +129,17 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && gem install fluent-plugin-google-cloud-*.gem \
   && rm -rf /fluentd/fluent-plugin-google-cloud \
   && cd /fluentd \
-  && git clone https://github.com/Cryptophobia/fluent-plugin-loggly.git fluent-plugin-loggly \
+  && git clone https://github.com/slimm609/fluent-plugin-loggly.git fluent-plugin-loggly \
   && cd fluent-plugin-loggly \
   && gem build fluent-plugin-loggly.gemspec \
   && gem install fluent-plugin-loggly-*.gem \
   && rm -rf /fluentd/fluent-plugin-loggly \
-  && wget https://github.com/jemalloc/jemalloc/releases/download/3.6.0/jemalloc-3.6.0.tar.bz2 -P /tmp \
-  && tar -C /tmp/ -xjvf /tmp/jemalloc-3.6.0.tar.bz2 \
-  && cd /tmp/jemalloc-3.6.0 \
+  && wget https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2 -P /tmp \
+  && tar -C /tmp/ -xjvf /tmp/jemalloc-5.3.0.tar.bz2 \
+  && cd /tmp/jemalloc-5.3.0 \
   && ./configure && make \
   && mv -v lib/libjemalloc.so* /usr/lib \
-  && rm -rf /tmp/jemalloc-3.6.0 /tmp/jemalloc-3.6.0.tar.bz2 \
+  && rm -rf /tmp/jemalloc-5.3.0 /tmp/jemalloc-5.3.0.tar.bz2 \
   && cd /fluentd \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
@@ -150,7 +150,7 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && gem cleanup \
   && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/cache $RUBY_PATH/lib/ruby/gems/2.7.0/doc/ /usr/share/doc /root/.bundle/cache
 
-# Make sure fluentd picks jemalloc 3.6.0 lib as default
+# Make sure fluentd picks jemalloc 5.3.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
 
 EXPOSE 24444 5140
