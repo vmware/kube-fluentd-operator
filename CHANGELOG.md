@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## [v1.16.8](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.8)
+
+#### Core:
+  - feat: move constructor to the top #356 (@javiercri)
+  - feat: change actions trigger #357 (@javiercri)
+  - feat: golang refactor for config-reloader #348 (@javiercri)
+  - Discover namespaces with fluentdconfig too if migration mode is enabled #310 (@jonasrutishauser)
+  - README: Missing . in label expansion #351 (@djdillon)
+  - feat: add missing prometheus metrics #342 (@javiercri)
+  - chore(deps): bump google-protobuf from 3.21.5 to 3.21.7 in /base-image by @dependabot in #340
+
+#### Plugins:
+  - Feat: update fluentd and dependencies #355 (@slimm609)
+  - feat: add support for throttle plugin #341 (@javiercri)
+  - update dependencies for fluentd 1.15 #338 (@slimm609)
+  - update fluentd to v1.15.0 #337 (@yuzs2)
+#### Helm:
+  - None
+
+#### CI:
+  - feat: generate release after publish images #344 (@javiercri)
+  - Add automatic releases to Github actions #330 (@gga-kialo)
+
+
 ## [v1.16.7](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.7)
 
 #### Core:

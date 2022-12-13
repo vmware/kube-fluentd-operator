@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.16.7 \
+  --set image.tag=v1.16.8 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.7/log-router-0.4.0.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.16.8/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.16.7 \
+  --set image.tag=v1.16.8 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -654,37 +654,38 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | 1.14.4                     | 1.16.5                  |
 | 1.14.6                     | 1.16.6                  |
 | 1.14.6                     | 1.16.7                  |
+| 1.15.3                     | 1.16.8                  |
 ## Plugins in latest release (1.16.7)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
-* fluentd (1.14.4)
+* fluentd (1.15.3)
 * fluent-config-regexp-type (1.0.0)
 * fluent-mixin-config-placeholders (0.4.0)
 * fluent-plugin-amqp (0.14.0)
 * fluent-plugin-azure-loganalytics (0.7.0)
-* fluent-plugin-cloudwatch-logs (0.14.2)
+* fluent-plugin-cloudwatch-logs (0.14.3)
 * fluent-plugin-concat (2.5.0)
-* fluent-plugin-datadog (0.14.0)
+* fluent-plugin-datadog (0.14.2)
 * fluent-plugin-detect-exceptions (0.0.14) - forked to allow fluentd v1 plugin api
-* fluent-plugin-elasticsearch (5.1.0)
+* fluent-plugin-elasticsearch (5.2.4)
+* fluent-plugin-opensearch (1.0.9)
 * fluent-plugin-gelf-hs (1.0.8)
 * fluent-plugin-google-cloud (0.13.0) - forked to allow fluentd v1.14.x
-* fluent-plugin-grafana-loki (1.2.16)
+* fluent-plugin-grafana-loki (1.2.19)
 * fluent-plugin-grok-parser (2.6.2)
 * fluent-plugin-json-in-json-2 (1.0.2)
-* fluent-plugin-kafka (0.17.2)
-* fluent-plugin-kinesis (3.4.1)
+* fluent-plugin-kafka (0.18.1)
+* fluent-plugin-kinesis (3.4.2)
 * fluent-plugin-kubernetes (0.3.1)
-* fluent-plugin-kubernetes_metadata_filter (2.10.0)
+* fluent-plugin-kubernetes_metadata_filter (2.13.0)
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-logentries (0.2.10)
 * fluent-plugin-loggly (1.0.0) - forked to fix for new fluentd api
-* fluent-plugin-logzio (0.0.21)
+* fluent-plugin-logzio (0.0.22)
 * fluent-plugin-mail (0.3.0)
 * fluent-plugin-mongo (1.5.0)
 * fluent-plugin-multi-format-parser (1.0.0)
-* fluent-plugin-mysqlslowquery (0.0.9)
 * fluent-plugin-out-http (1.3.3)
 * fluent-plugin-papertrail (0.2.8)
 * fluent-plugin-prometheus (2.0.2)
@@ -694,16 +695,18 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-remote_syslog (1.0.0)
 * fluent-plugin-rewrite-tag-filter (2.4.0)
 * fluent-plugin-route (1.0.0)
-* fluent-plugin-s3 (1.6.1)
+* fluent-plugin-s3 (1.7.2)
 * fluent-plugin-secure-forward (0.4.5)
-* fluent-plugin-splunkhec (2.1)
-* fluent-plugin-splunk-hec (1.2.10)
+* fluent-plugin-splunk-hec (1.3.1)
+* fluent-plugin-splunkhec (2.3)
 * fluent-plugin-sumologic_output (1.7.2)
 * fluent-plugin-systemd (1.0.5)
 * fluent-plugin-uri-parser (0.3.0)
 * fluent-plugin-verticajson (0.0.6)
+* fluent-plugin-vmware-loginsight (1.3.1)
 * fluent-plugin-vmware-log-intelligence (2.0.6)
-* fluent-plugin-vmware-loginsight (1.0.0)
+* fluent-plugin-mysqlslowquery (0.0.9)
+* fluent-plugin-throttle (0.0.5)
 * fluent-plugin-webhdfs (1.5.0)
 
 When customizing the image be careful not to uninstall plugins that are used internally to implement the macros.
