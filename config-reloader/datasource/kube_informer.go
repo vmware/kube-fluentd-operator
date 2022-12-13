@@ -35,6 +35,84 @@ type kubeInformerConnection struct {
 	fdlist  kfoListersV1beta1.FluentdConfigLister
 }
 
+// NewKubernetesInformerDatasource builds a new Datasource from the provided config.
+// The returned Datasource uses Informers to efficiently track objects in the kubernetes
+// API by watching for updates to a known state.
+func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
+	kubeConfig := cfg.KubeConfig
+	if cfg.KubeConfig == "" {
+		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
+			kubeConfig = clientcmd.RecommendedHomeFile
+		}
+	}
+
+	kubeCfg, err := clientcmd.BuildConfigFromFlags(cfg.Master, kubeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := kubernetes.NewForConfig(kubeCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("Connected to cluster at %s", kubeCfg.Host)
+
+	factory := informers.NewSharedInformerFactory(client, 0)
+	namespaceLister := factory.Core().V1().Namespaces().Lister()
+	podLister := factory.Core().V1().Pods().Lister()
+	cmLister := factory.Core().V1().ConfigMaps().Lister()
+
+	var kubeds kubedatasource.KubeDS
+	fluentdconfigDSLister :=
+		&kubedatasource.FluentdConfigDS{
+			Fdlist: nil,
+		}
+	if cfg.Datasource == "crd" {
+		kubeds, err = kubedatasource.NewFluentdConfigDS(ctx, cfg, kubeCfg, updateChan)
+		if err != nil {
+			return nil, err
+		}
+		fluentdconfigDSLister =
+			&kubedatasource.FluentdConfigDS{
+				Fdlist: kubeds.GetFdlist(),
+			}
+	} else {
+		if cfg.CRDMigrationMode {
+			kubeds, err = kubedatasource.NewMigrationModeDS(ctx, cfg, kubeCfg, factory, updateChan)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			kubeds, err = kubedatasource.NewConfigMapDS(ctx, cfg, factory, updateChan)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	factory.Start(nil)
+	if !cache.WaitForCacheSync(nil,
+		factory.Core().V1().Namespaces().Informer().HasSynced,
+		factory.Core().V1().Pods().Informer().HasSynced,
+		factory.Core().V1().ConfigMaps().Informer().HasSynced,
+		kubeds.IsReady) {
+		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
+	}
+	logrus.Infof("Synced local informer with upstream Kubernetes API")
+
+	return &kubeInformerConnection{
+		client:  client,
+		hashes:  make(map[string]string),
+		cfg:     cfg,
+		kubeds:  kubeds,
+		nslist:  namespaceLister,
+		podlist: podLister,
+		cmlist:  cmLister,
+		fdlist:  fluentdconfigDSLister.Fdlist,
+	}, nil
+}
+
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
 // It uses options from the configuration to determine which namespaces to inspect and which resources
 // within those namespaces contain fluentd configuration.
@@ -211,82 +289,4 @@ func (d *kubeInformerConnection) discoverFluentdConfigNamespaces() ([]string, er
 	}
 	logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", nsList)
 	return nsList, nil
-}
-
-// NewKubernetesInformerDatasource builds a new Datasource from the provided config.
-// The returned Datasource uses Informers to efficiently track objects in the kubernetes
-// API by watching for updates to a known state.
-func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
-	kubeConfig := cfg.KubeConfig
-	if cfg.KubeConfig == "" {
-		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
-			kubeConfig = clientcmd.RecommendedHomeFile
-		}
-	}
-
-	kubeCfg, err := clientcmd.BuildConfigFromFlags(cfg.Master, kubeConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := kubernetes.NewForConfig(kubeCfg)
-	if err != nil {
-		return nil, err
-	}
-
-	logrus.Infof("Connected to cluster at %s", kubeCfg.Host)
-
-	factory := informers.NewSharedInformerFactory(client, 0)
-	namespaceLister := factory.Core().V1().Namespaces().Lister()
-	podLister := factory.Core().V1().Pods().Lister()
-	cmLister := factory.Core().V1().ConfigMaps().Lister()
-
-	var kubeds kubedatasource.KubeDS
-	fluentdconfigDSLister :=
-		&kubedatasource.FluentdConfigDS{
-			Fdlist: nil,
-		}
-	if cfg.Datasource == "crd" {
-		kubeds, err = kubedatasource.NewFluentdConfigDS(ctx, cfg, kubeCfg, updateChan)
-		if err != nil {
-			return nil, err
-		}
-		fluentdconfigDSLister =
-			&kubedatasource.FluentdConfigDS{
-				Fdlist: kubeds.GetFdlist(),
-			}
-	} else {
-		if cfg.CRDMigrationMode {
-			kubeds, err = kubedatasource.NewMigrationModeDS(ctx, cfg, kubeCfg, factory, updateChan)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			kubeds, err = kubedatasource.NewConfigMapDS(ctx, cfg, factory, updateChan)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	factory.Start(nil)
-	if !cache.WaitForCacheSync(nil,
-		factory.Core().V1().Namespaces().Informer().HasSynced,
-		factory.Core().V1().Pods().Informer().HasSynced,
-		factory.Core().V1().ConfigMaps().Informer().HasSynced,
-		kubeds.IsReady) {
-		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
-	}
-	logrus.Infof("Synced local informer with upstream Kubernetes API")
-
-	return &kubeInformerConnection{
-		client:  client,
-		hashes:  make(map[string]string),
-		cfg:     cfg,
-		kubeds:  kubeds,
-		nslist:  namespaceLister,
-		podlist: podLister,
-		cmlist:  cmLister,
-		fdlist:  fluentdconfigDSLister.Fdlist,
-	}, nil
 }

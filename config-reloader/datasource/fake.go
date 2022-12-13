@@ -28,6 +28,13 @@ type fakeDatasource struct {
 	hashes map[string]string
 }
 
+// NewFakeDatasource returns a predefined set of namespaces + configs
+func NewFakeDatasource(ctx context.Context) Datasource {
+	return &fakeDatasource{
+		hashes: make(map[string]string),
+	}
+}
+
 func makeFakeConfig(namespace string) string {
 	contents := template
 	contents = strings.ReplaceAll(contents, "$ns$", namespace)
@@ -64,11 +71,4 @@ func (d *fakeDatasource) WriteCurrentConfigHash(namespace string, hash string) {
 
 func (d *fakeDatasource) UpdateStatus(ctx context.Context, namespace string, status string) {
 	logrus.Infof("Setting status of namespace %s to %s", namespace, status)
-}
-
-// NewFakeDatasource returns a predefined set of namespaces + configs
-func NewFakeDatasource(ctx context.Context) Datasource {
-	return &fakeDatasource{
-		hashes: make(map[string]string),
-	}
 }
