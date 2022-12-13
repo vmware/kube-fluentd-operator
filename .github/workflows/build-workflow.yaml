@@ -1,6 +1,10 @@
 name: build-workflow
 # This workflow is triggered on pushes to the repository.
-on: push
+on: 
+  push:
+    branches:
+      - "*"
+  pull_request:
 
 jobs:
   build:
@@ -12,17 +16,12 @@ jobs:
         with:
           version: "v0.9.0"
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
-      - name: install-helm
-        run: |
-          wget https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz -O /tmp/helm-v3.5.0-linux-amd64.tar.gz
-          mkdir /tmp/bin -p; tar xzf /tmp/helm-v3.5.0-linux-amd64.tar.gz -C /tmp/bin --strip-components=1;
-          PATH=/tmp/bin:$PATH
-      - name: build-base-image
-        run: |
-          cd base-image && make
       - name: lint-test-config-reloader
         run: |
           cd config-reloader && make test
+      - name: build-base-image
+        run: |
+          cd base-image && make
       - name: build-config-reloader
         run: |
           cd config-reloader && make build-image TAG=v$GITHUB_SHA_SHORT

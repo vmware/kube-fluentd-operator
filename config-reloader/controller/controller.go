@@ -15,33 +15,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Controller struct {
+type Controller interface {
+	Run(ctx context.Context, stop <-chan struct{})
+	RunOnce(ctx context.Context) error
+}
+
+type controllerInstance struct {
 	Updater          Updater
-	OutputDir        string
 	Reloader         *fluentd.Reloader
 	Datasource       datasource.Datasource
-	Generator        *generator.Generator
-	NumTotalConfigNS int
+	Generator        generator.Generator
+	outputDir        string
+	numTotalConfigNS int
 }
 
-func (c *Controller) Run(ctx context.Context, stop <-chan struct{}) {
-	for {
-		err := c.RunOnce(ctx)
-		if err != nil {
-			logrus.Error(err)
-		}
-
-		select {
-		case <-c.Updater.GetUpdateChannel():
-		case <-stop:
-			logrus.Info("Terminating main controller loop")
-			return
-		}
-	}
-}
+var _ Controller = &controllerInstance{}
 
 // New creates new controller
-func New(ctx context.Context, cfg *config.Config) (*Controller, error) {
+func New(ctx context.Context, cfg *config.Config) (Controller, error) {
 	var ds datasource.Datasource
 	var up Updater
 	var err error
@@ -67,16 +58,16 @@ func New(ctx context.Context, cfg *config.Config) (*Controller, error) {
 	gen := generator.New(ctx, cfg)
 	gen.SetStatusUpdater(ctx, ds)
 
-	return &Controller{
+	return &controllerInstance{
 		Updater:    up,
-		OutputDir:  cfg.OutputDir,
 		Reloader:   reloader,
 		Datasource: ds,
 		Generator:  gen,
+		outputDir:  cfg.OutputDir,
 	}, nil
 }
 
-func (c *Controller) RunOnce(ctx context.Context) error {
+func (c *controllerInstance) RunOnce(ctx context.Context) error {
 	logrus.Infof("Running main control loop")
 
 	allConfigNamespaces, err := c.Datasource.GetNamespaces(ctx)
@@ -85,7 +76,7 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 	}
 
 	c.Generator.SetModel(allConfigNamespaces)
-	configHashes, err := c.Generator.RenderToDisk(ctx, c.OutputDir)
+	configHashes, err := c.Generator.RenderToDisk(ctx, c.outputDir)
 	if err != nil {
 		return nil
 	}
@@ -110,16 +101,32 @@ func (c *Controller) RunOnce(ctx context.Context) error {
 
 	// lastly, if number of configs has changed, then need to reload configurations obviously!
 	// this means a crd was deleted or reapplied, and GetNamespaces does not return it anymore
-	if c.NumTotalConfigNS != len(allConfigNamespaces) {
+	if c.numTotalConfigNS != len(allConfigNamespaces) {
 		needsReload = true
-		c.NumTotalConfigNS = len(allConfigNamespaces)
+		c.numTotalConfigNS = len(allConfigNamespaces)
 	}
 
 	if needsReload {
 		c.Reloader.ReloadConfiguration()
 	}
 
-	c.Generator.CleanupUnusedFiles(c.OutputDir, configHashes)
+	c.Generator.CleanupUnusedFiles(c.outputDir, configHashes)
 
 	return nil
+}
+
+func (c *controllerInstance) Run(ctx context.Context, stop <-chan struct{}) {
+	for {
+		err := c.RunOnce(ctx)
+		if err != nil {
+			logrus.Error(err)
+		}
+
+		select {
+		case <-c.Updater.GetUpdateChannel():
+		case <-stop:
+			logrus.Info("Terminating main controller loop")
+			return
+		}
+	}
 }
