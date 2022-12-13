@@ -21,6 +21,15 @@ type fsDatasource struct {
 	statusOutputDir string
 }
 
+// NewFileSystemDatasource turns all files matching *.conf patter in the given dir into namespace configs
+func NewFileSystemDatasource(ctx context.Context, rootDir string, statusOutputDir string) Datasource {
+	return &fsDatasource{
+		hashes:          make(map[string]string),
+		rootDir:         rootDir,
+		statusOutputDir: statusOutputDir,
+	}
+}
+
 func (d *fsDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, error) {
 	res := []*NamespaceConfig{}
 
@@ -61,14 +70,5 @@ func (d *fsDatasource) UpdateStatus(ctx context.Context, namespace string, statu
 		util.WriteStringToFile(fname, status)
 	} else {
 		os.Remove(fname)
-	}
-}
-
-// NewFileSystemDatasource turns all files matching *.conf patter in the given dir into namespace configs
-func NewFileSystemDatasource(ctx context.Context, rootDir string, statusOutputDir string) Datasource {
-	return &fsDatasource{
-		hashes:          make(map[string]string),
-		rootDir:         rootDir,
-		statusOutputDir: statusOutputDir,
 	}
 }
