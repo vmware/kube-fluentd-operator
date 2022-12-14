@@ -24,7 +24,7 @@ import (
 
 const (
 	maskFile       = 0664
-  maskDirectory = 0775
+	maskDirectory  = 0775
 	MacroLabels    = "$labels"
 	ContainerLabel = "_container"
 )

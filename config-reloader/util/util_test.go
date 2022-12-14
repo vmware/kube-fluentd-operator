@@ -85,6 +85,29 @@ func TestLabelsParseNotOk(t *testing.T) {
 	}
 }
 
+func TestMatch(t *testing.T) {
+	containerLabels := map[string]string{"key": "value"}
+	containerName := "container-name"
+
+	var labels map[string]string = nil
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"_container": containerName}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"a": "a"}
+	assert.False(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"key": "value"}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"key": "value", "_container": "container-name"}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"a": "a", "key": "value", "_container": "container-name"}
+	assert.False(t, Match(labels, containerLabels, containerName))
+}
+
 func TestEnsureDirExits(t *testing.T) {
 
 	type testDirConfig struct {
