@@ -15,6 +15,8 @@ type FixedTimeUpdater struct {
 	interval time.Duration
 }
 
+var _ Updater = &FixedTimeUpdater{}
+
 func NewFixedTimeUpdater(ctx context.Context, seconds int) *FixedTimeUpdater {
 	return &FixedTimeUpdater{interval: time.Duration(seconds) * time.Second}
 }
@@ -27,6 +29,8 @@ func (f *FixedTimeUpdater) GetUpdateChannel() <-chan time.Time {
 type OnDemandUpdater struct {
 	channel chan time.Time
 }
+
+var _ Updater = &OnDemandUpdater{}
 
 func NewOnDemandUpdater(ctx context.Context, channel chan time.Time) *OnDemandUpdater {
 	return &OnDemandUpdater{channel: channel}

@@ -4,7 +4,6 @@
 package generator
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -26,14 +25,20 @@ import (
 
 const (
 	mainConfigFile = "fluent.conf"
-	maskDirectory  = 0775
 
 	onlyProcess = 1
 	onlyPrepare = 2
 )
 
+type Generator interface {
+	SetModel(model []*datasource.NamespaceConfig)
+	SetStatusUpdater(ctx context.Context, su datasource.StatusUpdater)
+	CleanupUnusedFiles(outputDir string, namespaces map[string]string)
+	RenderToDisk(ctx context.Context, outputDir string) (map[string]string, error)
+}
+
 // Generator produces fluentd config files
-type Generator struct {
+type generatorInstance struct {
 	templatesDir string
 	model        []*datasource.NamespaceConfig
 	cfg          *config.Config
@@ -41,18 +46,35 @@ type Generator struct {
 	su           datasource.StatusUpdater
 }
 
-func ensureDirExists(dir string) error {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.Mkdir(dir, maskDirectory)
-		if err != nil {
-			logrus.Errorln("Unexpected error occurred with output config directory: ", dir)
-			return err
-		}
+var _ Generator = &generatorInstance{}
+
+// New creates a default implementation
+func New(ctx context.Context, cfg *config.Config) Generator {
+	templatesDir, _ := filepath.Abs(cfg.TemplatesDir)
+	var validator fluentd.Validator
+
+	if cfg.FluentdValidateCommand != "" {
+		validator = fluentd.NewValidator(ctx, cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
 	}
-	return nil
+
+	return &generatorInstance{
+		templatesDir: templatesDir,
+		cfg:          cfg,
+		validator:    validator,
+	}
 }
 
-func (g *Generator) makeNamespaceConfiguration(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext, mode int) (string, string, error) {
+// SetModel stores the model for later
+func (g *generatorInstance) SetModel(model []*datasource.NamespaceConfig) {
+	g.model = model
+}
+
+// SetStatusUpdater configures a statusUpdater for later. nil updater is fine
+func (g *generatorInstance) SetStatusUpdater(ctx context.Context, su datasource.StatusUpdater) {
+	g.su = su
+}
+
+func (g *generatorInstance) makeNamespaceConfiguration(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext, mode int) (string, string, error) {
 	// unconfigured namespace
 	if ns.FluentdConfig == "" {
 		return "", "", nil
@@ -103,7 +125,7 @@ func extractPrepConfig(ns string, prepareConfigs map[string]interface{}) (string
 }
 
 // nolint:gocognit
-func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputDir string, dest string) (map[string]string, error) {
+func (g *generatorInstance) renderMainFile(ctx context.Context, mainFile string, outputDir string, dest string) (map[string]string, error) {
 	tmpl, err := template.New(filepath.Base(mainFile)).ParseFiles(mainFile)
 	if err != nil {
 		return nil, err
@@ -247,13 +269,8 @@ func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputD
 	}
 
 	model.Namespaces = newFiles
-	buf := &bytes.Buffer{}
-	err = tmpl.Execute(buf, model)
-	if err != nil {
-		return nil, err
-	}
 
-	err = util.WriteStringToFile(dest, buf.String())
+	err = util.TemplateAndWriteFile(tmpl, model, dest)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +278,7 @@ func (g *Generator) renderMainFile(ctx context.Context, mainFile string, outputD
 	return fileHashesByNs, nil
 }
 
-func (g *Generator) generatePrepareConfigs(genCtx *processors.GenerationContext) map[string]interface{} {
+func (g *generatorInstance) generatePrepareConfigs(genCtx *processors.GenerationContext) map[string]interface{} {
 	prepareConfigs := map[string]interface{}{}
 	for _, nsConf := range g.model {
 		if nsConf.Name == g.cfg.AdminNamespace {
@@ -278,7 +295,7 @@ func (g *Generator) generatePrepareConfigs(genCtx *processors.GenerationContext)
 	return prepareConfigs
 }
 
-func (g *Generator) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) fluentd.Fragment {
+func (g *generatorInstance) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) fluentd.Fragment {
 	fragment, err := fluentd.ParseString(ns.FluentdConfig)
 	if err != nil {
 		return nil
@@ -289,7 +306,7 @@ func (g *Generator) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx
 	return processors.GetValidationTrailer(fragment, ctx, processors.DefaultProcessors()...)
 }
 
-func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) *processors.ProcessorContext {
+func (g *generatorInstance) makeContext(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) *processors.ProcessorContext {
 	ctx := &processors.ProcessorContext{
 		Namespace:         ns.Name,
 		NamespaceLabels:   ns.Labels,
@@ -304,16 +321,16 @@ func (g *Generator) makeContext(ns *datasource.NamespaceConfig, genCtx *processo
 	return ctx
 }
 
-func (g *Generator) updateStatus(ctx context.Context, namespace string, status string) {
+func (g *generatorInstance) updateStatus(ctx context.Context, namespace string, status string) {
 	metrics.SetNamespaceConfigStatusMetric(namespace, status == "")
 	g.su.UpdateStatus(ctx, namespace, status)
 }
 
-func (g *Generator) renderIncludableFile(templateFile string, dest string) {
+func (g *generatorInstance) renderIncludableFile(templateFile string, dest string) (err error) {
 	tmpl, err := template.New(filepath.Base(templateFile)).ParseFiles(templateFile)
 	if err != nil {
 		logrus.Warnf("Error processing template file %s: %+v", templateFile, err)
-		return
+		return err
 	}
 
 	// this is the model for the includable files
@@ -325,18 +342,15 @@ func (g *Generator) renderIncludableFile(templateFile string, dest string) {
 		PrometheusEnabled: g.cfg.PrometheusEnabled,
 	}
 
-	buf := &bytes.Buffer{}
-	err = tmpl.Execute(buf, model)
+	err = util.TemplateAndWriteFile(tmpl, model, dest)
 	if err != nil {
-		logrus.Warnf("Error rendering template file %s: %+v", templateFile, err)
-		return
+		return err
 	}
-
-	util.WriteStringToFile(dest, buf.String())
+	return nil
 }
 
 // CleanupUnusedFiles removes "ns-*.conf" files of namespaces that are no more existent
-func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]string) {
+func (g *generatorInstance) CleanupUnusedFiles(outputDir string, namespaces map[string]string) {
 	files, err := filepath.Glob(fmt.Sprintf("%s/ns-*.conf", outputDir))
 	if err != nil {
 		logrus.Warnf("Error finding unused files: %+v", err)
@@ -355,8 +369,8 @@ func (g *Generator) CleanupUnusedFiles(outputDir string, namespaces map[string]s
 }
 
 // RenderToDisk write only valid configurations to disk
-func (g *Generator) RenderToDisk(ctx context.Context, outputDir string) (map[string]string, error) {
-	err := ensureDirExists(outputDir)
+func (g *generatorInstance) RenderToDisk(ctx context.Context, outputDir string) (map[string]string, error) {
+	err := util.EnsureDirExists(outputDir)
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +387,11 @@ func (g *Generator) RenderToDisk(ctx context.Context, outputDir string) (map[str
 		targetDest := path.Join(outputDir, base)
 
 		if base != mainConfigFile {
-			g.renderIncludableFile(f, targetDest)
+			err = g.renderIncludableFile(f, targetDest)
+			if err != nil {
+				logrus.Warnf("Cannot write auxiliar file %s: %+v", f, err)
+				return nil, err
+			}
 		} else {
 			res, err = g.renderMainFile(ctx, f, outputDir, targetDest)
 			if err != nil {
@@ -384,30 +402,4 @@ func (g *Generator) RenderToDisk(ctx context.Context, outputDir string) (map[str
 	}
 
 	return res, nil
-}
-
-// SetModel stores the model for later
-func (g *Generator) SetModel(model []*datasource.NamespaceConfig) {
-	g.model = model
-}
-
-// SetStatusUpdater configures a statusUpdater for later. nil updater is fine
-func (g *Generator) SetStatusUpdater(ctx context.Context, su datasource.StatusUpdater) {
-	g.su = su
-}
-
-// New creates a default implementation
-func New(ctx context.Context, cfg *config.Config) *Generator {
-	templatesDir, _ := filepath.Abs(cfg.TemplatesDir)
-	var validator fluentd.Validator
-
-	if cfg.FluentdValidateCommand != "" {
-		validator = fluentd.NewValidator(ctx, cfg.FluentdValidateCommand, time.Second*time.Duration(cfg.ExecTimeoutSeconds))
-	}
-
-	return &Generator{
-		templatesDir: templatesDir,
-		cfg:          cfg,
-		validator:    validator,
-	}
 }

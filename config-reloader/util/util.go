@@ -10,16 +10,21 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 	"unicode"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
 	maskFile       = 0664
+  maskDirectory = 0775
 	MacroLabels    = "$labels"
 	ContainerLabel = "_container"
 )
@@ -189,4 +194,30 @@ func Match(labels map[string]string, contLabels map[string]string, contName stri
 		}
 	}
 	return true
+}
+
+func EnsureDirExists(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.Mkdir(dir, maskDirectory)
+		if err != nil {
+			logrus.Errorln("Unexpected error occurred with output config directory: ", dir)
+			return err
+		}
+	}
+	return nil
+}
+
+func TemplateAndWriteFile(tmpl *template.Template, model interface{}, dest string) (err error) {
+	buf := &bytes.Buffer{}
+	err = tmpl.Execute(buf, model)
+	if err != nil {
+		logrus.Warnf("Error rendering template file %s: %+v", dest, err)
+		return nil
+	}
+
+	err = WriteStringToFile(dest, buf.String())
+	if err != nil {
+		return err
+	}
+	return nil
 }
