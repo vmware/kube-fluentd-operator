@@ -5,7 +5,6 @@ package processors
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -14,11 +13,6 @@ import (
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
-)
-
-const (
-	macroLabels    = "$labels"
-	containerLabel = "_container"
 )
 
 type expandLabelsMacroState struct {
@@ -32,9 +26,6 @@ var reSafe = regexp.MustCompile(`[.-]|^$`)
 // or consist of alphanumeric characters, '-', '_' or '.', and must start and end with
 // an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is
 // '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?'
-
-var reValidLabelName = regexp.MustCompile(`^([A-Za-z0-9][-A-Za-z0-9\/_.]*)?[A-Za-z0-9]$`)
-var reValidLabelValue = regexp.MustCompile(`^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$`)
 
 var fns = template.FuncMap{
 	"last": func(x int, a interface{}) bool {
@@ -67,56 +58,10 @@ var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse
 </filter>
 `))
 
-func parseTagToLabels(tag string) (map[string]string, error) {
-	if !strings.HasPrefix(tag, macroLabels+"(") &&
-		!strings.HasSuffix(tag, ")") {
-		return nil, fmt.Errorf("bad $labels macro use: %s", tag)
-	}
-
-	labelsOnly := tag[len(macroLabels)+1 : len(tag)-1]
-
-	result := map[string]string{}
-
-	records := strings.Split(labelsOnly, ",")
-	for _, rec := range records {
-		if rec == "" {
-			// be generous
-			continue
-		}
-		kv := strings.Split(rec, "=")
-		if len(kv) != 2 {
-			return nil, fmt.Errorf("bad label definition: %s", kv)
-		}
-
-		k := util.Trim(kv[0])
-		if k != containerLabel {
-			if !reValidLabelName.MatchString(k) {
-				return nil, fmt.Errorf("bad label name: %s", k)
-			}
-		}
-
-		v := util.Trim(kv[1])
-		if !reValidLabelValue.MatchString(v) {
-			return nil, fmt.Errorf("bad label value: %s", v)
-		}
-		if k == containerLabel && v == "" {
-			return nil, fmt.Errorf("value for %s cannot be empty string", containerLabel)
-		}
-
-		result[k] = v
-	}
-
-	if len(result) == 0 {
-		return nil, errors.New("at least one label must be given")
-	}
-
-	return result, nil
-}
-
 func makeTagFromFilter(ns string, sortedLabelNames []string, labelNames map[string]string) string {
 	buf := &bytes.Buffer{}
 
-	if cont, ok := labelNames[containerLabel]; ok {
+	if cont, ok := labelNames[util.ContainerLabel]; ok {
 		// if the special label _container is used then its name goes to the
 		// part of the tag that denotes the container
 		buf.WriteString(fmt.Sprintf("kube.%s.*.%s._labels.", ns, cont))
@@ -125,7 +70,7 @@ func makeTagFromFilter(ns string, sortedLabelNames []string, labelNames map[stri
 	}
 
 	for i, lb := range sortedLabelNames {
-		if lb == containerLabel {
+		if lb == util.ContainerLabel {
 			continue
 		}
 
@@ -157,11 +102,11 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if !strings.HasPrefix(d.Tag, macroLabels) {
+		if !strings.HasPrefix(d.Tag, util.MacroLabels) {
 			return nil
 		}
 
-		labelNames, err := parseTagToLabels(d.Tag)
+		labelNames, err := util.ParseTagToLabels(d.Tag)
 		if err != nil {
 			return err
 		}
@@ -180,7 +125,7 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 		return input, nil
 	}
 
-	delete(allReferencedLabels, containerLabel)
+	delete(allReferencedLabels, util.ContainerLabel)
 	sortedLabelNames := util.SortedKeys(allReferencedLabels)
 
 	replaceLabels := func(d *fluentd.Directive, ctx *ProcessorContext) error {
@@ -188,11 +133,11 @@ func (p *expandLabelsMacroState) Process(input fluentd.Fragment) (fluentd.Fragme
 			return nil
 		}
 
-		if !strings.HasPrefix(d.Tag, macroLabels) {
+		if !strings.HasPrefix(d.Tag, util.MacroLabels) {
 			return nil
 		}
 
-		labelNames, err := parseTagToLabels(d.Tag)
+		labelNames, err := util.ParseTagToLabels(d.Tag)
 		if err != nil {
 			// should never happen as the error should be caught beforehand
 			return nil

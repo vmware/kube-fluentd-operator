@@ -43,6 +43,71 @@ func TestTrimTrailingComment(t *testing.T) {
 	assert.Equal(t, "a", TrimTrailingComment("a#########"))
 }
 
+func TestLabelsParseOk(t *testing.T) {
+	inputs := map[string]map[string]string{
+		"$labels(a=b,,,)":                  {"a": "b"},
+		"$labels(a=1, b=2)":                {"a": "1", "b": "2"},
+		"$labels(x=y,b=1)":                 {"b": "1", "x": "y"},
+		"$labels(x=1, b = 1)":              {"b": "1", "x": "1"},
+		"$labels(x=1, a=)":                 {"a": "", "x": "1"},
+		"$labels(hello/world=ok, a=value)": {"hello/world": "ok", "a": "value"},
+		"$labels(x=1, _container=main)":    {"_container": "main", "x": "1"},
+	}
+
+	for tag, result := range inputs {
+		processed, err := ParseTagToLabels(tag)
+		assert.Nil(t, err, "Got an error instead: %+v", err)
+		assert.Equal(t, result, processed)
+	}
+}
+
+func TestLabelsParseNotOk(t *testing.T) {
+	inputs := []string{
+		"$labels",
+		"$labels()",
+		"$labels(=)",
+		"$labels(=f)",
+		"$labels(.=*)",
+		"$labels(a=.)",
+		"$labels(a==1)",
+		"$labels(-a=sfd)",
+		"$labels(a=-sfd)",
+		"$labels(a*=hello)",
+		"$labels(a=*)",
+		"$labels(a=1, =2)",
+		"$labels(_container=)", // empty container name
+		"$labels(app.kubernetes.io/name=*)",
+	}
+
+	for _, tag := range inputs {
+		res, err := ParseTagToLabels(tag)
+		assert.NotNil(t, err, "Got this instead for %s: %+v", tag, res)
+	}
+}
+
+func TestMatch(t *testing.T) {
+	containerLabels := map[string]string{"key": "value"}
+	containerName := "container-name"
+
+	var labels map[string]string = nil
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"_container": containerName}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"a": "a"}
+	assert.False(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"key": "value"}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"key": "value", "_container": "container-name"}
+	assert.True(t, Match(labels, containerLabels, containerName))
+
+	labels = map[string]string{"a": "a", "key": "value", "_container": "container-name"}
+	assert.False(t, Match(labels, containerLabels, containerName))
+}
+
 func TestEnsureDirExits(t *testing.T) {
 
 	type testDirConfig struct {
@@ -71,5 +136,4 @@ func TestEnsureDirExits(t *testing.T) {
 			os.Remove(config.folderName)
 		}
 	}
-
 }

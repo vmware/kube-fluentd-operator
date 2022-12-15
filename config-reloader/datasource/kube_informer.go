@@ -3,8 +3,11 @@ package datasource
 import (
 	"context"
 	"fmt"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -25,14 +28,16 @@ import (
 )
 
 type kubeInformerConnection struct {
-	client  kubernetes.Interface
-	hashes  map[string]string
-	cfg     *config.Config
-	kubeds  kubedatasource.KubeDS
-	nslist  listerv1.NamespaceLister
-	podlist listerv1.PodLister
-	cmlist  listerv1.ConfigMapLister
-	fdlist  kfoListersV1beta1.FluentdConfigLister
+	client        kubernetes.Interface
+	confHashes    map[string]string
+	mountedLabels map[string][]map[string]string
+	cfg           *config.Config
+	kubeds        kubedatasource.KubeDS
+	nslist        listerv1.NamespaceLister
+	podlist       listerv1.PodLister
+	cmlist        listerv1.ConfigMapLister
+	fdlist        kfoListersV1beta1.FluentdConfigLister
+	updateChan    chan time.Time
 }
 
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
@@ -101,16 +106,31 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
-	return &kubeInformerConnection{
-		client:  client,
-		hashes:  make(map[string]string),
-		cfg:     cfg,
-		kubeds:  kubeds,
-		nslist:  namespaceLister,
-		podlist: podLister,
-		cmlist:  cmLister,
-		fdlist:  fluentdconfigDSLister.Fdlist,
-	}, nil
+	kubeInfoCx := &kubeInformerConnection{
+		client:        client,
+		confHashes:    make(map[string]string),
+		mountedLabels: make(map[string][]map[string]string),
+		cfg:           cfg,
+		kubeds:        kubeds,
+		nslist:        namespaceLister,
+		podlist:       podLister,
+		cmlist:        cmLister,
+		fdlist:        fluentdconfigDSLister.Fdlist,
+		updateChan:    updateChan,
+	}
+
+	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+		UpdateFunc: func(old, obj interface{}) {
+		},
+		DeleteFunc: func(obj interface{}) {
+			kubeInfoCx.handlePodChange(ctx, obj)
+		},
+	})
+
+	return kubeInfoCx, nil
 }
 
 // GetNamespaces queries the configured Kubernetes API to generate a list of NamespaceConfig objects.
@@ -136,6 +156,26 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 			return nil, err
 		}
 
+		fragment, err := fluentd.ParseString(configdata)
+		if err != nil {
+			return nil, err
+		}
+
+		var mountedLabels []map[string]string
+		for _, frag := range fragment {
+			if frag.Name == "source" && frag.Type() == "mounted-file" {
+				paramLabels := frag.Param("labels")
+				paramLabels = util.TrimTrailingComment(paramLabels)
+				currLabels, err := util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
+				if err != nil {
+					return nil, err
+				}
+				mountedLabels = append(mountedLabels, currLabels)
+			}
+		}
+
+		d.updateMountedLabels(ns, mountedLabels)
+
 		// Create a compact representation of the pods running in the namespace
 		// under consideration
 		pods, err := d.podlist.Pods(ns).List(labels.NewSelector())
@@ -155,7 +195,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		nsconfigs = append(nsconfigs, &NamespaceConfig{
 			Name:               ns,
 			FluentdConfig:      configdata,
-			PreviousConfigHash: d.hashes[ns],
+			PreviousConfigHash: d.confHashes[ns],
 			Labels:             nsobj.Labels,
 			MiniContainers:     minis,
 		})
@@ -166,7 +206,11 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 
 // WriteCurrentConfigHash is a setter for the hashtable maintained by this Datasource
 func (d *kubeInformerConnection) WriteCurrentConfigHash(namespace string, hash string) {
-	d.hashes[namespace] = hash
+	d.confHashes[namespace] = hash
+}
+
+func (d *kubeInformerConnection) updateMountedLabels(namespace string, labels []map[string]string) {
+	d.mountedLabels[namespace] = labels
 }
 
 // UpdateStatus updates a namespace's status annotation with the latest result
@@ -239,6 +283,13 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 				for _, cfmap := range confMapsList {
 					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
 						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+					} else {
+						// We need to find configmaps that honor the global annotation for configmaps:
+						configMapNamespace, _ := d.nslist.Get(cfmap.ObjectMeta.Namespace)
+						configMapName := configMapNamespace.Annotations[d.cfg.AnnotConfigmapName]
+						if configMapName != "" {
+							namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+						}
 					}
 				}
 				if d.cfg.CRDMigrationMode {
@@ -273,6 +324,39 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 	// Sort the namespaces:
 	sort.Strings(nsList)
 	return nsList, nil
+}
+
+func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
+	mObj := obj.(*core.Pod)
+	logrus.Infof("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
+	nsConfigStr := fmt.Sprintf("%#v", configdata)
+
+	if err == nil {
+		if strings.Contains(nsConfigStr, "mounted-file") {
+			podLabels := mObj.GetLabels()
+			mountedLabel := d.mountedLabels[mObj.GetNamespace()]
+			for _, container := range mObj.Spec.Containers {
+				if matchAny(podLabels, mountedLabel, container.Name) {
+					logrus.Infof("Detected mounted-file pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+					select {
+					case d.updateChan <- time.Now():
+					default:
+					}
+				}
+			}
+		}
+	}
+}
+
+func matchAny(contLabels map[string]string, mountedLabelsInNs []map[string]string, name string) bool {
+	for _, mountedLabels := range mountedLabelsInNs {
+		if util.Match(mountedLabels, contLabels, name) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (d *kubeInformerConnection) discoverFluentdConfigNamespaces() ([]string, error) {
