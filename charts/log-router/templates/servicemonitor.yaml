@@ -4,16 +4,12 @@ kind: ServiceMonitor
 metadata:
   name: {{ template "fluentd-router.fullname" . }}
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
 spec:
-  jobLabel: app
+  jobLabel: {{ .Values.serviceMonitor.jobLabel | quote }}
   selector:
     matchLabels:
-      app: {{ template "fluentd-router.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "fluentd-router.selectorLabels" . | nindent 6 }}
       metrics: fluentd
   endpoints:
   - port: prometheus
@@ -28,16 +24,12 @@ kind: ServiceMonitor
 metadata:
   name: {{ template "fluentd-router.fullname" . }}-reloader
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
 spec:
-  jobLabel: app
+  jobLabel: {{ .Values.serviceMonitor.jobLabel | quote }}
   selector:
     matchLabels:
-      app: {{ template "fluentd-router.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "fluentd-router.selectorLabels" . | nindent 6 }}
       metrics: reloader
   endpoints:
   - port: metrics

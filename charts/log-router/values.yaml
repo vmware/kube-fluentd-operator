@@ -120,7 +120,7 @@ serviceMonitor:
     enabled: false
 
     # Job label for scrape target
-    jobLabel: app
+  jobLabel: app.kubernetes.io/name
 
     # Scrape interval. If not set, the Prometheus default scrape interval is used.
     interval: ""

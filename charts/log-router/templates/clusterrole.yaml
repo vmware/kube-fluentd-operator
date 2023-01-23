@@ -8,10 +8,7 @@ apiVersion: {{ template "rbacAPIVersion" . }}
 kind: ClusterRole
 metadata:
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
     {{- if .Values.extraLabels }}
 {{ toYaml .Values.extraLabels | indent 4 }}
     {{- end }}
