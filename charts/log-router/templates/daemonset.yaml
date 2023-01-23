@@ -43,7 +43,7 @@ spec:
 {{- end }}
       containers:
         - name: fluentd
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
           - name: K8S_NODE_NAME
             valueFrom:
@@ -79,7 +79,7 @@ spec:
           resources:
 {{ toYaml .Values.fluentd.resources | indent 12 }}
         - name: reloader
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.prometheusEnabled }}
           ports:

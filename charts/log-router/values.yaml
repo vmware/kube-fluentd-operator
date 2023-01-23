@@ -26,7 +26,9 @@ defaultConfigmap: "fluentd-config"
 image:
   repository: vmware/kube-fluentd-operator
   pullPolicy: IfNotPresent
-  tag: latest
+  # tag is an override of the image tag, which is by default set by the
+  # appVersion field in Chart.yaml.
+  tag: ""
   pullSecret: ""
 
 logLevel: debug
