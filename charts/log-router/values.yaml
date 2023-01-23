@@ -116,14 +116,17 @@ logRotate:
 
 
 serviceMonitor:
-    # enable support for Prometheus Operator
-    enabled: false
+  # enable support for Prometheus Operator
+  enabled: false
 
-    # Job label for scrape target
+  # Job label for scrape target
   jobLabel: app.kubernetes.io/name
 
-    # Scrape interval. If not set, the Prometheus default scrape interval is used.
-    interval: ""
+  # Scrape interval. If not set, the Prometheus default scrape interval is used.
+  interval: ""
+
+  # Additional labels for Prometheus Operator
+  labels: {}
 
 allowTagExpansion: false
 
