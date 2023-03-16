@@ -327,7 +327,7 @@ GEM
       multi_json
     prometheus-client (4.0.0)
     public_suffix (5.0.0)
-    rack (3.0.4.1)
+    rack (3.0.6.1)
     rack-oauth2 (1.21.3)
       activesupport
       attr_required
