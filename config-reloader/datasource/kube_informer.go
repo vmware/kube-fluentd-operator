@@ -88,6 +88,10 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 			if err != nil {
 				return nil, err
 			}
+			fluentdconfigDSLister =
+				&kubedatasource.FluentdConfigDS{
+					Fdlist: kubeds.GetFdlist(),
+				}
 		} else {
 			kubeds, err = kubedatasource.NewConfigMapDS(ctx, cfg, factory, updateChan)
 			if err != nil {

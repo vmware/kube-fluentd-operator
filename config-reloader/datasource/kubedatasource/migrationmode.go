@@ -59,5 +59,5 @@ func (m *MigrationModeDS) GetFluentdConfig(ctx context.Context, namespace string
 
 // GetFdlist return nil for this mode because it does not use CRDs:
 func (m *MigrationModeDS) GetFdlist() kfoListersV1beta1.FluentdConfigLister {
-	return nil
+	return m.fdKubeDS.GetFdlist()
 }
