@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [v1.17.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.0)
+
+#### Core:
+  - Reload Configuration only when a pod matching the label set in mounted-file is created or deleted by @huskykurt in https://github.com/vmware/kube-fluentd-operator/pull/347
+  - chore(deps): bump activesupport from 7.0.4 to 7.0.4.1 in /base-image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/366
+  - chore(deps): bump rack from 3.0.1 to 3.0.4.1 in /base-image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/365
+  - chore(deps): bump golang.org/x/text from 0.3.7 to 0.3.8 in /config-reloader by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/368
+  - chore(deps): bump rack from 3.0.4.1 to 3.0.6.1 in /base-image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/371
+  - chore(deps): bump activesupport from 7.0.4.1 to 7.0.4.3 in /base-image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/372
+  - chore(deps): bump golang.org/x/net from 0.0.0-20220225172249-27dd8689420f to 0.7.0 in /config-reloader by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/369
+  - Fix discovery of fluentdconfig if migration mode is enabled by @jonasrutishauser in https://github.com/vmware/kube-fluentd-operator/pull/360
+#### Plugins:
+  - None
+#### Helm:
+  - None
+## New Contributors
+  - @huskykurt made their first contribution in https://github.com/vmware/kube-fluentd-operator/pull/347
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.16.8...v1.17.0
+
 ## [v1.16.8](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.16.8)
 
 #### Core:
