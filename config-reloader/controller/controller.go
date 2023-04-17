@@ -47,7 +47,7 @@ func New(ctx context.Context, cfg *config.Config) (Controller, error) {
 		up = NewFixedTimeUpdater(ctx, cfg.IntervalSeconds)
 	default:
 		updateChan := make(chan time.Time, 1)
-		ds, err = datasource.NewKubernetesInformerDatasource(ctx, cfg, updateChan)
+		ds, err = datasource.NewKubernetesInformerDatasource(ctx, cfg, updateChan, nil)
 		if err != nil {
 			return nil, err
 		}

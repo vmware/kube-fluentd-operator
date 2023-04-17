@@ -3,12 +3,13 @@ package datasource
 import (
 	"context"
 	"fmt"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
-	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 	"os"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -43,7 +44,7 @@ type kubeInformerConnection struct {
 // NewKubernetesInformerDatasource builds a new Datasource from the provided config.
 // The returned Datasource uses Informers to efficiently track objects in the kubernetes
 // API by watching for updates to a known state.
-func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, updateChan chan time.Time) (Datasource, error) {
+func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, updateChan chan time.Time, defaultClientSet kubernetes.Interface) (Datasource, error) {
 	kubeConfig := cfg.KubeConfig
 	if cfg.KubeConfig == "" {
 		if _, err := os.Stat(clientcmd.RecommendedHomeFile); err == nil {
@@ -56,9 +57,14 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		return nil, err
 	}
 
-	client, err := kubernetes.NewForConfig(kubeCfg)
-	if err != nil {
-		return nil, err
+	var client kubernetes.Interface
+	if defaultClientSet != nil {
+		client = defaultClientSet
+	} else {
+		client, err = kubernetes.NewForConfig(kubeCfg)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	logrus.Infof("Connected to cluster at %s", kubeCfg.Host)

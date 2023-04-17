@@ -15,7 +15,7 @@ GO_OPTS           = GO111MODULE=on GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(GOBIN)
 GO                = $(GO_OPTS) go
 
 CURRENT_DIR       = $(shell pwd)
-DEV_ENV_IMAGE    := vmwaresaas.jfrog.io/vdp-public/go-dev:latest
+DEV_ENV_IMAGE    := vmwaresaas.jfrog.io/vdp-public/go-dev:latest-1.19-amd64
 DEV_ENV_WORK_DIR := /go/src/${PKG}
 DEV_ENV_CMD      := docker run --rm -v ${CURRENT_DIR}:${DEV_ENV_WORK_DIR} -w ${DEV_ENV_WORK_DIR} ${DEV_ENV_IMAGE}
 
