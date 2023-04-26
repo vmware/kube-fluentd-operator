@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [v1.17.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.1)
+#### Core:
+  - None
+
+#### Plugins:
+ - increase loginsight plugin version by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/378
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.17.0...v1.17.1
+
 ## [v1.17.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.0)
 
 #### Core:
