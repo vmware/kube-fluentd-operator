@@ -7,10 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
     metrics: fluentd
   annotations:
     prometheus.io/scrape: "true"
@@ -18,8 +15,7 @@ metadata:
   name: {{ template "fluentd-router.fullname" . }}
 spec:
   selector:
-    app: {{ template "fluentd-router.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "fluentd-router.selectorLabels" . | nindent 4 }}
   ports:
     - port: 24231
       name: prometheus
@@ -31,10 +27,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
     metrics: reloader
   annotations:
     prometheus.io/scrape: "true"
@@ -42,8 +35,7 @@ metadata:
   name: {{ template "fluentd-router.fullname" . }}-reloader
 spec:
   selector:
-    app: {{ template "fluentd-router.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "fluentd-router.selectorLabels" . | nindent 4 }}
   ports:
     - port: {{ .Values.metricsPort }}
       name: metrics

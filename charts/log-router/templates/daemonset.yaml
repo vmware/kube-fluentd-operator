@@ -8,20 +8,15 @@ kind: DaemonSet
 metadata:
   name: {{ template "fluentd-router.fullname" . }}
   labels:
-    app: {{ template "fluentd-router.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "fluentd-router.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      app: {{ template "fluentd-router.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "fluentd-router.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ template "fluentd-router.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "fluentd-router.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/fluentd-extraenv: {{ toYaml .Values.fluentd.extraEnv | sha256sum }}
         checksum/reloader-extraenv: {{ toYaml .Values.reloader.extraEnv | sha256sum }}
@@ -43,7 +38,7 @@ spec:
 {{- end }}
       containers:
         - name: fluentd
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
           - name: K8S_NODE_NAME
             valueFrom:
@@ -79,7 +74,7 @@ spec:
           resources:
 {{ toYaml .Values.fluentd.resources | indent 12 }}
         - name: reloader
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.prometheusEnabled }}
           ports:
