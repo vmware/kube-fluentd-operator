@@ -338,6 +338,9 @@ func TestProcessMountedFile(t *testing.T) {
 		@type mounted-file
 		path /var/log/redis.log
 		labels app=redis
+		read_from_head false
+		refresh_interval 1s
+		multiline_flush_interval 1s
 	</source>
 
 	<source>
@@ -366,6 +369,9 @@ func TestProcessMountedFile(t *testing.T) {
 	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
 	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
 	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", prep[4].Param("path"))
+	assert.Equal(t, "true", prep[0].Param("read_from_head"))
+	assert.Equal(t, "1s", prep[0].Param("refresh_interval"))
+	assert.Equal(t, "1s", prep[0].Param("multiline_flush_interval"))
 
 	payload := prep.String()
 	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c2'"))
