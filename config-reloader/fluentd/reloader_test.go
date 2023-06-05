@@ -19,13 +19,13 @@ func TestNullReloader(t *testing.T) {
 }
 func TestReloaderCalls(t *testing.T) {
 	ctx := context.Background()
-	port := 11543
+	port := 24444
 
 	counter := 0
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("req %+v", r)
-		if r.Method == "POST" && r.RequestURI == "/api/config.gracefulReload" {
+		if r.Method == "GET" && r.RequestURI == "/api/config.gracefulReload" {
 			counter++
 		}
 	}

@@ -49,7 +49,7 @@ func CheckAndInstallCRD(ctx context.Context, config *rest.Config) error {
 	}
 
 	logrus.Infof("%s CRD is installed. Checking availability...", crdManager.GetCRDName(ctx))
-	if err := monitorCRDAvailability(crdManager); err != nil {
+	if err := monitorCRDAvailability(ctx, crdManager); err != nil {
 		return err
 	}
 	logrus.Infof("%s CRD is available", crdManager.GetCRDName(ctx))
@@ -90,7 +90,7 @@ func isV1CRDAvailable(config *rest.Config) (bool, error) {
 	return v1Available, nil
 }
 
-func monitorCRDAvailability(crdManager manager) error {
+func monitorCRDAvailability(ctx context.Context, crdManager manager) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
