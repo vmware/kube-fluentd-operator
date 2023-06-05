@@ -109,7 +109,6 @@ func TestMatch(t *testing.T) {
 }
 
 func TestEnsureDirExits(t *testing.T) {
-
 	type testDirConfig struct {
 		expectErr  bool
 		folderName string
@@ -129,7 +128,6 @@ func TestEnsureDirExits(t *testing.T) {
 		if config.expectErr == true {
 			assert.NoDirExists(t, config.folderName, EnsureDirExists(config.folderName))
 			assert.Error(t, EnsureDirExists(config.folderName))
-
 		} else {
 			assert.EqualValues(t, nil, EnsureDirExists(config.folderName))
 			assert.DirExists(t, config.folderName, EnsureDirExists(config.folderName))

@@ -33,9 +33,9 @@ func (r *Reloader) ReloadConfiguration() {
 
 	logrus.Debugf("Reloading fluentd configuration gracefully via POST to /api/config.gracefulReload")
 
-	resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port), "application/json", nil)
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port))
 	if err != nil {
-		logrus.Errorf("fluentd config.gracefulReload post request failed: %+v", err)
+		logrus.Errorf("fluentd config.gracefulReload request failed: %+v", err)
 	} else if resp.StatusCode != 200 {
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# Copyright © 2022 VMware, Inc. All Rights Reserved.
+# Copyright © 2023 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
 # roughly based on https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/docker-image/v0.12/debian-elasticsearch/entrypoint.sh
@@ -21,7 +21,7 @@ main() {
       break
     fi
     echo "Waiting for config file to become available: $attempt of $retries"
-    sleep 10
+    sleep 5
   done
   if [[ "$ready" != "true" ]]; then
     return 1
