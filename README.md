@@ -1,4 +1,4 @@
-# kube-fluentd-operator (KFO)  [![Build Status](https://travis-ci.org/vmware/kube-fluentd-operator.svg?branch=master)](https://travis-ci.org/vmware/kube-fluentd-operator)
+# kube-fluentd-operator (KFO)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/vmware/kube-fluentd-operator)](https://goreportcard.com/report/github.com/vmware/kube-fluentd-operator)
 
