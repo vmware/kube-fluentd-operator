@@ -2,24 +2,16 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
-FROM photon:3.0 
+FROM photon:4.0 
 
 ARG RVM_PATH=/usr/local/rvm
 ARG RUBY_VERSION=ruby-3.1.4
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
-RUN tdnf clean all && \
-    tdnf upgrade -y && \
-    tdnf erase -y toybox && \
-    tdnf install -y \
-         findutils \
-         procps-ng \
-         util-linux \
-         systemd \
-         net-tools \
-         gpg && \
-    buildDeps="\
+ENV PATH $RUBY_PATH/bin:$PATH
+ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
+ENV  BUILDDEPS="\
       gmp-devel \
       libffi-devel \
       bzip2 \
@@ -39,8 +31,19 @@ RUN tdnf clean all && \
       libedit-devel \
       gdbm \
       gdbm-devel \
-      openssl-devel" && \
-    tdnf install -y $buildDeps && \
+      openssl-devel"
+
+RUN tdnf clean all && \
+    tdnf upgrade -y && \
+    tdnf erase -y toybox && \
+    tdnf install -y \
+         findutils \
+         procps-ng \
+         util-linux \
+         systemd \
+         net-tools \
+         gpg && \
+    tdnf install -y $BUILDDEPS && \
     tdnf clean all
 
 SHELL [ "/bin/bash", "-l", "-c" ]
@@ -57,8 +60,6 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
     && gem install bundler -v '>= 2.4.13' --default --no-document
-
-ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
 
 ## Install dependencies which are not up to date and we need a fork or local download
 RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
@@ -97,7 +98,7 @@ ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
 RUN cd /fluentd \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
-  && tdnf remove -y $buildDeps \
+  && tdnf remove -y $BUILDDEPS \
   && tdnf clean all \
   && gem uninstall bundler \
   && gem cleanup \

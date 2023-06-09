@@ -112,16 +112,19 @@ logRotate:
 # logRotateAge: 5
 # logRotateSize: 1048576000
 
+monitoring:
+  serviceMonitor:
+      # enable support for Prometheus Operator
+      enabled: false
 
-serviceMonitor:
-    # enable support for Prometheus Operator
-    enabled: false
+      # Job label for scrape target
+      jobLabel: app
 
-    # Job label for scrape target
-    jobLabel: app
-
-    # Scrape interval. If not set, the Prometheus default scrape interval is used.
-    interval: ""
+      # Scrape interval. If not set, the Prometheus default scrape interval is used.
+      interval: ""
+  # Create grafana dashboard with the chart
+  grafanaDashboard:
+    enabled: true
 
 allowTagExpansion: false
 
