@@ -128,7 +128,7 @@ GEM
     fluent-plugin-gelf-hs (1.0.8)
       fluentd
       gelf (>= 2.0.0)
-    fluent-plugin-grafana-loki (1.2.19)
+    fluent-plugin-grafana-loki (1.2.20)
       fluentd (>= 1.9.3, < 2)
     fluent-plugin-grok-parser (2.6.2)
       fluentd (>= 0.14.6, < 2)
@@ -401,7 +401,7 @@ DEPENDENCIES
   fluent-plugin-datadog (= 0.14.2)
   fluent-plugin-elasticsearch (= 5.2.4)
   fluent-plugin-gelf-hs (= 1.0.8)
-  fluent-plugin-grafana-loki (= 1.2.19)
+  fluent-plugin-grafana-loki (= 1.2.20)
   fluent-plugin-grok-parser (= 2.6.2)
   fluent-plugin-json-in-json-2 (= 1.0.2)
   fluent-plugin-kafka (= 0.18.1)
