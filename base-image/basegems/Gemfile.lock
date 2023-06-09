@@ -22,7 +22,6 @@ GEM
       fiber-local
     date (3.2.2)
     e2mmap (0.1.0)
-    ext_monitor (0.1.2)
     fiber-local (1.0.0)
     forwardable (1.3.2)
     json (2.6.2)
@@ -74,7 +73,6 @@ DEPENDENCIES
   async-pool (= 0.3.12)
   cgi (= 0.3.6)
   date (~> 3.2.2)
-  ext_monitor (= 0.1.2)
   json (= 2.6.2)
   logger (= 1.5.1)
   matrix (= 0.4.2)

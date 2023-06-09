@@ -1,4 +1,4 @@
-{{- if .Values.serviceMonitor.enabled }}
+{{- if .Values.monitoring.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -17,8 +17,8 @@ spec:
       metrics: fluentd
   endpoints:
   - port: prometheus
-    {{- if .Values.serviceMonitor.interval }}
-    interval: {{ .Values.serviceMonitor.interval }}
+    {{- if .Values.monitoring.serviceMonitor.interval }}
+    interval: {{ .Values.monitoring.serviceMonitor.interval }}
     {{- end }}
 
 ---
@@ -41,7 +41,7 @@ spec:
       metrics: reloader
   endpoints:
   - port: metrics
-    {{- if .Values.serviceMonitor.interval }}
-    interval: {{ .Values.serviceMonitor.interval }}
+    {{- if .Values.monitoring.serviceMonitor.interval }}
+    interval: {{ .Values.monitoring.serviceMonitor.interval }}
     {{- end }}
 {{- end }}
