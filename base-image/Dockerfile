@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 ARG RVM_PATH=/usr/local/rvm
-ARG RUBY_VERSION=ruby-2.7.7
+ARG RUBY_VERSION=ruby-3.1.4
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
 
@@ -58,16 +58,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
     && rvm install --disable-binary $RUBY_VERSION --default \
     && gem update --system --no-document \
     && gem install bundler -v '>= 2.3.26' --default --no-document \
-    && bundler install \
-    && gem uninstall bundler \
-    && gem uninstall rake -v 13.0.6 \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rexml-3.2.3.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/rdoc-6.2.1.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.3.0.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/json-2.5.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/webrick-1.6.1.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/date-3.0.3.gemspec \
-    && rm -rf $RUBY_PATH/lib/ruby/gems/2.7.0/specifications/default/cgi-0.1.0.1.gemspec
+    && bundler install
 
 FROM photon:3.0
 ARG RUBY_PATH
@@ -123,7 +114,7 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && gem install fluent-plugin-detect-exceptions-*.gem \
   && rm -rf /fluentd/fluent-plugin-detect-exceptions \
   && cd /fluentd \
-  && git clone https://github.com/slimm609/fluent-plugin-google-cloud.git fluent-plugin-google-cloud \
+  && git clone https://github.com/javiercri/fluent-plugin-google-cloud.git fluent-plugin-google-cloud \
   && cd fluent-plugin-google-cloud \
   && gem build fluent-plugin-google-cloud.gemspec \
   && gem install fluent-plugin-google-cloud-*.gem \
