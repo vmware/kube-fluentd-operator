@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [v1.17.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.2)
+
+
+## Core:
+* fix: update license and remove from README by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/382
+* fix: fix reloader endpoint from post to get by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/383
+* fix: disable watch and remove additional fields by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/384
+* feat: improve monitoring for fluentd chart by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/385
+* feat: improve dockerfile by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/386
+* Fix CVE-2022-41721 and CVE-2022-27664 by @luksan47 in https://github.com/vmware/kube-fluentd-operator/pull/387
+* feat: remove info logging for pod check by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/388
+* Fix CVE-2022-32149 by @luksan47 in https://github.com/vmware/kube-fluentd-operator/pull/390
+* feat: remove copy for prometheus metrics by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/391
+* chore: improve logging info by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/392
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.17.1...v1.17.2
+
 ## [v1.17.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.1)
 #### Core:
   - None
