@@ -63,8 +63,6 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import \
 
 ## Install dependencies which are not up to date and we need a fork or local download
 RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
-  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.15/debian-elasticsearch7/plugins/parser_kubernetes.rb -P /fluentd/plugins \
-  && wget https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/docker-image/v1.15/debian-elasticsearch7/plugins/parser_multiline_kubernetes.rb -P /fluentd/plugins \
   && echo 'gem: --no-document' >> /etc/gemrc \
   && bundle config silence_root_warning true \
   && cd /fluentd \
