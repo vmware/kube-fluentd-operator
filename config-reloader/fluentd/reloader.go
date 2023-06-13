@@ -31,7 +31,7 @@ func (r *Reloader) ReloadConfiguration() {
 		return
 	}
 
-	logrus.Debugf("Reloading fluentd configuration gracefully via POST to /api/config.gracefulReload")
+	logrus.Infof("Reloading fluentd configuration gracefully via POST to /api/config.gracefulReload")
 
 	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port))
 	if err != nil {
