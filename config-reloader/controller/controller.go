@@ -83,7 +83,7 @@ func (c *controllerInstance) RunOnce(ctx context.Context) error {
 
 	needsReload := false
 
-	logrus.Debugf("Config hashes returned in RunOnce loop: %v", configHashes)
+	logrus.Infof("Config hashes returned in RunOnce loop: %v", configHashes)
 
 	for _, nsConfig := range allConfigNamespaces {
 		newHash, found := configHashes[nsConfig.Name]
