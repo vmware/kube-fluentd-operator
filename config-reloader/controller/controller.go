@@ -86,6 +86,7 @@ func (c *controllerInstance) RunOnce(ctx context.Context) error {
 	logrus.Infof("Config hashes returned in RunOnce loop: %v", configHashes)
 
 	for _, nsConfig := range allConfigNamespaces {
+		logrus.Debugf("Comparing hash with previous one for namespace: %v", nsConfig.Name)
 		newHash, found := configHashes[nsConfig.Name]
 		if !found {
 			logrus.Infof("No config updates for namespace %s", nsConfig.Name)
@@ -94,6 +95,7 @@ func (c *controllerInstance) RunOnce(ctx context.Context) error {
 		}
 
 		if newHash != nsConfig.PreviousConfigHash {
+			logrus.Infof("Detecting updates for namespace %s", nsConfig.Name)
 			needsReload = true
 			c.Datasource.WriteCurrentConfigHash(nsConfig.Name, newHash)
 		}
@@ -102,6 +104,7 @@ func (c *controllerInstance) RunOnce(ctx context.Context) error {
 	// lastly, if number of configs has changed, then need to reload configurations obviously!
 	// this means a crd was deleted or reapplied, and GetNamespaces does not return it anymore
 	if c.numTotalConfigNS != len(allConfigNamespaces) {
+		logrus.Infof("New namespaces found. Reloading fluentd...")
 		needsReload = true
 		c.numTotalConfigNS = len(allConfigNamespaces)
 	}

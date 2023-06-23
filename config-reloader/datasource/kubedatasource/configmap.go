@@ -123,7 +123,7 @@ func (c *ConfigMapDS) fetchConfigMaps(ctx context.Context, ns string) ([]*core.C
 		}
 		singlemap, err := nsmaps.Get(mapName)
 		if err != nil {
-			logrus.Debugf("Failed to retrieve configmap '%s' from namespace '%s': %v", mapName, ns, err)
+			logrus.Tracef("Failed to retrieve configmap '%s' from namespace '%s': %v", mapName, ns, err)
 		}
 		if singlemap != nil {
 			configmaps = append(configmaps, singlemap)
@@ -164,9 +164,9 @@ func (c *ConfigMapDS) detectConfigMapName(ctx context.Context, ns string) (strin
 	if configMapName == "" {
 		if c.cfg.DefaultConfigmapName != "" {
 			configMapName = c.cfg.DefaultConfigmapName
-			logrus.Debugf("Using default configmap name ('%s') for namespace '%s'", configMapName, ns)
+			logrus.Tracef("Using default configmap name ('%s') for namespace '%s'", configMapName, ns)
 		} else {
-			logrus.Debugf("Could not find named configmap in namespace '%s': not annotated with '%s'", ns, c.cfg.AnnotConfigmapName)
+			logrus.Tracef("Could not find named configmap in namespace '%s': not annotated with '%s'", ns, c.cfg.AnnotConfigmapName)
 			return "", &namespaceNotConfigured{Namespace: ns}
 		}
 	}
