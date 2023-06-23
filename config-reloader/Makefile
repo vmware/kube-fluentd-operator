@@ -84,7 +84,7 @@ create-test-ns:
 delete-test-ns:
 	kubectl delete -f examples/manifests/kfo-test.yaml
 
-run-loop-fs: install
+run-loop-fs: build
 	rm -fr tmp
 	./config-reloader \
 		--interval 5 \
@@ -97,7 +97,7 @@ run-loop-fs: install
 		--fs-dir=examples \
 		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
-run-once-fs: install
+run-once-fs: build
 	rm -fr tmp
 	./config-reloader \
 		--interval 0 \
@@ -112,7 +112,7 @@ run-once-fs: install
 		--fs-dir=examples \
 		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
-run-once: install
+run-once: build
 	rm -fr tmp
 	./config-reloader \
 		--interval 0 \
@@ -125,7 +125,7 @@ run-once: install
 		--meta-values=aws_region=us-west-2,csp_cluster=mon \
 		--fluentd-binary "fluentd/fake-fluentd.sh -p /plugins"
 
-run-loop: install
+run-loop: build
 	rm -fr tmp
 	./config-reloader \
 		--interval 5 \

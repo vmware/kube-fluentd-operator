@@ -56,19 +56,19 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 
 	tmpfile, err := ioutil.TempFile("", "validate-ext-"+namespace)
 	if err != nil {
-		logrus.Errorf("error creating temporary file: %s", err.Error())
+		logrus.Errorf("error creating temporary file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 	defer os.Remove(tmpfile.Name())
 
 	config += justExitPluginDirective
 	if _, err = tmpfile.WriteString(config); err != nil {
-		logrus.Errorf("error writing config to temp file: %s", err.Error())
+		logrus.Errorf("error writing config to temp file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 
 	if err := tmpfile.Close(); err != nil {
-		logrus.Errorf("error closing temp file: %s", err.Error())
+		logrus.Errorf("error closing temp file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 
@@ -86,7 +86,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 
 	logrus.Debugf("Checked config for namespace %s with fluentd and got: %s", namespace, out)
 	if err != nil {
-		logrus.Errorf("error running validation command: %s", err.Error())
+		logrus.Errorf("error running validation command for namespace %s: %s", namespace, err.Error())
 		return errors.New(out)
 	}
 
@@ -100,18 +100,18 @@ func (v *validatorState) ValidateConfig(config string, namespace string) error {
 
 	tmpfile, err := ioutil.TempFile("", "validate-"+namespace)
 	if err != nil {
-		logrus.Errorf("error creating temporary file: %s", err.Error())
+		logrus.Errorf("error creating temporary file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 	defer os.Remove(tmpfile.Name())
 
 	if _, err = tmpfile.WriteString(config); err != nil {
-		logrus.Errorf("error writing config to temp file: %s", err.Error())
+		logrus.Errorf("error writing config to temp file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 
 	if err := tmpfile.Close(); err != nil {
-		logrus.Errorf("error closing temp file: %s", err.Error())
+		logrus.Errorf("error closing temp file for namespace %s: %s", namespace, err.Error())
 		return err
 	}
 
@@ -129,7 +129,7 @@ func (v *validatorState) ValidateConfig(config string, namespace string) error {
 
 	logrus.Debugf("Checked config for namespace %s with fluentd and got: %s", namespace, out)
 	if err != nil {
-		logrus.Errorf("error running command: %s", err.Error())
+		logrus.Errorf("error running command in namespace %s: %s", namespace, err.Error())
 		return errors.New(out)
 	}
 

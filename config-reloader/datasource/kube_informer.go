@@ -333,7 +333,7 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 
 func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interface{}) {
 	mObj := obj.(*core.Pod)
-	logrus.Debugf("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
+	logrus.Tracef("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
 	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
 	nsConfigStr := fmt.Sprintf("%#v", configdata)
 
