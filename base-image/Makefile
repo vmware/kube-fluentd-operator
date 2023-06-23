@@ -20,7 +20,6 @@ run: build-image
 	  -v `pwd`/failsafe.conf:/fluentd/etc/fluent.conf \
 	  -v /var/log:/var/log \
 	  -v /var/run:/var/run \
-	  -e FLUENTD_OPT="--no-supervisor" \
 	  $(IMAGE):$(TAG)
 
 test: build-image
@@ -29,9 +28,9 @@ test: build-image
 	  -v `pwd`:/workspace \
 	  -v `pwd/plugins`:/fluentd/plugins \
 	  -v `pwd`/test/local.conf:/fluentd/etc/fluent.conf \
-	  -e FLUENTD_OPT="--no-supervisor" \
-		-e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
-		-e PAPERTRAIL_HOST=$$PAPERTRAIL_HOST \
+	  -p 0.0.0.0:24231:24231 \
+	  -e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
+	  -e PAPERTRAIL_HOST=$$PAPERTRAIL_HOST \
 	  $(IMAGE):$(TAG)
 
 list-gems:

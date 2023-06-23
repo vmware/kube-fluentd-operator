@@ -56,6 +56,7 @@ type Config struct {
 	ParsedMetaValues    map[string]string
 	ParsedLabelSelector labels.Set
 	ExecTimeoutSeconds  int
+	SplitPattern        string
 }
 
 var defaultConfig = &Config{
@@ -78,6 +79,7 @@ var defaultConfig = &Config{
 	MetricsPort:          9000,
 	AdminNamespace:       "kube-system",
 	ExecTimeoutSeconds:   30,
+	SplitPattern:         "",
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -249,6 +251,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("allow-tag-expansion", "Allow specifying tags in the format 'k.{a,b}.** k.c.**' (default: false)").BoolVar(&cfg.AllowTagExpansion)
 
 	app.Flag("admin-namespace", "Configurations defined in this namespace are copied as is, without further processing. Virtual plugins can also be defined in this namespace").Default(defaultConfig.AdminNamespace).StringVar(&cfg.AdminNamespace)
+
+	app.Flag("split-pattern", "Configurations defined special pattern for different workers").Default(defaultConfig.SplitPattern).StringVar(&cfg.SplitPattern)
 
 	app.Flag("exec-timeout", "Timeout duration (in seconds) for exec command during validation").Default(strconv.Itoa(defaultConfig.ExecTimeoutSeconds)).IntVar(&cfg.ExecTimeoutSeconds)
 	_, err := app.Parse(args)

@@ -337,9 +337,11 @@ func (g *generatorInstance) renderIncludableFile(templateFile string, dest strin
 	model := struct {
 		ID                string
 		PrometheusEnabled bool
+		SplitPattern      string
 	}{
 		ID:                util.MakeFluentdSafeName(g.cfg.ID),
 		PrometheusEnabled: g.cfg.PrometheusEnabled,
+		SplitPattern:      g.cfg.SplitPattern,
 	}
 
 	err = util.TemplateAndWriteFile(tmpl, model, dest)
