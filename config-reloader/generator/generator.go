@@ -337,9 +337,11 @@ func (g *generatorInstance) renderIncludableFile(templateFile string, dest strin
 	model := struct {
 		ID                string
 		PrometheusEnabled bool
+		ReadBytesLimit    int
 	}{
 		ID:                util.MakeFluentdSafeName(g.cfg.ID),
 		PrometheusEnabled: g.cfg.PrometheusEnabled,
+		ReadBytesLimit:    g.cfg.ReadBytesLimit,
 	}
 
 	err = util.TemplateAndWriteFile(tmpl, model, dest)
