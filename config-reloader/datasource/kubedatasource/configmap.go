@@ -143,6 +143,7 @@ func (c *ConfigMapDS) readConfig(configmaps []*core.ConfigMap) string {
 			logrus.Debugf("Loaded config data from config map: %s/%s", cm.ObjectMeta.Namespace, cm.ObjectMeta.Name)
 		} else {
 			logrus.Warnf("cannot find entry %s in configmap %s/%s", entryName, cm.ObjectMeta.Namespace, cm.ObjectMeta.Name)
+			return ""
 		}
 	}
 	return strings.Join(configdata, "\n")

@@ -160,7 +160,10 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		if err != nil {
 			return nil, err
 		}
-
+		if configdata == "" {
+			logrus.Infof("Skipping namespace: %v because is empty", ns)
+			continue
+		}
 		fragment, err := fluentd.ParseString(configdata)
 		if err != nil {
 			return nil, err
