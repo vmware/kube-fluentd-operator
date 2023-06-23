@@ -56,6 +56,7 @@ type Config struct {
 	ParsedMetaValues    map[string]string
 	ParsedLabelSelector labels.Set
 	ExecTimeoutSeconds  int
+	ReadBytesLimit      int
 }
 
 var defaultConfig = &Config{
@@ -78,6 +79,7 @@ var defaultConfig = &Config{
 	MetricsPort:          9000,
 	AdminNamespace:       "kube-system",
 	ExecTimeoutSeconds:   30,
+	ReadBytesLimit:       51200,
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -251,6 +253,9 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("admin-namespace", "Configurations defined in this namespace are copied as is, without further processing. Virtual plugins can also be defined in this namespace").Default(defaultConfig.AdminNamespace).StringVar(&cfg.AdminNamespace)
 
 	app.Flag("exec-timeout", "Timeout duration (in seconds) for exec command during validation").Default(strconv.Itoa(defaultConfig.ExecTimeoutSeconds)).IntVar(&cfg.ExecTimeoutSeconds)
+
+	app.Flag("container-bytes-limit", "read_bytes_limit_per_second parameter for tail plugin per container file. Default 2MB/min").Default(strconv.Itoa(defaultConfig.ReadBytesLimit)).IntVar(&cfg.ReadBytesLimit)
+
 	_, err := app.Parse(args)
 
 	if err != nil {
