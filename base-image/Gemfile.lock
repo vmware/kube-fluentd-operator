@@ -164,9 +164,6 @@ GEM
       faraday_middleware-aws-sigv4 (~> 1.0.1)
       fluentd (>= 0.14.22)
       opensearch-ruby
-    fluent-plugin-out-http (1.3.3)
-      fluentd (>= 0.14.22, < 2)
-      yajl-ruby (~> 1.0)
     fluent-plugin-papertrail (0.2.8)
       fluent-mixin-config-placeholders (~> 0.4.0)
       fluentd (>= 0.10, < 2)
@@ -419,7 +416,6 @@ DEPENDENCIES
   fluent-plugin-multi-format-parser (= 1.0.0)
   fluent-plugin-mysqlslowquery (= 0.0.9)
   fluent-plugin-opensearch (= 1.1.0)
-  fluent-plugin-out-http (= 1.3.3)
   fluent-plugin-papertrail (= 0.2.8)
   fluent-plugin-prometheus (= 2.1.0)
   fluent-plugin-record-modifier (= 2.1.0)
