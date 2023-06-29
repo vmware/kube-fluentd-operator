@@ -82,6 +82,7 @@ func (g *generatorInstance) makeNamespaceConfiguration(ns *datasource.NamespaceC
 
 	fragment, err := fluentd.ParseString(ns.FluentdConfig)
 	if err != nil {
+		logrus.Errorf("Error parsing config for namespace %s: %v", ns.Name, err)
 		return "", "", err
 	}
 
@@ -173,6 +174,7 @@ func (g *generatorInstance) renderMainFile(ctx context.Context, mainFile string,
 
 		fragment, err := fluentd.ParseString(nsConf.FluentdConfig)
 		if err != nil {
+			logrus.Errorf("Error parsing config for namespace %s: %v", nsConf.Name, err)
 			return nil, err
 		}
 
@@ -298,6 +300,7 @@ func (g *generatorInstance) generatePrepareConfigs(genCtx *processors.Generation
 func (g *generatorInstance) makeValidationTrailer(ns *datasource.NamespaceConfig, genCtx *processors.GenerationContext) fluentd.Fragment {
 	fragment, err := fluentd.ParseString(ns.FluentdConfig)
 	if err != nil {
+		logrus.Errorf("Error parsing config for namespace %s: %v", ns.Name, err)
 		return nil
 	}
 
