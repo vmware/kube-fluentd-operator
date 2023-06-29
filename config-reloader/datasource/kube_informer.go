@@ -166,6 +166,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		}
 		fragment, err := fluentd.ParseString(configdata)
 		if err != nil {
+			logrus.Errorf("Error parsing config for ns %s: %v", ns, err)
 			return nil, err
 		}
 

@@ -9,8 +9,7 @@ config-reloader \
   --templates-dir=/templates \
   --datasource=fs \
   --fs-dir=${DATASOURCE_DIR} \
-  --fluentd-binary "/usr/local/bin/fluentd -p /fluentd/plugins" &> /dev/null
-
+  --fluentd-binary "/usr/local/bundle/bin/fluentd -p /fluentd/plugins"
 
 rc=0
 
