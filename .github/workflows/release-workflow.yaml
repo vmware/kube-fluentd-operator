@@ -21,7 +21,7 @@ jobs:
           cd base-image && make build-image
       - name: push-image
         run: |
-          cd config-reloader && make push-image
+          cd config-reloader && make push-image && make push-latest
         env:
           TAG: ${{github.ref_name}}
 
