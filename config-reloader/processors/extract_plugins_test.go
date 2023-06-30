@@ -10,7 +10,7 @@ import (
 func TestExtracPluginsFromKubeSystem(t *testing.T) {
 	s := `
 	<match kube.kube-system.**>
-	  @type loggly
+	  @type logzio_buffered
 	</match>
 
 	<plugin p1>
