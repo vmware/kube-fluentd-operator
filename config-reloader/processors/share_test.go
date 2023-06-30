@@ -69,8 +69,8 @@ func TestProcessShareDirectiveFromReceivingNs(t *testing.T) {
 	//   </store>
 	// </match>
 	// <match **>
-	//   @type loggly
-	//   loggly_url https://logs-01.loggly.com/inputs/$LOGGLY_TOKEN/tag/fluentd
+	//   @type logzio_buffered
+	//   endpoint_url https://listener.logz.io:8071?token=$LOGZ_TOKEN
 	// </match>
 	//`
 

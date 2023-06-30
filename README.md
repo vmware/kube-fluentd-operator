@@ -77,12 +77,12 @@ bad tag for <match>: hello-world. Tag must start with **, $thisns or demo
 
 When the configuration is made valid again the `fluentd-status` is set to "".
 
-To see kube-fluentd-operator in action you need a cloud log collector like logz.io, loggly, papertrail or ELK accessible from the K8S cluster. A simple loggly configuration looks like this (replace TOKEN with your customer token):
+To see kube-fluentd-operator in action you need a cloud log collector like logz.io, papertrail or ELK accessible from the K8S cluster. A simple logz.io configuration looks like this (replace TOKEN with your customer token):
 
 ```xml
 <match **>
-   @type loggly
-   loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+   @type logzio_buffered
+   endpoint_url https://listener.logz.io:8071?token=$TOKEN
 </match>
 ```
 
@@ -264,12 +264,12 @@ A very useful feature is the `<filter>` and the `$labels` macro to define parsin
 </filter>
 
 <match **>
-  @type loggly
+  @type logzio_buffered
   # destination config omitted
 </match>
 ```
 
-The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to loggly. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allows for targeting the log stream of a specific container in a multi-container pod.
+The above config will pipe all logs from the pods labelled with `app=log-router` through a [logfmt](https://github.com/vmware/kube-fluentd-operator/blob/master/base-image/plugins/parser_logfmt.rb) parser before sending them to logz.io. Again, this configuration is valid in any namespace. If the namespace doesn't contain any `log-router` components then the `<filter>` directive is never activated. The `_container` is sort of a "meta" label and it allows for targeting the log stream of a specific container in a multi-container pod.
 
 If you use [Kubernetes recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/) for the pods and deployments, then KFO will rewrite `.` characters into `_`.
 
@@ -431,13 +431,13 @@ Also, users don't need to bother with setting the correct `stream` parameter. *k
 
 ### Reusing output plugin definitions (since v1.6.0)
 
-Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage, etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environment and you use loggly for a "staging" environment. The first thing you do is define these two output in the *admin* namespace:
+Sometimes you only have a few valid options for log sinks: a dedicated S3 bucket, the ELK stack you manage, etc. The only flexibility you're after is letting namespace owners filter and parse their logs. In such cases you can abstract over an output plugin configuration - basically reducing it to a simple name which can be referenced from any namespace. For example, let's assume you have an S3 bucket for a "test" environment and you use logz.io for a "staging" environment. The first thing you do is define these two output in the *admin* namespace:
 
 ```xml
 admin-ns.conf:
 <match systemd.** docker kube.kube-system.** k8s.**>
-  @type loggly
-  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+  @type logzio_buffered
+  endpoint_url https://listener.logz.io:8071?token=$TOKEN
 </match>
 
 <plugin test>
@@ -449,8 +449,8 @@ admin-ns.conf:
 </plugin>
 
 <plugin staging>
-  @type loggly
-  loggly_url https://logs-01.loggly.com/inputs/TOKEN/tag/fluentd
+  @type logzio_buffered
+  endpoint_url https://listener.logz.io:8071?token=$TOKEN
 </plugin>
 ```
 
@@ -682,7 +682,6 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-kubernetes_sumologic (2.4.2)
 * fluent-plugin-kubernetes (0.3.1)
 * fluent-plugin-logentries (0.2.10)
-* fluent-plugin-loggly (1.0.0) - forked to fix for new fluentd api
 * fluent-plugin-logzio (0.0.22)
 * fluent-plugin-mail (0.3.0)
 * fluent-plugin-mongo (1.5.0)
