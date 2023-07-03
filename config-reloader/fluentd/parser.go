@@ -28,11 +28,13 @@ type Params map[string]*Param
 
 // Directive represents a fluentd directive:
 // <Name Tag>
-//   Params[0]
-//   Params[n]
-//   <Nested[0].Name Nested[0].Tag>
-//    ...etc
-//   </Nested[0].Name>
+//
+//	Params[0]
+//	Params[n]
+//	<Nested[0].Name Nested[0].Tag>
+//	 ...etc
+//	</Nested[0].Name>
+//
 // </Name>
 type Directive struct {
 	Name   string
