@@ -14,7 +14,7 @@ GEM
     amq-protocol (2.3.2)
     attr_required (1.0.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.782.0)
+    aws-partitions (1.783.0)
     aws-sdk-cloudwatchlogs (1.66.0)
       aws-sdk-core (~> 3, >= 3.176.0)
       aws-sigv4 (~> 1.1)
@@ -52,14 +52,14 @@ GEM
     connection_pool (2.4.1)
     cool.io (1.7.1)
     date (3.3.3)
-    digest-crc (0.6.4)
+    digest-crc (0.6.5)
       rake (>= 12.0.0, < 14.0.0)
     docker-api (2.2.0)
       excon (>= 0.47.0)
       multi_json
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    elastic-transport (8.2.1)
+    elastic-transport (8.2.2)
       faraday (< 3)
       multi_json
     elasticsearch (8.8.0)
@@ -215,7 +215,7 @@ GEM
       fluentd (>= 0.14.22, < 2)
       json
       vertica
-    fluent-plugin-vmware-log-intelligence (2.0.6)
+    fluent-plugin-vmware-log-intelligence (2.0.7)
       fluent-plugin-mysqlslowquery (>= 0.0.9)
       fluentd (>= 0.14.20)
       http (>= 0.9.8)
@@ -347,7 +347,7 @@ GEM
     serverengine (2.3.2)
       sigdump (~> 0.2.2)
     set (1.0.3)
-    sigdump (0.2.4)
+    sigdump (0.2.5)
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -389,7 +389,6 @@ GEM
 PLATFORMS
   ruby
   x86_64-darwin-21
-  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -433,7 +432,7 @@ DEPENDENCIES
   fluent-plugin-throttle (= 0.0.5)
   fluent-plugin-uri-parser (= 0.3.0)
   fluent-plugin-verticajson (= 0.0.6)
-  fluent-plugin-vmware-log-intelligence (= 2.0.6)
+  fluent-plugin-vmware-log-intelligence (= 2.0.7)
   fluent-plugin-vmware-loginsight (= 1.4.1)
   fluent-plugin-webhdfs (= 1.5.0)
   fluentd (= 1.16.1)

@@ -220,7 +220,7 @@ func TestConvertToFragment(t *testing.T) {
 	result := state.convertToFragement(specC1)
 	assert.Equal(t, 2, len(result))
 
-	dir := result[0]
+	dir := result[0].Nested[0]
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
@@ -240,7 +240,7 @@ func TestConvertToFragment(t *testing.T) {
 	result = state.convertToFragement(specC2)
 	assert.Equal(t, 2, len(result))
 
-	dir = result[0]
+	dir = result[0].Nested[0]
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
@@ -254,7 +254,7 @@ func TestConvertToFragment(t *testing.T) {
 	result = state.convertToFragement(specC3)
 	assert.Equal(t, 2, len(result))
 
-	dir = result[0]
+	dir = result[0].Nested[0]
 
 	assert.Equal(t, "source", dir.Name)
 	assert.Equal(t, "tail", dir.Type())
@@ -363,9 +363,9 @@ func TestProcessMountedFile(t *testing.T) {
 	prep, err := Prepare(input, ctx, state)
 	assert.Nil(t, err)
 	assert.Equal(t, 6, len(prep))
-	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Param("path"))
-	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Param("path"))
-	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", prep[4].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/123-id/volumes/kubernetes.io~empty-dir/logs/redis.log", prep[0].Nested[0].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-id/volumes/kubernetes.io~empty-dir/logs/nginx.log", prep[2].Nested[0].Param("path"))
+	assert.Equal(t, "/kubelet-root/pods/abc-sub-id/volumes/kubernetes.io~empty-dir/logs/files/nginx.log", prep[4].Nested[0].Param("path"))
 
 	payload := prep.String()
 	assert.True(t, strings.Contains(payload, "'container_image'=>'image-c2'"))

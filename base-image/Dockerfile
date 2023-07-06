@@ -18,7 +18,6 @@ ENV BUILDDEPS="\
       shadow \
       which \
       wget \
-      which \
       vim \
       git \
       less \
@@ -48,7 +47,7 @@ RUN tdnf clean all && \
 
 SHELL [ "/bin/bash", "-l", "-c" ]
 
-COPY failsafe.conf entrypoint.sh Gemfile Gemfile.lock /fluentd/
+COPY entrypoint.sh Gemfile Gemfile.lock /fluentd/
 
 # Install the gems with bundler is better practice
 # We need to keep this as a single layer because of the builddeps
@@ -63,6 +62,16 @@ RUN tdnf install -y $BUILDDEPS \
   && rvm install --disable-binary $RUBY_VERSION --default \
   && gem update --system --no-document \
   && gem install bundler -v '>= 2.4.15' --default --no-document \
+  && rm -rf $RVM_PATH/src $RVM_PATH/examples $RVM_PATH/docs $RVM_PATH/archives \
+    $RUBY_PATH/lib/ruby/gems/3.*/cache $RUBY_PATH/lib/ruby/gems/3.*/doc/ \
+    /usr/share/doc /root/.bundle/cache \
+  && rvm cleanup all \  
+  && gem sources --clear-all \
+  && gem cleanup \ 
+  && tdnf remove -y $BUILDDEPS \
+  && tdnf clean all
+
+RUN tdnf install -y $BUILDDEPS \
   && mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && echo 'gem: --no-document' >> /etc/gemrc \
   && bundle config silence_root_warning true \
@@ -74,17 +83,13 @@ RUN tdnf install -y $BUILDDEPS \
   && gem sources --clear-all \
   && ln -s $(which fluentd) /usr/local/bundle/bin/fluentd \
   && gem cleanup \
-  && rvm cleanup all \
-  && rm -rf $RVM_PATH/src $RVM_PATH/examples $RVM_PATH/docs $RVM_PATH/archives \
-     $RUBY_PATH/lib/ruby/gems/3.*/cache $RUBY_PATH/lib/ruby/gems/3.*/doc/ \
-     /usr/share/doc /root/.bundle/cache \
   ## Install jemalloc
   && curl -sLo /tmp/jemalloc-5.3.0.tar.bz2 https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2 \
   && tar -C /tmp/ -xjvf /tmp/jemalloc-5.3.0.tar.bz2 \
   && cd /tmp/jemalloc-5.3.0 \
   && ./configure && make \
   && mv -v lib/libjemalloc.so* /usr/lib \
-  && rm -rf /tmp/jemalloc-5.3.0 /tmp/jemalloc-5.3.0.tar.bz2 \
+  && rm -rf /tmp/* \
   # cleanup build deps
   && tdnf remove -y $BUILDDEPS \
   && tdnf clean all

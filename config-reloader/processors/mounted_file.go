@@ -123,7 +123,12 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 						makeDefaultParseDirective(),
 					}
 				}
-				res = append(res, dir, state.makeAttachK8sMetadataDirective(tag, mc, cf))
+				workerDirective := &fluentd.Directive{
+					Name:   "worker",
+					Tag:    "1",
+					Nested: []*fluentd.Directive{dir},
+				}
+				res = append(res, workerDirective, state.makeAttachK8sMetadataDirective(tag, mc, cf))
 				break
 			}
 		}
