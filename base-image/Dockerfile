@@ -78,7 +78,13 @@ RUN mkdir -p /fluentd/log /fluentd/etc /fluentd/plugins /usr/local/bundle/bin/ \
   && cd fluent-plugin-loggly \
   && gem build fluent-plugin-loggly.gemspec \
   && gem install fluent-plugin-loggly-*.gem \
-  && rm -rf /fluentd/fluent-plugin-loggly
+  && rm -rf /fluentd/fluent-plugin-loggly \
+  && cd /fluentd \
+  && git clone https://github.com/slimm609/fluent-plugin-detect-exceptions.git fluent-plugin-detect-exceptions \
+  && cd fluent-plugin-detect-exceptions \
+  && gem build fluent-plugin-detect-exceptions.gemspec \
+  && gem install fluent-plugin-detect-exceptions-*.gem \
+  && rm -rf /fluentd/fluent-plugin-detect-exceptions
 
 COPY plugins /fluentd/plugins
 

@@ -105,8 +105,6 @@ GEM
     fluent-plugin-datadog (0.14.2)
       fluentd (>= 1, < 2)
       net-http-persistent (~> 4.0.1)
-    fluent-plugin-detect-exceptions (0.0.15)
-      fluentd (>= 0.10)
     fluent-plugin-elasticsearch (5.3.0)
       elasticsearch
       excon
@@ -400,7 +398,6 @@ DEPENDENCIES
   fluent-plugin-cloudwatch-logs (= 0.14.3)
   fluent-plugin-concat (= 2.5.0)
   fluent-plugin-datadog (= 0.14.2)
-  fluent-plugin-detect-exceptions (~> 0.0.15)
   fluent-plugin-elasticsearch (= 5.3.0)
   fluent-plugin-gelf-hs (= 1.0.8)
   fluent-plugin-grafana-loki (= 1.2.20)
