@@ -27,12 +27,14 @@ test: build-image
 	docker run -ti --rm \
 	  --net=host \
 	  -v `pwd`:/workspace \
-	  -v `pwd/plugins`:/fluentd/plugins \
+	  -v `pwd`/test/containers:/var/log/containers \
+	  -v `pwd`/test/input.conf:/fluentd/etc/input.conf \
 	  -v `pwd`/test/local.conf:/fluentd/etc/fluent.conf \
 	  -e FLUENTD_OPT="--no-supervisor" \
-		-e PAPERTRAIL_PORT=$$PAPERTRAIL_PORT \
-		-e PAPERTRAIL_HOST=$$PAPERTRAIL_HOST \
 	  $(IMAGE):$(TAG)
+
+build-test-ci: build-image
+	go test -mod=readonly -v -count=1 --race ./...
 
 list-gems:
 	@docker run -ti --rm \

@@ -22,7 +22,8 @@ jobs:
           cd config-reloader && make test
       - name: build-base-image
         run: |
-          cd base-image && make
+          export TESTCONTAINERS_RYUK_DISABLED=true
+          cd base-image && make build-test-ci
       - name: build-config-reloader
         run: |
           cd config-reloader && make build-image TAG=v$GITHUB_SHA_SHORT

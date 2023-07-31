@@ -1,0 +1,7 @@
+[{"message":"2018-02-26T14:20:53Z vmware-test.test.io/hello-db:ping","greeting_target":"db-server"}
+,{"message":"2018-02-27T14:20:53Z vmware-test.test.io/hello-mq:ping","greeting_target":"mq-server"}
+,{"message":"2018-02-28T14:20:53Z vmware-test.test.io/hello-zk:ping","greeting_target":"zk-server"}
+,{"message":"2018-02-28T14:20:53Z vmware-test.test.io/goodbye-zk:ping","farewell":"zk-server"}
+,{"message":"2018-02-28T14:20:53Z vmware-test.test.io/goodbye-mq:ping","farewell":"mq-server"}
+,{"message":"2018-02-28T14:20:53Z vmware-test.test.io/goodbye-db:ping","farewell":"db-server"}
+]

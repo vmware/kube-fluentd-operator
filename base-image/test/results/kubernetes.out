@@ -1,0 +1,16 @@
+[{"severity":"I","pid":"5","source":"wrap.go:42","message":"GET /api/v1/namespaces/default: (1.116619ms) 200 [[kube-apiserver/v1.8.4 (linux/amd64) kubernetes/9befc2b] 127.0.0.1:43212]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"GET /api/v1/namespaces/default/services/kubernetes: (807.798µs) 200 [[kube-apiserver/v1.8.4 (linux/amd64) kubernetes/9befc2b] 127.0.0.1:43212]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"GET /api/v1/namespaces/default/endpoints/kubernetes: (745.314µs) 200 [[kube-apiserver/v1.8.4 (linux/amd64) kubernetes/9befc2b] 127.0.0.1:43212]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"GET /api/v1/namespaces/kube-system/endpoints/kube-scheduler: (1.663257ms) 200 [[kube-scheduler/v1.8.4 (linux/amd64) kubernetes/9befc2b/leader-election] 127.0.0.1:43404]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"PUT /api/v1/namespaces/kube-system/endpoints/kube-scheduler: (5.392973ms) 200 [[kube-scheduler/v1.8.4 (linux/amd64) kubernetes/9befc2b/leader-election] 127.0.0.1:43404]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"POST /api/v1/namespaces/kube-system/serviceaccounts: (4.972082ms) 409 [[protokube/v1.8.1 (linux/amd64) kubernetes/$Format] 127.0.0.1:43894]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"POST /api/v1/namespaces/kube-system/serviceaccounts: (4.161523ms) 409 [[protokube/v1.8.1 (linux/amd64) kubernetes/$Format] 127.0.0.1:43894]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"POST /apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings: (3.812747ms) 409 [[protokube/v1.8.1 (linux/amd64) kubernetes/$Format] 127.0.0.1:43894]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"PUT /apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings/kubeadm:node-proxier: (1.005593ms) 200 [[protokube/v1.8.1 (linux/amd64) kubernetes/$Format] 127.0.0.1:43894]"}
+,{"severity":"I","pid":"5","source":"wrap.go:42","message":"GET /apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations: (3.750217ms) 200 [[kube-apiserver/v1.8.4 (linux/amd64) kubernetes/9befc2b] 127.0.0.1:43212]"}
+,{"severity":"I","pid":"8","source":"aws.go:2594","message":"Ignoring private subnet for public ELB \"subnet-234\""}
+,{"severity":"I","pid":"8","source":"aws.go:2594","message":"Ignoring private subnet for public ELB \"subnet-dfsg\""}
+,{"severity":"I","pid":"8","source":"aws.go:2594","message":"Ignoring private subnet for public ELB \"subnet-asdf\""}
+,{"severity":"I","pid":"8","source":"aws.go:2256","message":"Existing security group ingress: sg-asdfd []"}
+,{"severity":"I","pid":"8","source":"aws.go:2287","message":"Adding security group ingress: sg-asdf [{"}
+]
