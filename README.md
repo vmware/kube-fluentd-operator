@@ -22,18 +22,18 @@ The easiest way to get started is using the Helm chart. Official images are not 
 git clone git@github.com:vmware/kube-fluentd-operator.git
 helm install kfo ./kube-fluentd-operator/charts/log-router \
   --set rbac.create=true \
-  --set image.tag=v1.17.2 \
+  --set image.tag=v1.17.6 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
 Alternatively, deploy the Helm chart from a Github release:
 
 ```bash
-CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.17.2/log-router-0.4.0.tgz'
+CHART_URL='https://github.com/vmware/kube-fluentd-operator/releases/download/v1.17.6/log-router-0.4.0.tgz'
 
 helm install kfo ${CHART_URL} \
   --set rbac.create=true \
-  --set image.tag=v1.17.2 \
+  --set image.tag=v1.17.6 \
   --set image.repository=vmware/kube-fluentd-operator
 ```
 
@@ -635,31 +635,10 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 | Fluentd version            | Operator version        |
 |----------------------------|-------------------------|
 | 0.12.x                     | 1.0.0                   |
-| 1.1.0                      | 1.2.0                   |
-| 1.1.3                      | 1.3.0                   |
-| 1.2.6                      | 1.8.0                   |
-| 1.5.2                      | 1.10.0                  |
-| 1.9.1                      | 1.12.0                  |
-| 1.12.2                     | 1.14.0                  |
-| 1.12.3                     | 1.14.1                  |
-| 1.13.0                     | 1.15.0                  |
-| 1.13.1                     | 1.15.1                  |
-| 1.13.3                     | 1.15.2                  |
-| 1.14.0                     | 1.15.3                  |
-| 1.14.1                     | 1.16.0                  |
-| 1.14.2                     | 1.16.1                  |
-| 1.14.2                     | 1.16.2                  |
-| 1.14.4                     | 1.16.3                  |
-| 1.14.4                     | 1.16.4                  |
-| 1.14.4                     | 1.16.5                  |
-| 1.14.6                     | 1.16.6                  |
-| 1.14.6                     | 1.16.7                  |
-| 1.15.3                     | 1.16.8                  |
-| 1.15.3                     | 1.17.0                  |
 | 1.15.3                     | 1.17.1                  |
-| 1.16.1                     | 1.17.2                  |
+| 1.16.1                     | 1.17.6                  |
 
-## Plugins in latest release (1.17.2)
+## Plugins in latest release (1.17.6)
 
 `kube-fluentd-operator` aims to be easy to use and flexible. It also favors sending logs to multiple destinations using `<copy>` and as such comes with many plugins pre-installed:
 
@@ -686,9 +665,8 @@ This projects tries to keep up with major releases for [Fluentd docker image](ht
 * fluent-plugin-mail (0.3.0)
 * fluent-plugin-mongo (1.5.0)
 * fluent-plugin-multi-format-parser (1.0.0)
-* fluent-plugin-out-http (1.3.3)
 * fluent-plugin-papertrail (0.2.8)
-* fluent-plugin-prometheus (2.0.3)
+* fluent-plugin-prometheus (2.1.0)
 * fluent-plugin-record-modifier (2.1.0)
 * fluent-plugin-record-reformer (0.9.1)
 * fluent-plugin-redis (0.3.5)

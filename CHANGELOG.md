@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [v1.17.6](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.6)
+## What's Changed
+* feat: update prometheus plugin by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/398
+* feat: remove http out plugin by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/399
+* fix: add follow_inode to wildcard by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/400
+* feat: re-add validator command by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/401
+* feat: publish latest image by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/402
+* fix: reduce image size and refactor layers by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/405
+* feat: add k8s unittest for k8s by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/404
+* feat: add de_dot plugin by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/408
+* fix: correct dockerfile by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/409
+
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.17.3...v1.17.6
+
 ## [v1.17.2](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.2)
 
 
