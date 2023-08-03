@@ -167,7 +167,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		fragment, err := fluentd.ParseString(configdata)
 		if err != nil {
 			logrus.Errorf("Error parsing config for ns %s: %v", ns, err)
-			return nil, err
+			continue
 		}
 
 		var mountedLabels []map[string]string
@@ -189,7 +189,8 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		// under consideration
 		pods, err := d.podlist.Pods(ns).List(labels.NewSelector())
 		if err != nil {
-			return nil, err
+			logrus.Errorf("Error listing pod in ns %s: %v", ns, err)
+			continue
 		}
 		podsCopy := make([]core.Pod, len(pods))
 		for i, pod := range pods {
