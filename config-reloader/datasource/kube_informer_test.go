@@ -21,11 +21,11 @@ type testConfig struct {
 	expectErr      bool
 	expectedResult int
 	namespaces     []string
-	configmap      map[string]string
-	configmapData  map[string]string
+	configmap      map[string][]string
+	configmapData  map[string]map[string]string
 }
 
-func importK8sObjects(factory informers.SharedInformerFactory, namespaces []string, configmaps map[string]string, configmapData map[string]string) {
+func importK8sObjects(factory informers.SharedInformerFactory, namespaces []string, configmaps map[string][]string, configmapData map[string]map[string]string) {
 	for _, ns := range namespaces {
 		factory.Core().V1().Namespaces().Informer().GetIndexer().Add(
 			&corev1.Namespace{
@@ -35,16 +35,18 @@ func importK8sObjects(factory informers.SharedInformerFactory, namespaces []stri
 			},
 		)
 	}
-	for cm, ns := range configmaps {
-		factory.Core().V1().ConfigMaps().Informer().GetIndexer().Add(
-			&corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      cm,
-					Namespace: ns,
+	for ns, cms := range configmaps {
+		for _, cm := range cms {
+			factory.Core().V1().ConfigMaps().Informer().GetIndexer().Add(
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      cm,
+						Namespace: ns,
+					},
+					Data: configmapData[ns],
 				},
-				Data: configmapData,
-			},
-		)
+			)
+		}
 	}
 }
 
@@ -80,10 +82,9 @@ func TestGetNamespaces(t *testing.T) {
 				"test-empty",
 				"test-empty-2",
 			},
-			configmap: map[string]string{
-				"fluentd-config": "test-empty",
-				"my-configmap1":  "test-empty",
-				"my-configmap2":  "test-empty-2",
+			configmap: map[string][]string{
+				"test-empty":   {"fluentd-config", "my-configmap1"},
+				"test-empty-2": {"my-configmap2"},
 			},
 		},
 		{
@@ -101,10 +102,34 @@ func TestGetNamespaces(t *testing.T) {
 				"test-not-empty",
 				"test-not-empty-2",
 			},
-			configmap: map[string]string{
-				"fluentd-config": "test-not-empty",
+			configmap: map[string][]string{
+				"test-not-empty": {"fluentd-config"},
 			},
-			configmapData: map[string]string{"fluent.conf": "<match **>\n@type stdout\n</match>"},
+			configmapData: map[string]map[string]string{"test-not-empty": {"fluent.conf": "<match **>\n@type stdout\n</match>"}},
+		},
+		{
+			//TestCase: Two Namespaces, one fluentd config wrong. Result 1
+			config: config.Config{
+				Datasource:           "default",
+				DefaultConfigmapName: "fluentd-config",
+				AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
+				AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
+				ID:                   "default",
+			},
+			expectErr:      false,
+			expectedResult: 1,
+			namespaces: []string{
+				"test-not-empty",
+				"test-not-empty-2",
+			},
+			configmap: map[string][]string{
+				"test-not-empty":   {"fluentd-config"},
+				"test-not-empty-2": {"fluentd-config"},
+			},
+			configmapData: map[string]map[string]string{
+				"test-not-empty":   {"fluent.conf": "<match **>\n@type stdout\n</match>"},
+				"test-not-empty-2": {"fluent.conf": "<filter **>\n></filter><match **>\n@type stdout\n</match>"},
+			},
 		},
 	}
 	for _, config := range configs {
@@ -169,10 +194,9 @@ func TestDiscoverNamespaces(t *testing.T) {
 				"test1",
 				"test2",
 			},
-			configmap: map[string]string{
-				"configmap1":     "test1",
-				"configmap2":     "test2",
-				"fluentd-config": "test1",
+			configmap: map[string][]string{
+				"test1": {"configmap1", "fluentd-config"},
+				"test2": {"configmap2"},
 			},
 		},
 	}
