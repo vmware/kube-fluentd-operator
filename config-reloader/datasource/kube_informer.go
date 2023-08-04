@@ -13,6 +13,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -267,13 +268,31 @@ func (d *kubeInformerConnection) UpdateStatus(ctx context.Context, namespace str
 }
 
 // discoverNamespaces constructs a list of namespaces to inspect for fluentd
-// configuration, using the configured list if provided, otherwise find only
+// configuration, using the configured list if provided, or find namespaces based on labels if provided in --namespace-selector flag, otherwise find only
 // namespaces that have fluentd configmaps based on default name, and if that fails
 // find all namespace and iterrate through them.
 func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]string, error) {
 	var namespaces []string
 	if len(d.cfg.Namespaces) != 0 {
 		namespaces = d.cfg.Namespaces
+	} else if d.cfg.NamespaceSelector != "" {
+		// create label selector to list namespaces based on labels provided in namespace-selector flag
+		nsLabelSelector := labels.NewSelector()
+		for _, label := range strings.Split(d.cfg.NamespaceSelector, ",") {
+			nsLabelSelectorRequirement, err := labels.NewRequirement(strings.Split(label, "=")[0], selection.Equals, []string{strings.Split(label, "=")[1]})
+			if err != nil {
+				return nil, err
+			}
+			nsLabelSelector = nsLabelSelector.Add(*nsLabelSelectorRequirement)
+		}
+		nses, err := d.nslist.List(nsLabelSelector)
+		if err != nil {
+			return nil, err
+		}
+		for _, ns := range nses {
+			namespaces = append(namespaces, ns.Name)
+		}
+
 	} else {
 		if d.cfg.Datasource == "crd" {
 			logrus.Infof("Discovering only namespaces that have fluentdconfig crd defined.")
