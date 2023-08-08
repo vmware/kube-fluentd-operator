@@ -47,6 +47,7 @@ type Config struct {
 	LabelSelector          string
 	KubeletRoot            string
 	Namespaces             []string
+	NamespaceSelector      string
 	PrometheusEnabled      bool
 	MetricsPort            int
 	AllowTagExpansion      bool
