@@ -5,7 +5,6 @@ package controller
 
 import (
 	"context"
-	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
@@ -18,6 +17,7 @@ import (
 type Controller interface {
 	Run(ctx context.Context, stop <-chan struct{})
 	RunOnce(ctx context.Context) error
+	GetTotalConfigNS() int
 }
 
 type controllerInstance struct {
@@ -32,31 +32,18 @@ type controllerInstance struct {
 var _ Controller = &controllerInstance{}
 
 // New creates new controller
-func New(ctx context.Context, cfg *config.Config) (Controller, error) {
-	var ds datasource.Datasource
-	var up Updater
-	var err error
+func New(ctx context.Context, cfg *config.Config, ds datasource.Datasource, up Updater) (Controller, error) {
+
 	var reloader *fluentd.Reloader
-
-	switch cfg.Datasource {
-	case "fake":
-		ds = datasource.NewFakeDatasource(ctx)
-		up = NewFixedTimeUpdater(ctx, cfg.IntervalSeconds)
-	case "fs":
-		ds = datasource.NewFileSystemDatasource(ctx, cfg.FsDatasourceDir, cfg.OutputDir)
-		up = NewFixedTimeUpdater(ctx, cfg.IntervalSeconds)
-	default:
-		updateChan := make(chan time.Time, 1)
-		ds, err = datasource.NewKubernetesInformerDatasource(ctx, cfg, updateChan)
-		if err != nil {
-			return nil, err
-		}
-		reloader = fluentd.NewReloader(ctx, cfg.FluentdRPCPort)
-		up = NewOnDemandUpdater(ctx, updateChan)
-	}
-
 	gen := generator.New(ctx, cfg)
 	gen.SetStatusUpdater(ctx, ds)
+
+	switch cfg.Datasource {
+	case "fake", "fs":
+		logrus.Infof("Setting reloader to null because is running locally")
+	default:
+		reloader = fluentd.NewReloader(ctx, cfg.FluentdRPCPort)
+	}
 
 	return &controllerInstance{
 		Updater:    up,
@@ -132,4 +119,8 @@ func (c *controllerInstance) Run(ctx context.Context, stop <-chan struct{}) {
 			return
 		}
 	}
+}
+
+func (c *controllerInstance) GetTotalConfigNS() int {
+	return c.numTotalConfigNS
 }

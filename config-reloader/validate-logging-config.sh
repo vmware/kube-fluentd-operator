@@ -11,6 +11,7 @@ for a in $@; do
   fi
 
   p="$(realpath "$a")"
+  echo -e "Validating $p"
   docker run --entrypoint=/bin/validate-from-dir.sh \
     --net=host \
     --rm \

@@ -6,7 +6,7 @@ package fluentd
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -38,7 +38,7 @@ func (r *Reloader) ReloadConfiguration() {
 		logrus.Errorf("fluentd config.gracefulReload request failed: %+v", err)
 	} else if resp.StatusCode != 200 {
 		defer resp.Body.Close()
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		logrus.Errorf("fluentd config.gracefulReload endpoint returned statuscode %v; response: %v", resp.StatusCode, string(body))
 	}
 }
