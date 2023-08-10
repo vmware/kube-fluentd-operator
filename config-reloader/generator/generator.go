@@ -329,8 +329,13 @@ func (g *generatorInstance) updateStatus(ctx context.Context, namespace string, 
 	g.su.UpdateStatus(ctx, namespace, status)
 }
 
+func workerplus(n int) string {
+	return fmt.Sprintf("%d", 1+n)
+}
+
 func (g *generatorInstance) renderIncludableFile(templateFile string, dest string) (err error) {
-	tmpl, err := template.New(filepath.Base(templateFile)).ParseFiles(templateFile)
+	funcMap := template.FuncMap{"workerplus": workerplus}
+	tmpl, err := template.New(filepath.Base(templateFile)).Funcs(funcMap).ParseFiles(templateFile)
 	if err != nil {
 		logrus.Warnf("Error processing template file %s: %+v", templateFile, err)
 		return err
@@ -338,13 +343,17 @@ func (g *generatorInstance) renderIncludableFile(templateFile string, dest strin
 
 	// this is the model for the includable files
 	model := struct {
-		ID                string
-		PrometheusEnabled bool
-		ReadBytesLimit    int
+		ID                 string
+		PrometheusEnabled  bool
+		ReadBytesLimit     int
+		ParsedSplitPattern []string
+		RemovePatterns     []string
 	}{
-		ID:                util.MakeFluentdSafeName(g.cfg.ID),
-		PrometheusEnabled: g.cfg.PrometheusEnabled,
-		ReadBytesLimit:    g.cfg.ReadBytesLimit,
+		ID:                 util.MakeFluentdSafeName(g.cfg.ID),
+		PrometheusEnabled:  g.cfg.PrometheusEnabled,
+		ReadBytesLimit:     g.cfg.ReadBytesLimit,
+		ParsedSplitPattern: g.cfg.ParsedSplitPattern,
+		RemovePatterns:     g.cfg.ParsedRemovePatterns,
 	}
 
 	err = util.TemplateAndWriteFile(tmpl, model, dest)

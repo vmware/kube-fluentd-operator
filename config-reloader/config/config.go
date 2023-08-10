@@ -52,11 +52,15 @@ type Config struct {
 	AllowTagExpansion      bool
 	AdminNamespace         string
 	// parsed or processed/cached fields
-	level               logrus.Level
-	ParsedMetaValues    map[string]string
-	ParsedLabelSelector labels.Set
-	ExecTimeoutSeconds  int
-	ReadBytesLimit      int
+	level                logrus.Level
+	ParsedMetaValues     map[string]string
+	ParsedLabelSelector  labels.Set
+	ExecTimeoutSeconds   int
+	ReadBytesLimit       int
+	SplitPattern         string
+	ParsedSplitPattern   []string
+	RemovePatterns       string
+	ParsedRemovePatterns []string
 }
 
 var defaultConfig = &Config{
@@ -80,6 +84,8 @@ var defaultConfig = &Config{
 	AdminNamespace:       "kube-system",
 	ExecTimeoutSeconds:   30,
 	ReadBytesLimit:       51200,
+	SplitPattern:         "",
+	RemovePatterns:       "",
 }
 
 var reValidID = regexp.MustCompile("([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]")
@@ -200,6 +206,32 @@ func (cfg *Config) Validate() error {
 		cfg.ParsedLabelSelector = labels.Set(parsed)
 	}
 
+	if cfg.SplitPattern != "" {
+		cfg.ParsedSplitPattern = []string{}
+		values := strings.Split(cfg.SplitPattern, ",")
+
+		for _, ele := range values {
+			if len(ele) == 0 {
+				// trailing or double ,,
+				continue
+			}
+			cfg.ParsedSplitPattern = append(cfg.ParsedSplitPattern, ele)
+		}
+	}
+
+	if cfg.RemovePatterns != "" {
+		cfg.ParsedRemovePatterns = []string{}
+		values := strings.Split(cfg.RemovePatterns, ",")
+
+		for _, ele := range values {
+			if len(ele) == 0 {
+				// trailing or double ,,
+				continue
+			}
+			cfg.ParsedRemovePatterns = append(cfg.ParsedRemovePatterns, ele)
+		}
+	}
+
 	return nil
 }
 
@@ -255,6 +287,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("exec-timeout", "Timeout duration (in seconds) for exec command during validation").Default(strconv.Itoa(defaultConfig.ExecTimeoutSeconds)).IntVar(&cfg.ExecTimeoutSeconds)
 
 	app.Flag("container-bytes-limit", "read_bytes_limit_per_second parameter for tail plugin per container file. Default 2MB/min").Default(strconv.Itoa(defaultConfig.ReadBytesLimit)).IntVar(&cfg.ReadBytesLimit)
+	app.Flag("split-pattern", "List of pattern to be process without capacity limit. If empty, not pattern go to custom config").Default(defaultConfig.SplitPattern).StringVar(&cfg.SplitPattern)
+	app.Flag("remove-pattern", "Remove this unwanted pattern from tail for /var/log/containers/** folders").Default(defaultConfig.RemovePatterns).StringVar(&cfg.RemovePatterns)
 
 	_, err := app.Parse(args)
 

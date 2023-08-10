@@ -47,7 +47,7 @@ RUN tdnf clean all && \
 
 SHELL [ "/bin/bash", "-l", "-c" ]
 
-COPY failsafe.conf entrypoint.sh Gemfile Gemfile.lock /fluentd/
+COPY entrypoint.sh Gemfile Gemfile.lock /fluentd/
 
 # Install the gems with bundler is better practice
 # We need to keep this as a single layer because of the builddeps
