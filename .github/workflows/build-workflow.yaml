@@ -17,16 +17,11 @@ jobs:
         with:
           version: "v0.9.0"
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
-      - name: lint-test-config-reloader
-        run: |
-          cd config-reloader && make test
-      - name: build-base-image
+      - name: build-image
         run: |
           export TESTCONTAINERS_RYUK_DISABLED=true
-          cd base-image && make build-test-ci
-      - name: build-config-reloader
-        run: |
-          cd config-reloader && make build-image TAG=v$GITHUB_SHA_SHORT
+          make build-test-ci
+          make build-image TAG=v$GITHUB_SHA_SHORT
       - name: load-image
         run: |
           kind load docker-image vmware/kube-fluentd-operator:v$GITHUB_SHA_SHORT
