@@ -12,6 +12,7 @@ import (
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/controller"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/datasource"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/metrics"
 
@@ -43,7 +44,29 @@ func main() {
 
 	logrus.SetLevel(cfg.GetLogLevel())
 
-	ctrl, err := controller.New(ctx, cfg)
+	// Create datasource and updater base in config
+	var ds datasource.Datasource
+	var up controller.Updater
+
+	var err error
+
+	switch cfg.Datasource {
+	case "fake":
+		ds = datasource.NewFakeDatasource(ctx)
+		up = controller.NewFixedTimeUpdater(ctx, cfg.IntervalSeconds)
+	case "fs":
+		ds = datasource.NewFileSystemDatasource(ctx, cfg.FsDatasourceDir, cfg.OutputDir)
+		up = controller.NewFixedTimeUpdater(ctx, cfg.IntervalSeconds)
+	default:
+		updateChan := make(chan time.Time, 1)
+		ds, err = datasource.NewKubernetesInformerDatasource(ctx, cfg, updateChan)
+		if err != nil {
+			logrus.Fatalf("Cannot start informer %+v", err)
+		}
+		up = controller.NewOnDemandUpdater(ctx, updateChan)
+	}
+
+	ctrl, err := controller.New(ctx, cfg, ds, up)
 	if err != nil {
 		logrus.Fatalf("Cannot start control loop %+v", err)
 	}

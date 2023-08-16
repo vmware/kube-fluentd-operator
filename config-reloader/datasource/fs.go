@@ -6,7 +6,6 @@ package datasource
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -41,7 +40,7 @@ func (d *fsDatasource) GetNamespaces(ctx context.Context) ([]*NamespaceConfig, e
 	for _, f := range files {
 		base := filepath.Base(f)
 		ns := base[0 : len(base)-5]
-		contents, err := ioutil.ReadFile(f)
+		contents, err := os.ReadFile(f)
 		if err != nil {
 			logrus.Infof("Cannot read file %s: %+v", f, err)
 			continue
