@@ -23,11 +23,13 @@ DEV_ENV_CMD      := docker run --rm -v ${CURRENT_DIR}:${DEV_ENV_WORK_DIR} -w ${D
 
 all: test build
 
+.PHONY: test-image
+
 dev:
 	${DEV_ENV_CMD} bash
 
 vendor:
-	${GO} mod vendor
+	cd config-reloader && ${GO} mod vendor
 
 install:
 	${GO} install -v .
@@ -69,7 +71,7 @@ clean:
 	rm -fr config-reloader pkg > /dev/null
 
 build-image:
-	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
+	DOCKER_BUILDKIT=1 docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
 push-image: build-image
 	docker push $(IMAGE):$(TAG)
@@ -161,3 +163,24 @@ shell:
 	docker run --entrypoint=/bin/bash \
 		-ti --rm -v `pwd`:/workspace --net=host \
 		$(IMAGE):$(TAG)
+
+test-image: build-image
+	docker run -t --rm \
+	  --net=host \
+	  -v `pwd`:/workspace \
+	  -v `pwd`/image/test/containers:/var/log/containers \
+	  -v `pwd`/image/test/input.conf:/fluentd/etc/input.conf \
+	  -v `pwd`/image/test/local.conf:/fluentd/etc/fluent.conf \
+	  -e FLUENTD_OPT="--no-supervisor" \
+	  $(IMAGE):$(TAG)
+
+list-gems:
+	@docker run -ti --rm \
+	  --net=host --entrypoint /bin/bash \
+	  $(IMAGE):$(TAG) \
+	  -c 'fluent-gem list' | \
+	  grep '^fluent' | sed 's/^/* /'
+
+build-test-ci: build-image
+	cd image && TEST_IMAGE_NAME=$(IMAGE) TEST_IMAGE_TAG=$(TAG) go test -mod=readonly -v -count=1 --race ./...
+	cd config-reloader && go test -mod=readonly -v -count=1 --race ./...

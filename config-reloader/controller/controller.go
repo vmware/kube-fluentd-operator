@@ -33,7 +33,6 @@ var _ Controller = &controllerInstance{}
 
 // New creates new controller
 func New(ctx context.Context, cfg *config.Config, ds datasource.Datasource, up Updater) (Controller, error) {
-
 	var reloader *fluentd.Reloader
 	gen := generator.New(ctx, cfg)
 	gen.SetStatusUpdater(ctx, ds)

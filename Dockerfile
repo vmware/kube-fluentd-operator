@@ -2,6 +2,19 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
+
+FROM golang:1.19 as builder
+
+WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
+COPY config-reloader .
+COPY Makefile .
+
+# Speed up local builds where vendor is populated
+ARG VERSION
+# Good to have another test run as this container is different than lint container
+RUN make in-docker-test
+RUN make build VERSION=$VERSION
+
 FROM photon:4.0 
 
 ARG RVM_PATH=/usr/local/rvm
@@ -47,7 +60,7 @@ RUN tdnf clean all && \
 
 SHELL [ "/bin/bash", "-l", "-c" ]
 
-COPY failsafe.conf entrypoint.sh Gemfile Gemfile.lock /fluentd/
+COPY image/failsafe.conf image/entrypoint.sh image/Gemfile image/Gemfile.lock /fluentd/
 
 # Install the gems with bundler is better practice
 # We need to keep this as a single layer because of the builddeps
@@ -94,7 +107,11 @@ RUN tdnf install -y $BUILDDEPS \
   && tdnf remove -y $BUILDDEPS \
   && tdnf clean all
 
-COPY plugins /fluentd/plugins
+COPY image/plugins /fluentd/plugins
+
+COPY config-reloader/templates /templates
+COPY config-reloader/validate-from-dir.sh /bin/validate-from-dir.sh
+COPY --from=builder /go/src/github.com/vmware/kube-fluentd-operator/config-reloader/config-reloader /bin/config-reloader
 
 # Make sure fluentd picks jemalloc 5.3.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"
