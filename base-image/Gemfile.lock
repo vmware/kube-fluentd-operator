@@ -1,43 +1,43 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (7.0.6)
-      activesupport (= 7.0.6)
-    activesupport (7.0.6)
+    activemodel (7.0.7.2)
+      activesupport (= 7.0.7.2)
+    activesupport (7.0.7.2)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
-    addressable (2.8.4)
+    addressable (2.8.5)
       public_suffix (>= 2.0.2, < 6.0)
     aes_key_wrap (1.1.0)
     amq-protocol (2.3.2)
     attr_required (1.0.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.782.0)
-    aws-sdk-cloudwatchlogs (1.66.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-partitions (1.812.0)
+    aws-sdk-cloudwatchlogs (1.69.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-core (3.176.1)
+    aws-sdk-core (3.181.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.5)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-firehose (1.54.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-sdk-firehose (1.56.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kinesis (1.48.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-sdk-kinesis (1.50.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kms (1.68.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-sdk-kms (1.71.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.127.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-sdk-s3 (1.134.0)
+      aws-sdk-core (~> 3, >= 3.181.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.6)
-    aws-sdk-sqs (1.59.0)
-      aws-sdk-core (~> 3, >= 3.176.0)
+    aws-sdk-sqs (1.62.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.6.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -50,25 +50,25 @@ GEM
       sorted_set (~> 1, >= 1.0.2)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
-    cool.io (1.7.1)
+    cool.io (1.8.0)
     date (3.3.3)
-    digest-crc (0.6.4)
+    digest-crc (0.6.5)
       rake (>= 12.0.0, < 14.0.0)
     docker-api (2.2.0)
       excon (>= 0.47.0)
       multi_json
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    elastic-transport (8.2.1)
+    elastic-transport (8.2.2)
       faraday (< 3)
       multi_json
-    elasticsearch (8.8.0)
+    elasticsearch (8.9.0)
       elastic-transport (~> 8)
-      elasticsearch-api (= 8.8.0)
-    elasticsearch-api (8.8.0)
+      elasticsearch-api (= 8.9.0)
+    elasticsearch-api (8.9.0)
       multi_json
-    excon (0.100.0)
-    faraday (2.7.9)
+    excon (0.102.0)
+    faraday (2.7.10)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-excon (2.1.0)
@@ -215,10 +215,10 @@ GEM
       fluentd (>= 0.14.22, < 2)
       json
       vertica
-    fluent-plugin-vmware-log-intelligence (2.0.6)
+    fluent-plugin-vmware-log-intelligence (2.0.8)
       fluent-plugin-mysqlslowquery (>= 0.0.9)
       fluentd (>= 0.14.20)
-      http (>= 0.9.8)
+      http (>= 4.0)
       myslog (~> 0.0)
     fluent-plugin-vmware-loginsight (1.4.1)
       fluentd (>= 0.14.10, < 2)
@@ -239,8 +239,9 @@ GEM
       yajl-ruby (~> 1.0)
     gelf (3.1.0)
       json
-    google-protobuf (3.23.3-x86_64-darwin)
-    google-protobuf (3.23.3-x86_64-linux)
+    google-protobuf (3.24.2-arm64-darwin)
+    google-protobuf (3.24.2-x86_64-darwin)
+    google-protobuf (3.24.2-x86_64-linux)
     gssapi (1.3.1)
       ffi (>= 1.0.1)
     http (4.4.1)
@@ -280,19 +281,19 @@ GEM
       net-imap
       net-pop
       net-smtp
-    mime-types (3.4.1)
+    mime-types (3.5.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.0218.1)
-    mini_mime (1.1.2)
-    minitest (5.18.1)
+    mime-types-data (3.2023.0808)
+    mini_mime (1.1.5)
+    minitest (5.19.0)
     mongo (2.6.4)
       bson (>= 4.3.0, < 5.0.0)
-    msgpack (1.7.1)
+    msgpack (1.7.2)
     multi_json (1.15.0)
     myslog (0.1.1)
     net-http-persistent (4.0.2)
       connection_pool (~> 2.2)
-    net-imap (0.3.6)
+    net-imap (0.3.7)
       date
       net-protocol
     net-pop (0.1.2)
@@ -321,8 +322,8 @@ GEM
     opensearch-transport (2.1.0)
       faraday (>= 1.0, < 3)
       multi_json
-    prometheus-client (4.1.0)
-    public_suffix (5.0.1)
+    prometheus-client (4.2.1)
+    public_suffix (5.0.3)
     rack (3.0.8)
     rack-oauth2 (1.21.3)
       activesupport
@@ -347,7 +348,7 @@ GEM
     serverengine (2.3.2)
       sigdump (~> 0.2.2)
     set (1.0.3)
-    sigdump (0.2.4)
+    sigdump (0.2.5)
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -388,6 +389,7 @@ GEM
 
 PLATFORMS
   ruby
+  arm64-darwin-22
   x86_64-darwin-21
   x86_64-darwin-22
   x86_64-linux
@@ -433,7 +435,7 @@ DEPENDENCIES
   fluent-plugin-throttle (= 0.0.5)
   fluent-plugin-uri-parser (= 0.3.0)
   fluent-plugin-verticajson (= 0.0.6)
-  fluent-plugin-vmware-log-intelligence (= 2.0.6)
+  fluent-plugin-vmware-log-intelligence (= 2.0.8)
   fluent-plugin-vmware-loginsight (= 1.4.1)
   fluent-plugin-webhdfs (= 1.5.0)
   fluentd (= 1.16.1)
@@ -445,4 +447,4 @@ DEPENDENCIES
   specific_install (= 0.3.8)
 
 BUNDLED WITH
-   2.4.15
+   2.4.19
