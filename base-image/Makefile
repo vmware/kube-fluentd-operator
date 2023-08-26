@@ -34,7 +34,7 @@ test: build-image
 	  $(IMAGE):$(TAG)
 
 build-test-ci: build-image
-	go test -mod=readonly -v -count=1 --race ./...
+	TEST_IMAGE_NAME=$(IMAGE) TEST_IMAGE_TAG=$(TAG) go test -mod=readonly -v -count=1 --race ./...
 
 list-gems:
 	@docker run -ti --rm \
