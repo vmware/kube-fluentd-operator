@@ -1,9 +1,14 @@
-# Copyright © 2022 VMware, Inc. All Rights Reserved.
+# Copyright © 2023 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 
-FROM golang:1.19 as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.19 as builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
 COPY config-reloader .
@@ -11,16 +16,18 @@ COPY Makefile .
 
 # Speed up local builds where vendor is populated
 ARG VERSION
-# Good to have another test run as this container is different than lint container
-RUN make in-docker-test
-RUN make build VERSION=$VERSION
+RUN make build VERSION=$VERSION TARGETARCH=$TARGETARCH TARGETOS=$TARGETOS
 
-FROM photon:4.0 
+FROM --platform=${BUILDPLATFORM:-linux/amd64} photon:4.0
 
 ARG RVM_PATH=/usr/local/rvm
 ARG RUBY_VERSION=ruby-3.1.4
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 ENV PATH $RUBY_PATH/bin:$PATH
 ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
