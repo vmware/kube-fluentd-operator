@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [v1.18.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.18.0)
+## What's Changed
+* feat: create new test for fluentd by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/410
+* fix: unable to start if mismatchtag in config by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/412
+* feat: add test for controller by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/415
+* fix: image tests by @vsamidurai in https://github.com/vmware/kube-fluentd-operator/pull/418
+* update lint plugin and gemfile lock by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/419
+* feat: Join images to a single dockerfile by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/416
+* feat: add support for multiarch image by @slimm609 in https://github.com/vmware/kube-fluentd-operator/pull/420
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.17.6...v1.18.0
+
 ## [v1.17.6](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.17.6)
 ## What's Changed
 * feat: update prometheus plugin by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/398
