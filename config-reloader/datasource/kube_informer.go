@@ -13,7 +13,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -277,14 +276,11 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 		namespaces = d.cfg.Namespaces
 	} else if d.cfg.NamespaceSelector != "" {
 		// create label selector to list namespaces based on labels provided in namespace-selector flag
-		nsLabelSelector := labels.NewSelector()
-		for _, label := range strings.Split(d.cfg.NamespaceSelector, ",") {
-			nsLabelSelectorRequirement, err := labels.NewRequirement(strings.Split(label, "=")[0], selection.Equals, []string{strings.Split(label, "=")[1]})
-			if err != nil {
-				return nil, err
-			}
-			nsLabelSelector = nsLabelSelector.Add(*nsLabelSelectorRequirement)
+		nsLabelSelector, err := labels.Parse(d.cfg.NamespaceSelector)
+		if err != nil {
+			return nil, err
 		}
+
 		nses, err := d.nslist.List(nsLabelSelector)
 		if err != nil {
 			return nil, err
