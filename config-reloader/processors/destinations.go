@@ -56,6 +56,10 @@ func prohibitTypes(d *fluentd.Directive, ctx *ProcessorContext) error {
 		if !ctx.AllowFile {
 			return fmt.Errorf("cannot use '@type %s' in <%s>", d.Type(), d.Name)
 		}
+	case "mounted-file":
+		if !ctx.AllowMountedFile {
+			return fmt.Errorf("cannot use '@type %s' in <%s>", d.Type(), d.Name)
+		}
 	case "fields_parser":
 		if d.Param("remove_tag_prefix") != "" ||
 			d.Param("add_tag_prefix") != "" {

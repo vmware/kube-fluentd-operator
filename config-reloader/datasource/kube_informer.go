@@ -66,8 +66,11 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 
 	factory := informers.NewSharedInformerFactory(client, 0)
 	namespaceLister := factory.Core().V1().Namespaces().Lister()
-	podLister := factory.Core().V1().Pods().Lister()
 	cmLister := factory.Core().V1().ConfigMaps().Lister()
+	var podLister listerv1.PodLister
+	if cfg.AllowMountedFile {
+		podLister = factory.Core().V1().Pods().Lister()
+	}
 
 	var kubeds kubedatasource.KubeDS
 	fluentdconfigDSLister :=
@@ -101,12 +104,19 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		}
 	}
 
+	cacheSyncs := []cache.InformerSynced{
+		factory.Core().V1().Namespaces().Informer().HasSynced,
+		factory.Core().V1().ConfigMaps().Informer().HasSynced,
+		kubeds.IsReady,
+	}
+
+	if cfg.AllowMountedFile {
+		cacheSyncs = append(cacheSyncs, factory.Core().V1().Pods().Informer().HasSynced)
+	}
+
 	factory.Start(nil)
 	if !cache.WaitForCacheSync(nil,
-		factory.Core().V1().Namespaces().Informer().HasSynced,
-		factory.Core().V1().Pods().Informer().HasSynced,
-		factory.Core().V1().ConfigMaps().Informer().HasSynced,
-		kubeds.IsReady) {
+		cacheSyncs...) {
 		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
@@ -124,16 +134,18 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		updateChan:    updateChan,
 	}
 
-	factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			kubeInfoCx.handlePodChange(ctx, obj)
-		},
-		UpdateFunc: func(old, obj interface{}) {
-		},
-		DeleteFunc: func(obj interface{}) {
-			kubeInfoCx.handlePodChange(ctx, obj)
-		},
-	})
+	if cfg.AllowMountedFile {
+		factory.Core().V1().Pods().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				kubeInfoCx.handlePodChange(ctx, obj)
+			},
+			UpdateFunc: func(old, obj interface{}) {
+			},
+			DeleteFunc: func(obj interface{}) {
+				kubeInfoCx.handlePodChange(ctx, obj)
+			},
+		})
+	}
 
 	return kubeInfoCx, nil
 }
@@ -150,6 +162,7 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 
 	nsconfigs := make([]*NamespaceConfig, 0)
 	for _, ns := range nses {
+		var minis []*MiniContainer
 		// Get the Namespace object associated with a particular name
 		nsobj, err := d.nslist.Get(ns)
 		if err != nil {
@@ -164,43 +177,45 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 			logrus.Infof("Skipping namespace: %v because is empty", ns)
 			continue
 		}
-		fragment, err := fluentd.ParseString(configdata)
-		if err != nil {
-			logrus.Errorf("Error parsing config for ns %s: %v", ns, err)
-			continue
-		}
 
-		var mountedLabels []map[string]string
-		for _, frag := range fragment {
-			if frag.Name == "source" && frag.Type() == "mounted-file" {
-				paramLabels := frag.Param("labels")
-				paramLabels = util.TrimTrailingComment(paramLabels)
-				currLabels, err := util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
-				if err != nil {
-					return nil, err
-				}
-				mountedLabels = append(mountedLabels, currLabels)
+		if d.cfg.AllowMountedFile {
+			fragment, err := fluentd.ParseString(configdata)
+			if err != nil {
+				logrus.Errorf("Error parsing config for ns %s: %v", ns, err)
+				continue
 			}
-		}
 
-		d.updateMountedLabels(ns, mountedLabels)
+			var mountedLabels []map[string]string
+			for _, frag := range fragment {
+				if frag.Name == "source" && frag.Type() == "mounted-file" {
+					paramLabels := frag.Param("labels")
+					paramLabels = util.TrimTrailingComment(paramLabels)
+					currLabels, err := util.ParseTagToLabels(fmt.Sprintf("$labels(%s)", paramLabels))
+					if err != nil {
+						return nil, err
+					}
+					mountedLabels = append(mountedLabels, currLabels)
+				}
+			}
 
-		// Create a compact representation of the pods running in the namespace
-		// under consideration
-		pods, err := d.podlist.Pods(ns).List(labels.NewSelector())
-		if err != nil {
-			logrus.Errorf("Error listing pod in ns %s: %v", ns, err)
-			continue
-		}
-		podsCopy := make([]core.Pod, len(pods))
-		for i, pod := range pods {
-			podsCopy[i] = *pod.DeepCopy()
-		}
-		podList := &core.PodList{
-			Items: podsCopy,
-		}
-		minis := convertPodToMinis(podList)
+			d.updateMountedLabels(ns, mountedLabels)
 
+			// Create a compact representation of the pods running in the namespace
+			// under consideration
+			pods, err := d.podlist.Pods(ns).List(labels.NewSelector())
+			if err != nil {
+				logrus.Errorf("Error listing pod in ns %s: %v", ns, err)
+				continue
+			}
+			podsCopy := make([]core.Pod, len(pods))
+			for i, pod := range pods {
+				podsCopy[i] = *pod.DeepCopy()
+			}
+			podList := &core.PodList{
+				Items: podsCopy,
+			}
+			minis = convertPodToMinis(podList)
+		}
 		// Create a new NamespaceConfig from the data we've processed up to now
 		nsconfigs = append(nsconfigs, &NamespaceConfig{
 			Name:               ns,

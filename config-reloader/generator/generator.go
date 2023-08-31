@@ -314,6 +314,7 @@ func (g *generatorInstance) makeContext(ns *datasource.NamespaceConfig, genCtx *
 		Namespace:         ns.Name,
 		NamespaceLabels:   ns.Labels,
 		AllowFile:         g.cfg.AllowFile,
+		AllowMountedFile:  g.cfg.AllowMountedFile,
 		DeploymentID:      g.cfg.ID,
 		MiniContainers:    ns.MiniContainers,
 		KubeletRoot:       g.cfg.KubeletRoot,

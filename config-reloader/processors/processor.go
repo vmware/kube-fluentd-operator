@@ -40,6 +40,7 @@ type ProcessorContext struct {
 	Namespace         string
 	NamespaceLabels   map[string]string
 	AllowFile         bool
+	AllowMountedFile  bool
 	DeploymentID      string
 	MiniContainers    []*datasource.MiniContainer
 	KubeletRoot       string

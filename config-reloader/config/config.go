@@ -40,6 +40,7 @@ type Config struct {
 	CRDMigrationMode       bool
 	FsDatasourceDir        string
 	AllowFile              bool
+	AllowMountedFile       bool
 	ID                     string
 	FluentdValidateCommand string
 	MetaKey                string
@@ -219,6 +220,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("interval", "Run every x seconds").Default(strconv.Itoa(defaultConfig.IntervalSeconds)).IntVar(&cfg.IntervalSeconds)
 
 	app.Flag("allow-file", "Allow @type file for namespace configuration").BoolVar(&cfg.AllowFile)
+	app.Flag("allow-mountedFile", "Allow @type mounted-file for namespace configuration").Default("true").BoolVar(&cfg.AllowMountedFile)
 
 	app.Flag("id", "The id of this deployment. It is used internally so that two deployments don't overwrite each other's data").Default(defaultConfig.ID).StringVar(&cfg.ID)
 
