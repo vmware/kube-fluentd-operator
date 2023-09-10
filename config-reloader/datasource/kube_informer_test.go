@@ -20,17 +20,23 @@ type testConfig struct {
 	config         config.Config
 	expectErr      bool
 	expectedResult int
-	namespaces     []string
+	namespaces     []testNamespace
 	configmap      map[string][]string
 	configmapData  map[string]map[string]string
 }
 
-func importK8sObjects(factory informers.SharedInformerFactory, namespaces []string, configmaps map[string][]string, configmapData map[string]map[string]string) {
+type testNamespace struct {
+	name   string
+	labels map[string]string
+}
+
+func importK8sObjects(factory informers.SharedInformerFactory, namespaces []testNamespace, configmaps map[string][]string, configmapData map[string]map[string]string) {
 	for _, ns := range namespaces {
 		factory.Core().V1().Namespaces().Informer().GetIndexer().Add(
 			&corev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: ns,
+					Name:   ns.name,
+					Labels: ns.labels,
 				},
 			},
 		)
@@ -64,8 +70,10 @@ func TestGetNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 0,
-			namespaces: []string{
-				"test1",
+			namespaces: []testNamespace{
+				{
+					name: "test1",
+				},
 			},
 		},
 		{
@@ -78,9 +86,13 @@ func TestGetNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 0,
-			namespaces: []string{
-				"test-empty",
-				"test-empty-2",
+			namespaces: []testNamespace{
+				{
+					name: "test-empty",
+				},
+				{
+					name: "test-empty-2",
+				},
 			},
 			configmap: map[string][]string{
 				"test-empty":   {"fluentd-config", "my-configmap1"},
@@ -98,9 +110,13 @@ func TestGetNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 1,
-			namespaces: []string{
-				"test-not-empty",
-				"test-not-empty-2",
+			namespaces: []testNamespace{
+				{
+					name: "test-not-empty",
+				},
+				{
+					name: "test-not-empty-2",
+				},
 			},
 			configmap: map[string][]string{
 				"test-not-empty": {"fluentd-config"},
@@ -118,9 +134,13 @@ func TestGetNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 1,
-			namespaces: []string{
-				"test-not-empty",
-				"test-not-empty-2",
+			namespaces: []testNamespace{
+				{
+					name: "test-not-empty",
+				},
+				{
+					name: "test-not-empty-2",
+				},
 			},
 			configmap: map[string][]string{
 				"test-not-empty":   {"fluentd-config"},
@@ -156,7 +176,7 @@ func TestGetNamespaces(t *testing.T) {
 		}
 		assert.Equal(config.expectedResult, len(namespaces))
 		for index, ns := range namespaces {
-			assert.Equal(config.namespaces[index], ns.Name)
+			assert.Equal(config.namespaces[index].name, ns.Name)
 		}
 	}
 }
@@ -174,9 +194,13 @@ func TestDiscoverNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 2,
-			namespaces: []string{
-				"test1",
-				"test2",
+			namespaces: []testNamespace{
+				{
+					name: "test1",
+				},
+				{
+					name: "test2",
+				},
 			},
 		},
 		{
@@ -190,9 +214,79 @@ func TestDiscoverNamespaces(t *testing.T) {
 			},
 			expectErr:      false,
 			expectedResult: 1,
-			namespaces: []string{
-				"test1",
-				"test2",
+			namespaces: []testNamespace{
+				{
+					name: "test1",
+				},
+				{
+					name: "test2",
+				},
+			},
+			configmap: map[string][]string{
+				"test1": {"configmap1", "fluentd-config"},
+				"test2": {"configmap2"},
+			},
+		},
+		{
+			//TestCase: Two Namespaces with different labels, use DefaultConfigmapName. Result 2
+			config: config.Config{
+				Datasource:           "default",
+				DefaultConfigmapName: "fluentd-config",
+				AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
+				AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
+				ID:                   "default",
+				NamespaceSelector:    "key=value",
+			},
+			expectErr:      false,
+			expectedResult: 2,
+			namespaces: []testNamespace{
+				{
+					name: "test1",
+					labels: map[string]string{
+						"key1": "value1",
+						"key":  "value",
+					},
+				},
+				{
+					name: "test2",
+					labels: map[string]string{
+						"key2": "value2",
+						"key":  "value",
+					},
+				},
+			},
+			configmap: map[string][]string{
+				"test1": {"configmap1", "fluentd-config"},
+				"test2": {"configmap2"},
+			},
+		},
+		{
+			//TestCase: Two Namespaces with different labels, use DefaultConfigmapName. Result 1
+			config: config.Config{
+				Datasource:           "default",
+				DefaultConfigmapName: "fluentd-config",
+				AnnotConfigmapName:   "logging.csp.vmware.com/fluentd-configmap",
+				AnnotStatus:          "logging.csp.vmware.com/fluentd-status",
+				ID:                   "default",
+				NamespaceSelector:    "key=value,key1=value1",
+			},
+			expectErr:      false,
+			expectedResult: 1,
+			namespaces: []testNamespace{
+				{
+					name: "test1",
+					labels: map[string]string{
+						"key1": "value1",
+						"key":  "value",
+					},
+				},
+				{
+					name: "test2",
+					labels: map[string]string{
+						"key2": "value2",
+						"key":  "value",
+					},
+				},
 			},
 			configmap: map[string][]string{
 				"test1": {"configmap1", "fluentd-config"},
@@ -218,7 +312,7 @@ func TestDiscoverNamespaces(t *testing.T) {
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
-		assert.Equal(len(namespaces), config.expectedResult)
+		assert.Equal(config.expectedResult, len(namespaces))
 	}
 }
 

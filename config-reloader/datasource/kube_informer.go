@@ -267,13 +267,28 @@ func (d *kubeInformerConnection) UpdateStatus(ctx context.Context, namespace str
 }
 
 // discoverNamespaces constructs a list of namespaces to inspect for fluentd
-// configuration, using the configured list if provided, otherwise find only
+// configuration, using the configured list if provided, or find namespaces based on labels if provided in --namespace-selector flag, otherwise find only
 // namespaces that have fluentd configmaps based on default name, and if that fails
 // find all namespace and iterrate through them.
 func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]string, error) {
 	var namespaces []string
 	if len(d.cfg.Namespaces) != 0 {
 		namespaces = d.cfg.Namespaces
+	} else if d.cfg.NamespaceSelector != "" {
+		// create label selector to list namespaces based on labels provided in namespace-selector flag
+		nsLabelSelector, err := labels.Parse(d.cfg.NamespaceSelector)
+		if err != nil {
+			return nil, err
+		}
+
+		nses, err := d.nslist.List(nsLabelSelector)
+		if err != nil {
+			return nil, err
+		}
+		for _, ns := range nses {
+			namespaces = append(namespaces, ns.Name)
+		}
+
 	} else {
 		if d.cfg.Datasource == "crd" {
 			logrus.Infof("Discovering only namespaces that have fluentdconfig crd defined.")

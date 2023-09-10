@@ -47,6 +47,7 @@ type Config struct {
 	LabelSelector          string
 	KubeletRoot            string
 	Namespaces             []string
+	NamespaceSelector      string
 	PrometheusEnabled      bool
 	MetricsPort            int
 	AllowTagExpansion      bool
@@ -255,6 +256,8 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("exec-timeout", "Timeout duration (in seconds) for exec command during validation").Default(strconv.Itoa(defaultConfig.ExecTimeoutSeconds)).IntVar(&cfg.ExecTimeoutSeconds)
 
 	app.Flag("container-bytes-limit", "read_bytes_limit_per_second parameter for tail plugin per container file. Default 2MB/min").Default(strconv.Itoa(defaultConfig.ReadBytesLimit)).IntVar(&cfg.ReadBytesLimit)
+
+	app.Flag("namespace-selector", "Namespace selector in the k=v,k2=v2 format to select namespaces to process based on their labels.").StringVar(&cfg.NamespaceSelector)
 
 	_, err := app.Parse(args)
 
