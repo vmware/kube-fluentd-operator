@@ -1,13 +1,33 @@
-# Copyright © 2022 VMware, Inc. All Rights Reserved.
+# Copyright © 2023 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
-FROM photon:4.0 
+
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.19 as builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+
+WORKDIR /go/src/github.com/vmware/kube-fluentd-operator/config-reloader
+COPY config-reloader .
+COPY Makefile .
+
+# Speed up local builds where vendor is populated
+ARG VERSION
+RUN make build VERSION=$VERSION TARGETARCH=$TARGETARCH TARGETOS=$TARGETOS
+
+FROM --platform=${BUILDPLATFORM:-linux/amd64} photon:4.0
 
 ARG RVM_PATH=/usr/local/rvm
 ARG RUBY_VERSION=ruby-3.1.4
 ARG RUBY_PATH=/usr/local/rvm/rubies/$RUBY_VERSION
 ARG RUBYOPT='-W:no-deprecated -W:no-experimental'
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 ENV PATH $RUBY_PATH/bin:$PATH
 ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
@@ -47,7 +67,7 @@ RUN tdnf clean all && \
 
 SHELL [ "/bin/bash", "-l", "-c" ]
 
-COPY failsafe.conf entrypoint.sh Gemfile Gemfile.lock /fluentd/
+COPY image/failsafe.conf image/entrypoint.sh image/Gemfile image/Gemfile.lock /fluentd/
 
 # Install the gems with bundler is better practice
 # We need to keep this as a single layer because of the builddeps
@@ -94,7 +114,11 @@ RUN tdnf install -y $BUILDDEPS \
   && tdnf remove -y $BUILDDEPS \
   && tdnf clean all
 
-COPY plugins /fluentd/plugins
+COPY image/plugins /fluentd/plugins
+
+COPY config-reloader/templates /templates
+COPY config-reloader/validate-from-dir.sh /bin/validate-from-dir.sh
+COPY --from=builder /go/src/github.com/vmware/kube-fluentd-operator/config-reloader/config-reloader /bin/config-reloader
 
 # Make sure fluentd picks jemalloc 5.3.0 lib as default
 ENV LD_PRELOAD="/usr/lib/libjemalloc.so"

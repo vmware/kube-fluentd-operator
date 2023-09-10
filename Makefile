@@ -3,6 +3,8 @@
 
 IMAGE            ?= vmware/kube-fluentd-operator
 TAG              ?= latest
+TARGETARCH       ?= $(shell go env GOARCH)
+TARGETOS         ?= linux
 
 VERSION          ?= $(shell git describe --tags --always --dirty)
 BUILD_FLAGS      := -v
@@ -11,7 +13,7 @@ LDFLAGS          := -X github.com/vmware/kube-fluentd-operator/config-reloader/c
 SHELL             = bash
 PKG               = vmware/kube-fluentd-operator
 
-GO_OPTS           = GO111MODULE=on GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(GOBIN)
+GO_OPTS           = GO111MODULE=on GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 GOBIN=$(GOBIN)
 GO                = $(GO_OPTS) go
 
 CURRENT_DIR       = $(shell pwd)
@@ -23,11 +25,13 @@ DEV_ENV_CMD      := docker run --rm -v ${CURRENT_DIR}:${DEV_ENV_WORK_DIR} -w ${D
 
 all: test build
 
+.PHONY: test-image
+
 dev:
 	${DEV_ENV_CMD} bash
 
 vendor:
-	${GO} mod vendor
+	cd config-reloader && ${GO} mod vendor
 
 install:
 	${GO} install -v .
@@ -69,14 +73,31 @@ clean:
 	rm -fr config-reloader pkg > /dev/null
 
 build-image:
-	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
+	DOCKER_BUILDKIT=1 docker build --platform $(TARGETOS)/$(TARGETARCH) --build-arg VERSION=$(VERSION) -t $(IMAGE):$(TAG) .
 
 push-image: build-image
 	docker push $(IMAGE):$(TAG)
 
-push-latest:
-	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
-	docker push $(IMAGE):latest
+buildx-image:
+	docker buildx create --use --name=multiarch --node=multiarch
+	docker run --rm --privileged tonistiigi/binfmt:latest --install all
+	# due to a limitation of docker buildx exporter/docker we can only build one without pushing
+	# https://github.com/docker/buildx/issues/59
+	docker buildx build \
+    --platform=linux/$(TARGETARCH) \
+	--build-arg VERSION=$(VERSION) \
+	--load \
+    -t $(IMAGE):$(TAG) .
+
+pushx-image:
+	docker buildx create --use --name=multiarch --node=multiarch
+	docker run --rm --privileged tonistiigi/binfmt:latest --install all
+	docker buildx build \
+    --platform=linux/arm64,linux/amd64 \
+	--build-arg VERSION=$(VERSION) \
+    --push=true \
+	--tag $(IMAGE):$(TAG) \
+	--tag $(IMAGE):latest .
 
 create-test-ns:
 	HUMIO_KEY=$(HUMIO_KEY) LOGZ_TOKEN=$(LOGZ_TOKEN) envsubst '$$LOGZ_TOKEN:$$HUMIO_KEY' < examples/manifests/kfo-test.yaml | kubectl apply -f -
@@ -161,3 +182,24 @@ shell:
 	docker run --entrypoint=/bin/bash \
 		-ti --rm -v `pwd`:/workspace --net=host \
 		$(IMAGE):$(TAG)
+
+test-image: build-image
+	docker run -t --rm \
+	  --net=host \
+	  -v `pwd`:/workspace \
+	  -v `pwd`/image/test/containers:/var/log/containers \
+	  -v `pwd`/image/test/input.conf:/fluentd/etc/input.conf \
+	  -v `pwd`/image/test/local.conf:/fluentd/etc/fluent.conf \
+	  -e FLUENTD_OPT="--no-supervisor" \
+	  $(IMAGE):$(TAG)
+
+list-gems:
+	@docker run -ti --rm \
+	  --net=host --entrypoint /bin/bash \
+	  $(IMAGE):$(TAG) \
+	  -c 'fluent-gem list' | \
+	  grep '^fluent' | sed 's/^/* /'
+
+build-test-ci: build-image
+	cd image && TEST_IMAGE_NAME=$(IMAGE) TEST_IMAGE_TAG=$(TAG) go test -mod=readonly -v -count=1 --race ./...
+	cd config-reloader && go test -mod=readonly -v -count=1 --race ./...
