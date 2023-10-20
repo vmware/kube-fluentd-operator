@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -54,7 +53,7 @@ func (v *validatorState) ValidateConfigExtremely(config string, namespace string
 		return nil
 	}
 
-	tmpfile, err := ioutil.TempFile("", "validate-ext-"+namespace)
+	tmpfile, err := os.CreateTemp("", "validate-ext-"+namespace)
 	if err != nil {
 		logrus.Errorf("error creating temporary file for namespace %s: %s", namespace, err.Error())
 		return err
@@ -98,7 +97,7 @@ func (v *validatorState) ValidateConfig(config string, namespace string) error {
 		return nil
 	}
 
-	tmpfile, err := ioutil.TempFile("", "validate-"+namespace)
+	tmpfile, err := os.CreateTemp("", "validate-"+namespace)
 	if err != nil {
 		logrus.Errorf("error creating temporary file for namespace %s: %s", namespace, err.Error())
 		return err

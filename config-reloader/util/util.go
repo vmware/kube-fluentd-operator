@@ -9,7 +9,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -122,7 +121,7 @@ func ExecAndGetOutput(cmd string, timeout time.Duration, args ...string) (string
 }
 
 func WriteStringToFile(filename string, data string) error {
-	return ioutil.WriteFile(filename, []byte(data), maskFile)
+	return os.WriteFile(filename, []byte(data), maskFile)
 }
 
 func TrimTrailingComment(line string) string {

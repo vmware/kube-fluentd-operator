@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var template = `
+var logzTemplate = `
 <match **>
   @type logzio_buffered
   endpoint_url https://listener.logz.io:8071?token=secret
@@ -36,7 +36,7 @@ func NewFakeDatasource(ctx context.Context) Datasource {
 }
 
 func makeFakeConfig(namespace string) string {
-	contents := template
+	contents := logzTemplate
 	contents = strings.ReplaceAll(contents, "$ns$", namespace)
 	contents = strings.ReplaceAll(contents, "$ts$", time.Now().String())
 

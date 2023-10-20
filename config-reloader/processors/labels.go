@@ -6,12 +6,11 @@ package processors
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 	"regexp"
 	"strings"
-	"text/template"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/template"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 )
 
@@ -27,19 +26,13 @@ var reSafe = regexp.MustCompile(`[.-]|^$`)
 // an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is
 // '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?'
 
-var fns = template.FuncMap{
-	"last": func(x int, a interface{}) bool {
-		return x == reflect.ValueOf(a).Len()-1
-	},
-}
-
-var retagTemplate = template.Must(template.New("retagTemplate").Funcs(fns).Parse(
+var retagTemplate = template.Must(template.New("retagTemplate").Parse(
 	`
 <filter {{.Pattern}}>
   @type record_transformer
   enable_ruby true
   <record>
-    kubernetes_pod_label_values {{range $i, $e := .Labels -}}${record.dig('kubernetes','labels','{{$e}}')&.gsub(/[.-]/, '_') || '_'}{{if last $i $.Labels }}{{else}}.{{end}}{{- end}}
+    kubernetes_pod_label_values {{range $i, $e := .Labels -}}${record.dig('kubernetes','labels','{{$e}}')&.gsub(/[.-]/, '_') || '_'}{{if isLast $i $.Labels }}{{else}}.{{end}}{{- end}}
   </record>
 </filter>
 

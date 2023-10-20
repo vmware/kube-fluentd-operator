@@ -7,9 +7,9 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/template"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 )
 

@@ -97,7 +97,7 @@ func (c *ConfigMapDS) fetchConfigMaps(ctx context.Context, ns string) ([]*core.C
 		// Get all configmaps which match a specified label, but only if we have a selector
 		mapslist, err := nsmaps.List(c.cfg.ParsedLabelSelector.AsSelector())
 		if err != nil {
-			return nil, fmt.Errorf("Failed to list configmaps in namespace '%s': %v", ns, err)
+			return nil, fmt.Errorf("failed to list configmaps in namespace '%s': %v", ns, err)
 		}
 		confMapByName := make(map[string]*core.ConfigMap)
 		sortedConfMaps := make([]string, 0, len(mapslist))
