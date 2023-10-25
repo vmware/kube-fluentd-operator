@@ -632,6 +632,24 @@ data:
     </match>
 ```
 
+You can limit what k8s objects can be looked up using the templting functionality by passing the `--allow-label` flag, for example `--allow-label=logs.vmware.com/allow`.
+You can also override what label to use on specific Namespaces by passing the `--allow-label-annotation` flag and then setting what label to use in that annotation on the Namespace, for example, `--allow-label-annotation=logs.vmware.com/allow-label`
+And in the Namespace:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-namespace
+  annotations:
+    logs.vmware.com/allow-label: "logs.vmware.com/my_namespace"
+spec:
+  finalizers:
+    - kubernetes
+```
+
+And the templated config in this Namespace will only be allowed to lookup resources labeled with `logs.vmware.com/my_namespace="true"`
+
 ### Custom resource definition(CRD) support (since v1.13.0)
 
 Custom resources are introduced from v1.13.0 release onwards. It allows to have a dedicated resource for fluentd configurations, which enables to manage them in a more consistent way and move away from the generic ConfigMaps.

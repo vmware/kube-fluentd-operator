@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -17,7 +18,14 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-var k8sClient client.Reader
+var (
+	k8sClient  client.Reader
+	allowLabel string
+)
+
+func SetAllowLabel(label string) {
+	allowLabel = label
+}
 
 // Render is a go template rendering function it includes all the sprig lib functions
 // as well as some extras like a k8sLookup function to get values from k8s objects
@@ -119,6 +127,11 @@ func k8sLookup(kind, namespace, name string) (map[string]interface{}, error) {
 		}, &u); err != nil {
 			return nil, fmt.Errorf("failed to get: %w", err)
 		}
+		if allowLabel != "" {
+			if allow, _ := strconv.ParseBool(u.GetLabels()[allowLabel]); !allow {
+				return nil, fmt.Errorf("object not allowed")
+			}
+		}
 		return u.UnstructuredContent(), nil
 	}
 	ul := &unstructured.UnstructuredList{}
@@ -132,6 +145,14 @@ func k8sLookup(kind, namespace, name string) (map[string]interface{}, error) {
 	}
 	if err := k8sClient.List(context.Background(), ul, opts); err != nil {
 		return nil, fmt.Errorf("failed to list: %w", err)
+	}
+	if allowLabel != "" {
+		for _, o := range ul.Items {
+			if allow, _ := strconv.ParseBool(o.GetLabels()[allowLabel]); !allow {
+				return nil, fmt.Errorf("object not allowed")
+			}
+
+		}
 	}
 	return ul.UnstructuredContent(), nil
 }

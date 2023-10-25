@@ -157,6 +157,15 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 			return nil, err
 		}
 
+		if d.cfg.AllowLabel != "" {
+			template.SetAllowLabel(d.cfg.AllowLabel)
+		}
+		if d.cfg.AllowLabelAnnotation != "" {
+			if label := nsobj.GetAnnotations()[d.cfg.AllowLabelAnnotation]; label != "" {
+				template.SetAllowLabel(label)
+			}
+		}
+
 		configdata, err := d.kubeds.GetFluentdConfig(ctx, ns)
 		if err != nil {
 			return nil, err
@@ -407,7 +416,7 @@ func (d *kubeInformerConnection) discoverFluentdConfigNamespaces() ([]string, er
 	}
 	nsList := make([]string, 0)
 	for _, crd := range fcList {
-		nsList = append(nsList, crd.ObjectMeta.Namespace)
+		nsList = append(nsList, crd.Namespace)
 	}
 	logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", nsList)
 	return nsList, nil
