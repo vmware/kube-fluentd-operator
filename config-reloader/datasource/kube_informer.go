@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/template"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -107,7 +108,7 @@ func NewKubernetesInformerDatasource(ctx context.Context, cfg *config.Config, up
 		factory.Core().V1().Pods().Informer().HasSynced,
 		factory.Core().V1().ConfigMaps().Informer().HasSynced,
 		kubeds.IsReady) {
-		return nil, fmt.Errorf("Failed to sync local informer with upstream Kubernetes API")
+		return nil, fmt.Errorf("failed to sync local informer with upstream Kubernetes API")
 	}
 	logrus.Infof("Synced local informer with upstream Kubernetes API")
 
@@ -156,9 +157,24 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 			return nil, err
 		}
 
+		if d.cfg.AllowLabel != "" {
+			template.SetAllowLabel(d.cfg.AllowLabel)
+		}
+		if d.cfg.AllowLabelAnnotation != "" {
+			if label := nsobj.GetAnnotations()[d.cfg.AllowLabelAnnotation]; label != "" {
+				template.SetAllowLabel(label)
+			}
+		}
+
 		configdata, err := d.kubeds.GetFluentdConfig(ctx, ns)
 		if err != nil {
 			return nil, err
+		}
+		buf := new(strings.Builder)
+		if err := template.Render(buf, configdata, map[string]string{
+			"Namespace": ns,
+		}); err == nil {
+			configdata = buf.String()
 		}
 		if configdata == "" {
 			logrus.Infof("Skipping namespace: %v because is empty", ns)
@@ -301,19 +317,19 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 			// Find the configmaps that exist on this cluster to find namespaces:
 			confMapsList, err := d.cmlist.List(labels.NewSelector())
 			if err != nil {
-				return nil, fmt.Errorf("Failed to list all configmaps in cluster: %v", err)
+				return nil, fmt.Errorf("failed to list all configmaps in cluster: %v", err)
 			}
 			// If default configmap name is defined get all namespaces for those configmaps:
 			if d.cfg.DefaultConfigmapName != "" {
 				for _, cfmap := range confMapsList {
-					if cfmap.ObjectMeta.Name == d.cfg.DefaultConfigmapName {
-						namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+					if cfmap.Name == d.cfg.DefaultConfigmapName {
+						namespaces = append(namespaces, cfmap.Namespace)
 					} else {
 						// We need to find configmaps that honor the global annotation for configmaps:
-						configMapNamespace, _ := d.nslist.Get(cfmap.ObjectMeta.Namespace)
+						configMapNamespace, _ := d.nslist.Get(cfmap.Namespace)
 						configMapName := configMapNamespace.Annotations[d.cfg.AnnotConfigmapName]
 						if configMapName != "" {
-							namespaces = append(namespaces, cfmap.ObjectMeta.Namespace)
+							namespaces = append(namespaces, cfmap.Namespace)
 						}
 					}
 				}
@@ -328,11 +344,11 @@ func (d *kubeInformerConnection) discoverNamespaces(ctx context.Context) ([]stri
 				// get all namespaces and iterrate through them like before:
 				nses, err := d.nslist.List(labels.NewSelector())
 				if err != nil {
-					return nil, fmt.Errorf("Failed to list all namespaces in cluster: %v", err)
+					return nil, fmt.Errorf("failed to list all namespaces in cluster: %v", err)
 				}
 				namespaces = make([]string, 0)
 				for _, ns := range nses {
-					namespaces = append(namespaces, ns.ObjectMeta.Name)
+					namespaces = append(namespaces, ns.Name)
 				}
 			}
 		}
@@ -355,6 +371,12 @@ func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interf
 	mObj := obj.(*core.Pod)
 	logrus.Tracef("Detected pod change %s in namespace: %s", mObj.GetName(), mObj.GetNamespace())
 	configdata, err := d.kubeds.GetFluentdConfig(ctx, mObj.GetNamespace())
+	buf := new(strings.Builder)
+	if err := template.Render(buf, configdata, map[string]string{
+		"Namespace": mObj.GetNamespace(),
+	}); err == nil {
+		configdata = buf.String()
+	}
 	nsConfigStr := fmt.Sprintf("%#v", configdata)
 
 	if err == nil {
@@ -386,15 +408,15 @@ func matchAny(contLabels map[string]string, mountedLabelsInNs []map[string]strin
 
 func (d *kubeInformerConnection) discoverFluentdConfigNamespaces() ([]string, error) {
 	if d.fdlist == nil {
-		return nil, fmt.Errorf("Failed to initialize the fluentdconfig crd client, d.fclient = nil")
+		return nil, fmt.Errorf("failed to initialize the fluentdconfig crd client, d.fclient = nil")
 	}
 	fcList, err := d.fdlist.List(labels.NewSelector())
 	if err != nil {
-		return nil, fmt.Errorf("Failed to list all fluentdconfig crds in cluster: %v", err)
+		return nil, fmt.Errorf("failed to list all fluentdconfig crds in cluster: %v", err)
 	}
 	nsList := make([]string, 0)
 	for _, crd := range fcList {
-		nsList = append(nsList, crd.ObjectMeta.Namespace)
+		nsList = append(nsList, crd.Namespace)
 	}
 	logrus.Debugf("Returned these namespaces for fluentdconfig crds: %v", nsList)
 	return nsList, nil

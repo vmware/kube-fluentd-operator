@@ -10,7 +10,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/vmware/kube-fluentd-operator/config-reloader/config"
@@ -18,6 +17,7 @@ import (
 	"github.com/vmware/kube-fluentd-operator/config-reloader/fluentd"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/metrics"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/processors"
+	"github.com/vmware/kube-fluentd-operator/config-reloader/template"
 	"github.com/vmware/kube-fluentd-operator/config-reloader/util"
 
 	"github.com/sirupsen/logrus"

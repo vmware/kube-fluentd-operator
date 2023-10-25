@@ -52,6 +52,8 @@ type Config struct {
 	MetricsPort            int
 	AllowTagExpansion      bool
 	AdminNamespace         string
+	AllowLabel             string
+	AllowLabelAnnotation   string
 	// parsed or processed/cached fields
 	level               logrus.Level
 	ParsedMetaValues    map[string]string
@@ -232,6 +234,9 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("annotation", "Which annotation on the namespace stores the configmap name?").Default(defaultConfig.AnnotConfigmapName).StringVar(&cfg.AnnotConfigmapName)
 	app.Flag("default-configmap", "Read the configmap by this name if namespace is not annotated. Use empty string to suppress the default.").Default(defaultConfig.DefaultConfigmapName).StringVar(&cfg.DefaultConfigmapName)
 	app.Flag("status-annotation", "Store configuration errors in this annotation, leave empty to turn off").Default(defaultConfig.AnnotStatus).StringVar(&cfg.AnnotStatus)
+
+	app.Flag("allow-label", "When set only objects with this label can be fetched using go templating").Default(defaultConfig.AllowLabel).StringVar(&cfg.AllowLabel)
+	app.Flag("allow-label-annotation", "Which annotation on the namespace stores the allow label?").Default(defaultConfig.AllowLabelAnnotation).StringVar(&cfg.AllowLabelAnnotation)
 
 	app.Flag("prometheus-enabled", "Prometheus metrics enabled (default: false)").BoolVar(&cfg.PrometheusEnabled)
 	app.Flag("metrics-port", "Expose prometheus metrics on this port (also needs --prometheus-enabled)").Default(strconv.Itoa(defaultConfig.MetricsPort)).IntVar(&cfg.MetricsPort)
