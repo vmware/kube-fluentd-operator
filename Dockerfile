@@ -18,7 +18,7 @@ COPY Makefile .
 ARG VERSION
 RUN make build VERSION=$VERSION TARGETARCH=$TARGETARCH TARGETOS=$TARGETOS
 
-FROM --platform=${BUILDPLATFORM:-linux/amd64} photon:4.0
+FROM --platform=${TARGETPLATFORM:-linux/amd64} photon:4.0
 
 ARG RVM_PATH=/usr/local/rvm
 ARG RUBY_VERSION=ruby-3.1.4
