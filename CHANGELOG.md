@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [v1.18.1](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.18.1)
+## What's Changed
+* Add flag to process namespaces based on kubernetes labels by @vanabbott in https://github.com/vmware/kube-fluentd-operator/pull/414
+* chore(deps): bump golang.org/x/net from 0.10.0 to 0.17.0 in /config-reloader by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/424
+* chore(deps): bump golang.org/x/net from 0.7.0 to 0.17.0 in /image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/425
+* fix: arm64 image is actually x86 by @nhamlh in https://github.com/vmware/kube-fluentd-operator/pull/423
+* feat: support go templates in config sources by @luisdavim in https://github.com/vmware/kube-fluentd-operator/pull/426
+* chore(deps): bump google.golang.org/grpc from 1.47.0 to 1.56.3 in /image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/427
+* chore(deps): bump github.com/docker/docker from 24.0.2+incompatible to 24.0.7+incompatible in /image by @dependabot in https://github.com/vmware/kube-fluentd-operator/pull/428
+
+## New Contributors
+* @vanabbott made their first contribution in https://github.com/vmware/kube-fluentd-operator/pull/414
+* @nhamlh made their first contribution in https://github.com/vmware/kube-fluentd-operator/pull/423
+* @luisdavim made their first contribution in https://github.com/vmware/kube-fluentd-operator/pull/426
+
+**Full Changelog**: https://github.com/vmware/kube-fluentd-operator/compare/v1.18.0...v1.18.1
+
 ## [v1.18.0](https://github.com/vmware/kube-fluentd-operator/releases/tag/v1.18.0)
 ## What's Changed
 * feat: create new test for fluentd by @javiercri in https://github.com/vmware/kube-fluentd-operator/pull/410
