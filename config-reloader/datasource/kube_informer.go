@@ -173,9 +173,10 @@ func (d *kubeInformerConnection) GetNamespaces(ctx context.Context) ([]*Namespac
 		buf := new(strings.Builder)
 		if err := template.Render(buf, configdata, map[string]string{
 			"Namespace": ns,
-		}); err == nil {
-			configdata = buf.String()
+		}); err != nil {
+			logrus.Errorf("failed to render config in namespace: %v", ns)
 		}
+		configdata = buf.String()
 		if configdata == "" {
 			logrus.Infof("Skipping namespace: %v because is empty", ns)
 			continue
@@ -375,8 +376,9 @@ func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interf
 	if err := template.Render(buf, configdata, map[string]string{
 		"Namespace": mObj.GetNamespace(),
 	}); err == nil {
-		configdata = buf.String()
+		logrus.Errorf("failed to render config in namespace: %v", mObj.GetNamespace())
 	}
+	configdata = buf.String()
 	nsConfigStr := fmt.Sprintf("%#v", configdata)
 
 	if err == nil {

@@ -14,6 +14,11 @@ rbac:
 
 serviceAccountName: "default"
 
+extraRBAC: {}
+  # - apiGroups: [""]
+  #   resources: ["secrets"]
+  #   verbs: ["get", "list", "watch"]
+
 # Possible values: default|fake|fs|multimap|crd
 datasource: default
 

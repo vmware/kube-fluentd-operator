@@ -17,6 +17,9 @@ metadata:
     {{- end }}
   name: {{ template "fluentd-router.fullname" . }}
 rules:
+{{- with .Values.extraRBAC }}
+  {{- toYaml . | nindent 2 }}
+{{- end }}
   - apiGroups: [""]
     resources:
       - configmaps
