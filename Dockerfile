@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.19 as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.21 as builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -85,9 +85,9 @@ RUN tdnf install -y $BUILDDEPS \
   && rm -rf $RVM_PATH/src $RVM_PATH/examples $RVM_PATH/docs $RVM_PATH/archives \
     $RUBY_PATH/lib/ruby/gems/3.*/cache $RUBY_PATH/lib/ruby/gems/3.*/doc/ \
     /usr/share/doc /root/.bundle/cache \
-  && rvm cleanup all \  
+  && rvm cleanup all \
   && gem sources --clear-all \
-  && gem cleanup \ 
+  && gem cleanup \
   && tdnf remove -y $BUILDDEPS \
   && tdnf clean all
 
