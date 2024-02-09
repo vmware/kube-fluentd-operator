@@ -1,6 +1,6 @@
 module github.com/vmware/kube-fluentd-operator/config-reloader
 
-go 1.19
+go 1.21
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3

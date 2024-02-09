@@ -12,6 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type RPCMethod string
+
+const (
+	gracefulReloadConf RPCMethod = "config.gracefulReload"
+	reloadConf         RPCMethod = "config.reload"
+)
+
 // Reloader sends a reload signal to fluentd
 type Reloader struct {
 	port int
@@ -31,14 +38,29 @@ func (r *Reloader) ReloadConfiguration() {
 		return
 	}
 
-	logrus.Infof("Reloading fluentd configuration gracefully via POST to /api/config.gracefulReload")
-
-	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/api/config.gracefulReload", r.port))
-	if err != nil {
-		logrus.Errorf("fluentd config.gracefulReload request failed: %+v", err)
-	} else if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, _ := io.ReadAll(resp.Body)
-		logrus.Errorf("fluentd config.gracefulReload endpoint returned statuscode %v; response: %v", resp.StatusCode, string(body))
+	logrus.Infof("Reloading fluentd configuration via /api/%s", gracefulReloadConf)
+	if err := r.rpc(gracefulReloadConf); err != nil {
+		logrus.Warnf("graceful reload failed: %+v", err)
+		logrus.Infof("Reloading fluentd configuration via /api/%s", reloadConf)
+		if err := r.rpc(reloadConf); err != nil {
+			logrus.Error(err.Error())
+		}
 	}
+}
+
+// rpc calls the given fluentd HTTP RPC endpoint
+// for more details see: https://docs.fluentd.org/deployment/rpc
+func (r *Reloader) rpc(method RPCMethod) error {
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/api/%s", r.port, method))
+	if err != nil {
+		return fmt.Errorf("fluentd %s request failed: %w", method, err)
+	}
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		return fmt.Errorf("fluentd %s endpoint returned statuscode %v; response: %v", method, resp.StatusCode, string(body))
+	}
+
+	return nil
 }
