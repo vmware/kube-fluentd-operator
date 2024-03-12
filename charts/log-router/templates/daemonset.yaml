@@ -22,6 +22,9 @@ spec:
       labels:
         app: {{ template "fluentd-router.name" . }}
         release: {{ .Release.Name }}
+        {{- if .Values.podLabels}}
+        {{- toYaml .Values.podLabels | nindent 8}}
+        {{- end}}
       annotations:
         checksum/fluentd-extraenv: {{ toYaml .Values.fluentd.extraEnv | sha256sum }}
         checksum/reloader-extraenv: {{ toYaml .Values.reloader.extraEnv | sha256sum }}
@@ -56,6 +59,9 @@ spec:
                 name: {{ template "fluentd-router.fullname" $root }}
                 key: fluentd.{{ $key }}
         {{- end }}
+        {{- if .Values.fluentd.extraEnv}}
+        {{- toYaml .Values.fluentd.extraEnv| nindent 10}}
+        {{- end}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.prometheusEnabled }}
           ports:

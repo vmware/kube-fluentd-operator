@@ -5,6 +5,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+podLabels: []
+
 rbac:
   # rbac.create -- If `true`, create and use RBAC resources.
   create: false
