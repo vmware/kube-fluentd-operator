@@ -143,6 +143,9 @@ spec:
           {{- if .Values.adminNamespace }}
           - --admin-namespace={{ .Values.adminNamespace }}
           {{- end }}
+          {{- if eq .Values.datasource "fs" }}
+          - --fs-dir={{ required "fsDatasourceDir is required for fs datasource" .Values.fsDatasourceDir }}
+          {{- end }}
           volumeMounts:
           - name: fluentconf
             mountPath: /fluentd/etc
