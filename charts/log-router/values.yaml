@@ -28,6 +28,9 @@ crdMigrationMode: false
 
 defaultConfigmap: "fluentd-config"
 
+# Use with datasource: fs, the fsDataSourceDir will be used for finding config files
+fsDatasourceDir: ""
+
 image:
   repository: vmware/kube-fluentd-operator
   pullPolicy: IfNotPresent
