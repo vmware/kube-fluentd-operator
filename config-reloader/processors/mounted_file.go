@@ -18,10 +18,11 @@ const mountedFileSourceType = "mounted-file"
 
 // ContainerFile stores parsed info from a <source> @type mounted-file...
 type ContainerFile struct {
-	Labels      map[string]string
-	AddedLabels map[string]string
-	Path        string
-	Parse       *fluentd.Directive
+	Labels       map[string]string
+	AddedLabels  map[string]string
+	Path         string
+	Parse        *fluentd.Directive
+	BypassParams map[string]string
 }
 
 type mountedFileState struct {
@@ -69,6 +70,13 @@ func (state *mountedFileState) Prepare(input fluentd.Fragment) (fluentd.Fragment
 			}
 			cf.Path = paramPath
 
+			cf.BypassParams = map[string]string{}
+			for k, el := range frag.Params {
+				if !contains([]string{"labels", "add_labels", "path"}, k) {
+					cf.BypassParams[el.Name] = el.Value
+				}
+			}
+
 			if len(frag.Nested) == 1 {
 				cf.Parse = frag.Nested[0]
 			} else if len(frag.Nested) >= 2 {
@@ -104,6 +112,10 @@ func (state *mountedFileState) convertToFragement(cf *ContainerFile) fluentd.Fra
 					continue
 				}
 				dir.SetParam("@type", "tail")
+
+				for k, el := range cf.BypassParams {
+					dir.SetParam(k, el)
+				}
 
 				hostPath := state.makeHostPath(cf, hm, mc)
 				pos := util.Hash(state.Context.DeploymentID, fmt.Sprintf("%s-%s-%s", mc.PodID, mc.Name, hostPath))
