@@ -26,6 +26,9 @@ datasource: default
 # together with the specified legacy datasource to facilitate the migration process to CRDs.
 crdMigrationMode: false
 
+# default to installing the CRD along with the helm chart
+installCrd: true
+
 defaultConfigmap: "fluentd-config"
 
 # Use with datasource: fs, the fsDataSourceDir will be used for finding config files
