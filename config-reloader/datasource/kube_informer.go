@@ -375,7 +375,7 @@ func (d *kubeInformerConnection) handlePodChange(ctx context.Context, obj interf
 	buf := new(strings.Builder)
 	if err := template.Render(buf, configdata, map[string]string{
 		"Namespace": mObj.GetNamespace(),
-	}); err == nil {
+	}); err != nil {
 		logrus.Errorf("failed to render config in namespace: %v", mObj.GetNamespace())
 	}
 	configdata = buf.String()
