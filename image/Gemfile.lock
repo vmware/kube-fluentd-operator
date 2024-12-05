@@ -384,7 +384,7 @@ GEM
       faraday-follow_redirects
     webhdfs (0.10.2)
       addressable
-    webrick (1.8.1)
+    webrick (1.8.2)
     yajl-ruby (1.4.3)
 
 PLATFORMS
