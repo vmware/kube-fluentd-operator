@@ -36,13 +36,13 @@ func TestRunOnceController(t *testing.T) {
 	// 1. Create new controller
 	ctrl, err := New(ctx, &config, ds, up)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		logrus.Fatalf("Unable to create new controller: %+v", err.Error())
 	}
 
 	// 2. RunOnce controller
 	err = ctrl.RunOnce(ctx)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		logrus.Fatalf("Unable to trigger RunOnce: %+v",err.Error())
 	}
 	assert.Equal(expectedResult, ctrl.GetTotalConfigNS())
 
@@ -52,13 +52,13 @@ func TestRunOnceController(t *testing.T) {
 	defer os.Remove(newNamespaceFile)
 	err = os.WriteFile(newNamespaceFile, configData, 0644)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		logrus.Fatalf("Unable to create new Namespace: %+v", err.Error())
 	}
 
 	// 4. RunOnce controller
 	err = ctrl.RunOnce(ctx)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		logrus.Fatalf("Unable to trigger runOnce: %+v",err.Error())
 	}
 	assert.Equal(expectedResult+1, ctrl.GetTotalConfigNS())
 }

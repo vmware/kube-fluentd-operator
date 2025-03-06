@@ -3,7 +3,7 @@
 # Similar to https://github.com/drecom/docker-centos-ruby/blob/2.6.5-slim/Dockerfile
 
 
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.21 as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.24 AS builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -29,8 +29,8 @@ ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 
-ENV PATH $RUBY_PATH/bin:$PATH
-ENV FLUENTD_DISABLE_BUNDLER_INJECTION 1
+ENV PATH=$RUBY_PATH/bin:$PATH
+ENV FLUENTD_DISABLE_BUNDLER_INJECTION=1
 ENV BUILDDEPS="\
       gmp-devel \
       libffi-devel \
