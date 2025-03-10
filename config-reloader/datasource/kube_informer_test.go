@@ -172,7 +172,7 @@ func TestGetNamespaces(t *testing.T) {
 		namespaces, err := ds.GetNamespaces(ctx)
 		// Check Test Result
 		if err != nil {
-			logrus.Fatalf(err.Error())
+			logrus.Fatalf("Unable to get Namespace: %+v", err.Error())
 		}
 		assert.Equal(config.expectedResult, len(namespaces))
 		for index, ns := range namespaces {
@@ -310,7 +310,7 @@ func TestDiscoverNamespaces(t *testing.T) {
 		namespaces, err := ds.discoverNamespaces(ctx)
 		// Check Test Result
 		if err != nil {
-			logrus.Fatalf(err.Error())
+			logrus.Fatalf("Unable to discover Namespace: %+v", err.Error())
 		}
 		assert.Equal(config.expectedResult, len(namespaces))
 	}

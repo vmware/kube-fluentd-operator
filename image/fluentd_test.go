@@ -22,6 +22,18 @@ var mu = sync.Mutex{}
 var counterOutput int
 var counterTotal = 5
 
+type FileMountSource struct {
+	FilePath string
+}
+
+func (f *FileMountSource) Source() string {
+	return f.FilePath
+}
+
+func (f *FileMountSource) Type() testcontainers.MountType {
+	return testcontainers.MountTypeBind
+}
+
 func TestFluentd(t *testing.T) {
 	assert := assert.New(t)
 	path, err := os.Getwd()
@@ -48,27 +60,19 @@ func TestFluentd(t *testing.T) {
 		SkipReaper: true,
 		Mounts: testcontainers.ContainerMounts{
 			testcontainers.ContainerMount{
-				Source: testcontainers.GenericBindMountSource{
-					HostPath: fmt.Sprintf("%s/test", path),
-				},
+				Source: &FileMountSource{FilePath: fmt.Sprintf("%s/test", path)},
 				Target: "/workspace/test",
 			},
 			testcontainers.ContainerMount{
-				Source: testcontainers.GenericBindMountSource{
-					HostPath: fmt.Sprintf("%s/test", path),
-				},
+				Source: &FileMountSource{FilePath: fmt.Sprintf("%s/test", path)},
 				Target: "/var/log",
 			},
 			testcontainers.ContainerMount{
-				Source: testcontainers.GenericBindMountSource{
-					HostPath: fmt.Sprintf("%s/test/ci.conf", path),
-				},
+				Source: &FileMountSource{FilePath: fmt.Sprintf("%s/test/ci.conf", path)},
 				Target: "/fluentd/etc/fluent.conf",
 			},
 			testcontainers.ContainerMount{
-				Source: testcontainers.GenericBindMountSource{
-					HostPath: fmt.Sprintf("%s/test/input.conf", path),
-				},
+				Source: &FileMountSource{FilePath: fmt.Sprintf("%s/test/input.conf", path)},
 				Target: "/fluentd/etc/input.conf",
 			},
 		},
